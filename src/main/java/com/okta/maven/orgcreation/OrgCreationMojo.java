@@ -1,11 +1,24 @@
+/*
+ * Copyright 2018-Present Okta, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.okta.maven.orgcreation;
 
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.okta.commons.lang.Strings;
-import com.okta.maven.orgcreation.models.Organization;
+import com.okta.maven.orgcreation.models.OrganizationResponse;
 import com.okta.maven.orgcreation.models.OrganizationRequest;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
@@ -13,10 +26,7 @@ import com.okta.sdk.impl.client.DefaultClientBuilder;
 import com.okta.sdk.impl.config.ClientConfiguration;
 import com.okta.sdk.resource.ExtensibleResource;
 import com.okta.sdk.resource.application.Application;
-import com.okta.sdk.resource.application.ApplicationCredentialsOAuthClient;
 import com.okta.sdk.resource.application.ApplicationGroupAssignment;
-import com.okta.sdk.resource.application.OAuthApplicationCredentials;
-import com.okta.sdk.resource.application.OAuthEndpointAuthenticationMethod;
 import com.okta.sdk.resource.application.OAuthGrantType;
 import com.okta.sdk.resource.application.OAuthResponseType;
 import com.okta.sdk.resource.application.OpenIdConnectApplication;
@@ -25,19 +35,20 @@ import com.okta.sdk.resource.application.OpenIdConnectApplicationSettingsClient;
 import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.settings.Settings;
+import org.codehaus.plexus.components.interactivity.Prompter;
+import org.codehaus.plexus.components.interactivity.PrompterException;
 import org.codehaus.plexus.util.StringUtils;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -46,34 +57,43 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.lang.reflect.Field;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Mojo(name = "createOrg", defaultPhase = LifecyclePhase.NONE, threadSafe = false, aggregator = true, requiresProject=false)
+@Mojo(name = "init", defaultPhase = LifecyclePhase.NONE, threadSafe = false, aggregator = true, requiresProject=false)
 public class OrgCreationMojo extends AbstractMojo {
 
-    @Parameter(property = "email", required = true)
+    @Parameter(property = "email")
     private String email;
 
-    @Parameter(property = "firstName", required = true)
+    @Parameter(property = "firstName")
     private String firstName;
 
-    @Parameter(property = "lastName", required = true)
+    @Parameter(property = "lastName")
     private String lastName;
+
+    @Parameter(property = "company")
+    private String company;
 
     @Parameter(property = "applicationYaml", defaultValue = "${project.basedir}/src/main/resources/application.yml")
     private File applicationYaml;
+
+    @Parameter(property = "apiUrl", defaultValue = "https://obscure-atoll-66316.herokuapp.com")
+    private String apiBaseUrl;
+
+    @Parameter(defaultValue = "${settings}", readonly = true)
+    protected Settings settings;
+
+    @Component
+    private Prompter prompter;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -83,7 +103,11 @@ public class OrgCreationMojo extends AbstractMojo {
 
         try {
             Field field = DefaultClientBuilder.class.getDeclaredField("clientConfig");
-            field.setAccessible(true);
+
+            AccessController.doPrivileged((PrivilegedAction) () -> {
+                field.setAccessible(true);
+                return null;
+            });
             clientConfiguration = (ClientConfiguration) field.get(new DefaultClientBuilder());
 
             String orgUrl;
@@ -91,13 +115,13 @@ public class OrgCreationMojo extends AbstractMojo {
             if (StringUtils.isEmpty(clientConfiguration.getBaseUrl())) {
                 getLog().info("Current OrgUrl is empty, creating new org...");
 
-                Organization newOrg = createNewOrg();
-
-                orgUrl = "https://" + newOrg.getSubdomain() + ".oktapreview.com";
+                OrganizationResponse newOrg = createNewOrg();
+                orgUrl = newOrg.getOrgUrl();
 
                 getLog().info("OrgUrl: "+ orgUrl);
-                getLog().info("Token: " + newOrg.getApiToken());
+                getLog().info("Check your email address to verify your account.\n");
 
+                getLog().info("Writing Okta config to ~/.okta/okta.yaml");
                 // write ~/.okta/okta.yaml
                 writeOktaYaml(newOrg, orgUrl);
 
@@ -106,14 +130,10 @@ public class OrgCreationMojo extends AbstractMojo {
                 getLog().info("Current OrgUrl: " + clientConfiguration.getBaseUrl());
             }
 
-
-
-
-
             Map<String, Object> springProps = new LinkedHashMap<>();
             Yaml springAppYaml = new Yaml(yamlOptions());
             if (applicationYaml.exists()) {
-                springProps = (Map<String, Object>) springAppYaml.loadAs(new FileReader(applicationYaml), Map.class);
+                springProps = (Map<String, Object>) springAppYaml.loadAs(new FileReader(applicationYaml, StandardCharsets.UTF_8), Map.class);
             }
 
             Map<String, Object> oktaProps = (Map<String, Object>) springProps.getOrDefault("okta", new HashMap<>());
@@ -148,10 +168,8 @@ public class OrgCreationMojo extends AbstractMojo {
                 oauth2Props.put("client-id", clientCredsResponse.getString("client_id"));
                 oauth2Props.put("client-secret", clientCredsResponse.getString("client_secret"));
 
-
-                springAppYaml.dump(springProps, new FileWriter(applicationYaml));
+                springAppYaml.dump(springProps, new FileWriter(applicationYaml, StandardCharsets.UTF_8));
                 getLog().info("Created OIDC application, client-id: " + clientCredsResponse.getString("client_id"));
-
 
                 // assign Everyone group to new app
                 // look up 'everyone' group id
@@ -159,13 +177,11 @@ public class OrgCreationMojo extends AbstractMojo {
 
                 ApplicationGroupAssignment aga = client.instantiate(ApplicationGroupAssignment.class).setPriority(2);
                 app.createApplicationGroupAssignment(everyoneGroupId, aga);
-
             }
 
         } catch (NoSuchFieldException | IllegalAccessException | IOException e) {
             throw new MojoExecutionException("hack hack hack: " + e.getMessage(), e);
         }
-
     }
 
     private DumperOptions yamlOptions() {
@@ -175,48 +191,46 @@ public class OrgCreationMojo extends AbstractMojo {
         return options;
     }
 
-    private Organization createNewOrg() throws IOException {
-        // create org
-        String createOrgUrl = "https://oktane19-devrel-booth.herokuapp.com/api/org";
-        String createOrgAdminUrl = "https://oktane19-devrel-booth.herokuapp.com/api/passwd";
-
+    private OrganizationResponse createNewOrg() throws IOException, MojoExecutionException {
 
         HttpClient httpClient = HttpClients.createDefault();
-        HttpPost post = new HttpPost(createOrgUrl);
+        HttpPost post = new HttpPost(apiBaseUrl + "/org/create");
 
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String postBody = objectMapper.writeValueAsString(new OrganizationRequest(email, firstName, lastName));
+        String postBody = objectMapper.writeValueAsString(new OrganizationRequest()
+            .setFirstName(promptIfNull(firstName, "firstName", "First name"))
+            .setLastName(promptIfNull(lastName, "lastName", "Last name"))
+            .setEmail(promptIfNull(email, "email", "Email Address"))
+            .setOrganization(promptIfNull(company, "company", "Company")));
         post.setEntity(new StringEntity(postBody, StandardCharsets.UTF_8));
         post.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
 
         HttpResponse response = httpClient.execute(post);
-
-
-        Organization newOrg = objectMapper.reader().readValue(new JsonFactory().createParser(response.getEntity().getContent()), Organization.class);
-
-
-        // create an admin user
-
-        String password = "123456aA$";
-        newOrg.setAdminEmail(email);
-        newOrg.setAdminPassword(password);
-
-        HttpPost postForAdmin = new HttpPost(createOrgAdminUrl);
-        String postBodyForAdmin = objectMapper.writeValueAsString(newOrg);
-        postForAdmin.setEntity(new StringEntity(postBodyForAdmin, StandardCharsets.UTF_8));
-        postForAdmin.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-        HttpResponse responseForAdmin = httpClient.execute(postForAdmin);
-
-        Organization updatedOrg = objectMapper.reader().readValue(new JsonFactory().createParser(responseForAdmin.getEntity().getContent()), Organization.class);
-
-        getLog().info("Created admin user: "+ updatedOrg.getAdminEmail() + " with password: "+ updatedOrg.getAdminPassword());
-
-
-        return updatedOrg;
+        return objectMapper.reader().readValue(new JsonFactory().createParser(response.getEntity().getContent()), OrganizationResponse.class);
     }
 
-    private void writeOktaYaml(Organization organization, String orgUrl) throws IOException {
+    private String promptIfNull(String currentValue, String keyName, String promptText) throws MojoExecutionException {
+
+        String value = currentValue;
+
+        if (StringUtils.isEmpty(value)) {
+            if (settings.isInteractiveMode()) {
+                try {
+                    value = prompter.prompt(promptText);
+                }
+                catch (PrompterException e) {
+                    throw new MojoExecutionException( e.getMessage(), e );
+                }
+            } else {
+                throw new MojoExecutionException( "You must specify the '" + keyName + "' property either on the command line " +
+                        "-D" + keyName + "=... or run in interactive mode" );
+            }
+        }
+        return value;
+    }
+
+    private void writeOktaYaml(OrganizationResponse organizationResponse, String orgUrl) throws IOException {
         Map<String, Object> rootProps = new HashMap<>();
         Map<String, Object> rootOktaProps = new HashMap<>();
         Map<String, Object> clientOktaProps = new HashMap<>();
@@ -224,12 +238,19 @@ public class OrgCreationMojo extends AbstractMojo {
         rootProps.put("okta", rootOktaProps);
         rootOktaProps.put("client", clientOktaProps);
         clientOktaProps.put("orgUrl", orgUrl);
-        clientOktaProps.put("token", organization.getApiToken());
+        clientOktaProps.put("token", organizationResponse.getApiToken());
 
         File oktaPropsFile = new File(System.getProperty("user.home"), ".okta/okta.yaml");
-        oktaPropsFile.getParentFile().mkdirs();
+        File parentDir = oktaPropsFile.getParentFile();
+
+        // create parent dir
+        if (!(parentDir.exists() || parentDir.mkdirs())) {
+            throw new IOException("Unable to create directory: "+ parentDir.getAbsolutePath());
+        }
 
         Yaml yaml = new Yaml();
-        yaml.dump(rootProps, new FileWriter(oktaPropsFile));
+        try (Writer writer = new FileWriter(oktaPropsFile, StandardCharsets.UTF_8)) {
+            yaml.dump(rootProps, writer);
+        }
     }
 }

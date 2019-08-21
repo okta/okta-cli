@@ -20,10 +20,9 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class OrganizationRequest {
+public class OrganizationResponse {
 
-    private String firstName;
-    private String lastName;
+    private String orgUrl;
     private String email;
-    private String organization;
+    private String apiToken;
 }
