@@ -54,9 +54,13 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
@@ -133,7 +137,7 @@ public class OrgCreationMojo extends AbstractMojo {
             Map<String, Object> springProps = new LinkedHashMap<>();
             Yaml springAppYaml = new Yaml(yamlOptions());
             if (applicationYaml.exists()) {
-                springProps = (Map<String, Object>) springAppYaml.loadAs(new FileReader(applicationYaml, StandardCharsets.UTF_8), Map.class);
+                springProps = (Map<String, Object>) springAppYaml.loadAs(fileReader(applicationYaml), Map.class);
             }
 
             Map<String, Object> oktaProps = (Map<String, Object>) springProps.getOrDefault("okta", new HashMap<>());
@@ -144,11 +148,12 @@ public class OrgCreationMojo extends AbstractMojo {
                 Client client = Clients.builder().build();
 
                 Application app = client.instantiate(OpenIdConnectApplication.class)
-                        .setLabel("app+" + UUID.randomUUID().toString())
+                        .setLabel("app+" + UUID.randomUUID().toString()) // TODO: set name to Maven Project name
                         .setSettings(client.instantiate(OpenIdConnectApplicationSettings.class)
                             .setOAuthClient(client.instantiate(OpenIdConnectApplicationSettingsClient.class)
         //                        .setClientUri("https://example.com/client")
-                                .setRedirectUris(Arrays.asList("http://localhost:8080/authorization-code/callback"))
+                                .setRedirectUris(Arrays.asList("http://localhost:8080/authorization-code/callback",
+                                                               "http://localhost:8080/login/oauth2/code/okta"))
                                 .setResponseTypes(Arrays.asList(OAuthResponseType.TOKEN,
                                                    OAuthResponseType.ID_TOKEN,
                                                    OAuthResponseType.CODE))
@@ -168,7 +173,7 @@ public class OrgCreationMojo extends AbstractMojo {
                 oauth2Props.put("client-id", clientCredsResponse.getString("client_id"));
                 oauth2Props.put("client-secret", clientCredsResponse.getString("client_secret"));
 
-                springAppYaml.dump(springProps, new FileWriter(applicationYaml, StandardCharsets.UTF_8));
+                springAppYaml.dump(springProps, fileWriter(applicationYaml));
                 getLog().info("Created OIDC application, client-id: " + clientCredsResponse.getString("client_id"));
 
                 // assign Everyone group to new app
@@ -249,8 +254,16 @@ public class OrgCreationMojo extends AbstractMojo {
         }
 
         Yaml yaml = new Yaml();
-        try (Writer writer = new FileWriter(oktaPropsFile, StandardCharsets.UTF_8)) {
+        try (Writer writer = fileWriter(oktaPropsFile)){
             yaml.dump(rootProps, writer);
         }
+    }
+
+    private Writer fileWriter(File file) throws FileNotFoundException {
+        return new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
+    }
+
+    private Reader fileReader(File file) throws FileNotFoundException {
+        return new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
     }
 }
