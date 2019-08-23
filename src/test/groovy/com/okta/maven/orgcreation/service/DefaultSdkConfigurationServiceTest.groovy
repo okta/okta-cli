@@ -16,7 +16,6 @@
 package com.okta.maven.orgcreation.service
 
 import com.okta.maven.orgcreation.TestUtil
-import com.okta.maven.orgcreation.model.OrganizationResponse
 import com.okta.sdk.impl.client.DefaultClientBuilder
 import com.okta.sdk.impl.config.ClientConfiguration
 import org.testng.annotations.Test
@@ -26,7 +25,6 @@ import static org.hamcrest.Matchers.is
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.io.FileMatchers.anExistingFile
 import static org.mockito.Mockito.mock
-
 
 class DefaultSdkConfigurationServiceTest {
 

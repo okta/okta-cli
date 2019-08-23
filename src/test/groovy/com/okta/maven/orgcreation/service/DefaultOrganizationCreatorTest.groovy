@@ -25,7 +25,6 @@ import org.testng.annotations.Test
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
-import static com.github.tomakehurst.wiremock.client.WireMock.verify
 import static org.hamcrest.Matchers.is
 import static org.hamcrest.MatcherAssert.assertThat
 
