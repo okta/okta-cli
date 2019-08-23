@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.maven.orgcreation.models;
+package com.okta.maven.orgcreation.model;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class OrganizationResponse {
+public class OrganizationRequest {
 
-    private String orgUrl;
+    private String firstName;
+    private String lastName;
     private String email;
-    private String apiToken;
+    private String organization;
 }

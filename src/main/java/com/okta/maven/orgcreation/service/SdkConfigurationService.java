@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.maven.orgcreation.models;
+package com.okta.maven.orgcreation.service;
 
-import lombok.Data;
-import lombok.experimental.Accessors;
+import com.okta.sdk.impl.config.ClientConfiguration;
+import org.apache.maven.plugin.MojoExecutionException;
 
-@Data
-@Accessors(chain = true)
-public class OrganizationRequest {
+import java.io.File;
+import java.io.IOException;
 
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String organization;
+public interface SdkConfigurationService {
+
+    ClientConfiguration loadUnvalidatedConfiguration() throws MojoExecutionException;
+
+    void writeOktaYaml(String orgUrl, String apiToken, File oktaPropsFile) throws IOException;
+
 }
