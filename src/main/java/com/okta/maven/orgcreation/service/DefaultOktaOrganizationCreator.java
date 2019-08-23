@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.okta.maven.orgcreation.model.OrganizationRequest;
 import com.okta.maven.orgcreation.model.OrganizationResponse;
+import com.okta.sdk.impl.http.support.UserAgent;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -36,8 +37,10 @@ import java.nio.charset.StandardCharsets;
 @Component(role = OktaOrganizationCreator.class)
 public class DefaultOktaOrganizationCreator implements OktaOrganizationCreator {
 
-    private final static String APPLICATION_JSON = "application/json";
+    private static final String APPLICATION_JSON = "application/json";
     private static final Logger LOG = LoggerFactory.getLogger(DefaultOktaOrganizationCreator.class);
+
+    private static final String USER_AGENT_STRING = UserAgent.getUserAgentString(); // TDOD: Replaced with ApplicationInfo in future versions of the Okta SDK
 
     @Override
     public OrganizationResponse createNewOrg(String apiBaseUrl, OrganizationRequest orgRequest) throws IOException {
@@ -50,6 +53,7 @@ public class DefaultOktaOrganizationCreator implements OktaOrganizationCreator {
             post.setEntity(new StringEntity(postBody, StandardCharsets.UTF_8));
             post.setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
             post.setHeader(HttpHeaders.ACCEPT, APPLICATION_JSON);
+            post.setHeader(HttpHeaders.USER_AGENT, USER_AGENT_STRING);
 
             HttpResponse response = httpClient.execute(post);
 

@@ -23,7 +23,9 @@ import com.okta.maven.orgcreation.model.OrganizationResponse
 import org.testng.annotations.Test
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse
-
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import static com.github.tomakehurst.wiremock.client.WireMock.verify
 import static org.hamcrest.Matchers.is
 import static org.hamcrest.MatcherAssert.assertThat
 
@@ -45,7 +47,7 @@ class DefaultOrganizationCreatorTest implements WireMockSupport {
                 .withHeader("Accept", WireMock.equalTo("application/json"))
                 .willReturn(aResponse()
                     .withHeader("Content-Type","application/json")
-                    .withBody(basicSuccess())),
+                    .withBody(basicSuccess()))
         ]
     }
 
@@ -63,10 +65,11 @@ class DefaultOrganizationCreatorTest implements WireMockSupport {
         assertThat response.apiToken, is("an-api-token-here")
         assertThat response.email, is("joe.coder@example.com")
 
-
+        // check that the User-Agent was set
+        getWireMockServer().verify(postRequestedFor(urlEqualTo("/org/create")).withHeader("User-Agent", WireMock.containing("okta-maven-plugin/")))
     }
 
-    String basicSuccess() {
+    private String basicSuccess() {
         return """
         {
             "email": "joe.coder@example.com",
