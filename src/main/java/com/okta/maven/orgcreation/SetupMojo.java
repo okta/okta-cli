@@ -43,8 +43,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@Mojo(name = "init", defaultPhase = LifecyclePhase.NONE, threadSafe = false, aggregator = true, requiresProject=false)
-public class OrgCreationMojo extends AbstractMojo {
+@Mojo(name = "setup", defaultPhase = LifecyclePhase.NONE, threadSafe = false, aggregator = true, requiresProject=false)
+public class SetupMojo extends AbstractMojo {
 
     @Parameter(property = "email")
     private String email;

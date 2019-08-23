@@ -40,7 +40,7 @@ import static org.mockito.Mockito.never
 import static org.mockito.Mockito.verify
 import static org.mockito.Mockito.when
 
-class OrgCreationMojoTest {
+class SetupMojoTest {
 
     @Test
     void noPriorConfigTest() {
@@ -50,7 +50,7 @@ class OrgCreationMojoTest {
 
         def clientConfig = mock(ClientConfiguration)
         def oidcCredentials = mock(ExtensibleResource)
-        OrgCreationMojo mojo = buildMojo("noPriorConfigTest", clientConfig, testDir, sdkConfigFile)
+        SetupMojo mojo = buildMojo("noPriorConfigTest", clientConfig, testDir, sdkConfigFile)
 
         def orgRequest = new OrganizationRequest()
             .setFirstName("Jill")
@@ -99,7 +99,7 @@ class OrgCreationMojoTest {
 
         def oidcCredentials = mock(ExtensibleResource)
         def clientConfig = mock(ClientConfiguration)
-        OrgCreationMojo mojo = buildMojo("sdkSetupButNoApp", clientConfig, testDir, sdkConfigFile)
+        SetupMojo mojo = buildMojo("sdkSetupButNoApp", clientConfig, testDir, sdkConfigFile)
 
         when(clientConfig.getBaseUrl()).thenReturn( "http://shinny-and-new.example.com")
         when(mojo.sdkConfigurationService.loadUnvalidatedConfiguration()).thenReturn(clientConfig)
@@ -143,7 +143,7 @@ class OrgCreationMojoTest {
                 ]]], springConfigFile)
 
         def clientConfig = mock(ClientConfiguration)
-        OrgCreationMojo mojo = buildMojo("sdkConfigAndSpringConfigExists", clientConfig, testDir, sdkConfigFile, springConfigFile)
+        SetupMojo mojo = buildMojo("sdkConfigAndSpringConfigExists", clientConfig, testDir, sdkConfigFile, springConfigFile)
 
         when(clientConfig.getBaseUrl()).thenReturn( "http://shinny-and-new.example.com")
 
@@ -154,11 +154,11 @@ class OrgCreationMojoTest {
 
     }
 
-    OrgCreationMojo buildMojo(String testName,
-                              ClientConfiguration clientConfig = mock(ClientConfiguration),
-                              File testDir = File.createTempDir(),
-                              File sdkConfigFile = null,
-                              File springConfigFile = null) {
+    SetupMojo buildMojo(String testName,
+                        ClientConfiguration clientConfig = mock(ClientConfiguration),
+                        File testDir = File.createTempDir(),
+                        File sdkConfigFile = null,
+                        File springConfigFile = null) {
 
         def settings = mock(Settings)
         def prompter = mock(Prompter)
@@ -166,7 +166,7 @@ class OrgCreationMojoTest {
         def oidcAppCreator = mock(OidcAppCreator)
         def sdkConfigurationService = mock(SdkConfigurationService)
 
-        OrgCreationMojo mojo = new OrgCreationMojo()
+        SetupMojo mojo = new SetupMojo()
         mojo.email = "jill.coder@example.com"
         mojo.firstName = "Jill"
         mojo.lastName = "Coder"
@@ -194,7 +194,7 @@ class OrgCreationMojoTest {
         File sdkConfigFile = new File(testDir, "home-okta.yaml")
 
         def clientConfig = mock(ClientConfiguration)
-        OrgCreationMojo mojo = buildMojo("batchModeMissingProperty", clientConfig, testDir, sdkConfigFile)
+        SetupMojo mojo = buildMojo("batchModeMissingProperty", clientConfig, testDir, sdkConfigFile)
         mojo.firstName = null // this will trigger a failure because we cannot prompt the user in batch mode
 
         when(mojo.settings.isInteractiveMode()).thenReturn(false)
