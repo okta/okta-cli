@@ -17,6 +17,7 @@ package com.okta.maven.orgcreation;
 
 import com.okta.maven.orgcreation.model.OrganizationResponse;
 import com.okta.maven.orgcreation.model.OrganizationRequest;
+import com.okta.maven.orgcreation.progressbar.ProgressBar;
 import com.okta.maven.orgcreation.service.ConfigFileUtil;
 import com.okta.maven.orgcreation.service.OidcAppCreator;
 import com.okta.maven.orgcreation.service.OktaOrganizationCreator;
@@ -98,22 +99,28 @@ public class SetupMojo extends AbstractMojo {
 
             String orgUrl;
 
-            if (StringUtils.isEmpty(clientConfiguration.getBaseUrl())) {
-                getLog().info("Current OrgUrl is empty, creating new org...");
+            // prompt for info before progress bar
+            OrganizationRequest request = organizationRequest();
 
-                OrganizationResponse newOrg = organizationCreator.createNewOrg(apiBaseUrl, organizationRequest());
-                orgUrl = newOrg.getOrgUrl();
+            try (ProgressBar progressBar = ProgressBar.create(settings.isInteractiveMode())) {
+                if (StringUtils.isEmpty(clientConfiguration.getBaseUrl())) {
 
-                getLog().info("OrgUrl: "+ orgUrl);
-                getLog().info("Check your email address to verify your account.\n");
+                    progressBar.start("Creating new Okta Organization, this may take a minute:");
 
-                getLog().info("Writing Okta SDK config to: "+ oktaPropsFile.getAbsolutePath());
-                // write ~/.okta/okta.yaml
-                sdkConfigurationService.writeOktaYaml(orgUrl, newOrg.getApiToken(), oktaPropsFile);
+                    OrganizationResponse newOrg = organizationCreator.createNewOrg(apiBaseUrl, request);
+                    orgUrl = newOrg.getOrgUrl();
 
-            } else {
-                orgUrl = clientConfiguration.getBaseUrl();
-                getLog().info("Current OrgUrl: " + clientConfiguration.getBaseUrl());
+                    progressBar.info("OrgUrl: " + orgUrl);
+                    progressBar.info("Check your email address to verify your account.\n");
+
+                    progressBar.info("Writing Okta SDK config to: " + oktaPropsFile.getAbsolutePath());
+                    // write ~/.okta/okta.yaml
+                    sdkConfigurationService.writeOktaYaml(orgUrl, newOrg.getApiToken(), oktaPropsFile);
+
+                } else {
+                    orgUrl = clientConfiguration.getBaseUrl();
+                    progressBar.info("Current OrgUrl: " + clientConfiguration.getBaseUrl());
+                }
             }
 
             // Create new Application
@@ -122,23 +129,27 @@ public class SetupMojo extends AbstractMojo {
 
             String clientId = propertySource.getProperty("okta.oauth2.client-id");
 
-            if (StringUtils.isEmpty(clientId)) {
+            try (ProgressBar progressBar = ProgressBar.create(settings.isInteractiveMode())) {
+                if (StringUtils.isEmpty(clientId)) {
 
-                // create ODIC application
-                Client client = Clients.builder().build();
+                     progressBar.start("Configuring a new OIDC, almost done:");
 
-                ExtensibleResource clientCredsResponse = oidcAppCreator.createOidcApp(client, oidcAppName);
+                     // create ODIC application
+                     Client client = Clients.builder().build();
 
-                Map<String, String> newProps = new HashMap<>();
-                newProps.put("okta.oauth2.issuer", orgUrl + "/oauth2/default");
-                newProps.put("okta.oauth2.client-id", clientCredsResponse.getString("client_id"));
-                newProps.put("okta.oauth2.client-secret", clientCredsResponse.getString("client_secret"));
+                     ExtensibleResource clientCredsResponse = oidcAppCreator.createOidcApp(client, oidcAppName);
 
-                propertySource.addProperties(newProps);
+                     Map<String, String> newProps = new HashMap<>();
+                     newProps.put("okta.oauth2.issuer", orgUrl + "/oauth2/default");
+                     newProps.put("okta.oauth2.client-id", clientCredsResponse.getString("client_id"));
+                     newProps.put("okta.oauth2.client-secret", clientCredsResponse.getString("client_secret"));
 
-                getLog().info("Created OIDC application, client-id: " + clientCredsResponse.getString("client_id"));
-            } else {
-                getLog().info("Existing OIDC application detected for clientId: "+ clientId + ", skipping new application creation");
+                     propertySource.addProperties(newProps);
+
+                    progressBar.info("Created OIDC application, client-id: " + clientCredsResponse.getString("client_id"));
+                } else {
+                    progressBar.info("Existing OIDC application detected for clientId: "+ clientId + ", skipping new application creation\n");
+                }
             }
 
         } catch (IOException e) {
