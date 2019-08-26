@@ -173,6 +173,7 @@ public class SetupMojo extends AbstractMojo {
             if (settings.isInteractiveMode()) {
                 try {
                     value = prompter.prompt(promptText);
+                    value = promptIfNull(value, keyName, promptText);
                 }
                 catch (PrompterException e) {
                     throw new MojoExecutionException( e.getMessage(), e );
