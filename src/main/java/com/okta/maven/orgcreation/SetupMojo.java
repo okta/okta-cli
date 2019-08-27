@@ -44,27 +44,67 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Creates a free Okta Developer account and registers / configures a new OIDC application. To signup for an account
+ * without using this plugin visit  <a href="https://developer.okta.com/signup">developer.okta.com</a>.
+ * <p>
+ * If you have an existing Okta account, you can configure this plugin to use it by configuring a
+ * {@code ~/.okta/okta.yaml} configuration (or equivalent, see the <a href="https://github.com/okta/okta-sdk-java#configuration-reference">Okta SDK configuration reference</a> for more info).
+ * <p>
+ * TL;DR: If you have an exiting account create a <code>~/.okta/okta.yaml</code> with your URL and API token:
+ * <pre><code>
+ * okta:
+ *   client:
+ *     orgUrl: https://{yourOktaDomain}
+ *     token: {yourApiToken}
+ * </code></pre>
+ *
+ */
 @Mojo(name = "setup", defaultPhase = LifecyclePhase.NONE, threadSafe = false, aggregator = true, requiresProject=false)
 public class SetupMojo extends AbstractMojo {
 
+    /**
+     * Email used when registering a new Okta account.
+     */
     @Parameter(property = "email")
     private String email;
 
+    /**
+     * First name used when registering a new Okta account.
+     */
     @Parameter(property = "firstName")
     private String firstName;
 
+    /**
+     * Last name used when registering a new Okta account.
+     */
     @Parameter(property = "lastName")
     private String lastName;
 
+    /**
+     * Company / organization used when registering a new Okta account.
+     */
     @Parameter(property = "company")
     private String company;
 
+    /**
+     * Spring configuration file, an empty value (default) will instruct the plugin to look for both
+     * {@code src/main/resources/application.yml} and {@code src/main/resources/application.properties} files.  If
+     * neither is found {@code src/main/resources/application.yml} is used.
+     */
     @Parameter(property = "applicationConfigFile")
     private File applicationConfigFile;
 
-    @Parameter(property = "apiUrl", defaultValue = "https://obscure-atoll-66316.herokuapp.com")
-    private String apiBaseUrl;
+    /**
+     * The base URL of the service used to create a new Okta account.
+     * This value is NOT exposed as a plugin parameter, but CAN be set using the system property {@code okta.maven.apiBaseUrl}.
+     */
+    private String apiBaseUrl = "https://obscure-atoll-66316.herokuapp.com";
 
+    /**
+     * The Name / Label of the new OIDC application that will be created.  If an application with the same name already
+     * exists, that application will be used.
+     */
     @Parameter(property = "oidcAppName", defaultValue = "${project.name}")
     private String oidcAppName;
 
@@ -107,7 +147,7 @@ public class SetupMojo extends AbstractMojo {
 
                     progressBar.start("Creating new Okta Organization, this may take a minute:");
 
-                    OrganizationResponse newOrg = organizationCreator.createNewOrg(apiBaseUrl, request);
+                    OrganizationResponse newOrg = organizationCreator.createNewOrg(getApiBaseUrl(), request);
                     orgUrl = newOrg.getOrgUrl();
 
                     progressBar.info("OrgUrl: " + orgUrl);
@@ -161,7 +201,7 @@ public class SetupMojo extends AbstractMojo {
         return new OrganizationRequest()
             .setFirstName(promptIfNull(firstName, "firstName", "First name"))
             .setLastName(promptIfNull(lastName, "lastName", "Last name"))
-            .setEmail(promptIfNull(email, "email", "Email Address"))
+            .setEmail(promptIfNull(email, "email", "Email address"))
             .setOrganization(promptIfNull(company, "company", "Company"));
     }
 
@@ -184,5 +224,9 @@ public class SetupMojo extends AbstractMojo {
             }
         }
         return value;
+    }
+
+    private String getApiBaseUrl() {
+        return System.getProperty("okta.maven.apiBaseUrl", apiBaseUrl);
     }
 }

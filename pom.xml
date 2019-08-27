@@ -28,23 +28,23 @@
     <name>Okta Maven Plugin</name>
     <version>0.1.0-SNAPSHOT</version>
 
-    <description>Does cool Okta stuff</description>
+    <description>A Maven plugin that makes getting started with Okta even easier.</description>
     <packaging>maven-plugin</packaging>
+
+    <prerequisites>
+        <maven>3.5.0</maven>
+    </prerequisites>
+
+    <organization>
+        <name>Okta, Inc</name>
+        <url>https://developer.okta.com</url>
+    </organization>
+
+    <url>https://github.com/otkadeveloper/okta-maven-plugin</url>
 
     <properties>
         <doxia.version>1.8</doxia.version>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <!-- velocity depends on 3.2.1, dependency-check recommends 3.2.2-->
-            <dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
-                <version>3.2.2</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
 
@@ -149,6 +149,14 @@
                         <goalPrefix>otka</goalPrefix>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.8.2</version>
+                    <configuration>
+                        <outputDirectory>target/gh-pages</outputDirectory>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -179,4 +187,26 @@
             </plugin>
         </plugins>
     </build>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>
