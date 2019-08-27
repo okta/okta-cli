@@ -46,7 +46,7 @@ public class DefaultOktaOrganizationCreator implements OktaOrganizationCreator {
     public OrganizationResponse createNewOrg(String apiBaseUrl, OrganizationRequest orgRequest) throws IOException {
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpPost post = new HttpPost(apiBaseUrl + "/org/create");
+            HttpPost post = new HttpPost(apiBaseUrl + "/create");
 
             ObjectMapper objectMapper = new ObjectMapper();
             String postBody = objectMapper.writeValueAsString(orgRequest);

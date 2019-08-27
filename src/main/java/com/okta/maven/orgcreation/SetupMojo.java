@@ -99,7 +99,7 @@ public class SetupMojo extends AbstractMojo {
      * The base URL of the service used to create a new Okta account.
      * This value is NOT exposed as a plugin parameter, but CAN be set using the system property {@code okta.maven.apiBaseUrl}.
      */
-    private String apiBaseUrl = "https://obscure-atoll-66316.herokuapp.com";
+    private String apiBaseUrl = "https://okta-org-creation-service.herokuapp.com/";
 
     /**
      * The Name / Label of the new OIDC application that will be created.  If an application with the same name already

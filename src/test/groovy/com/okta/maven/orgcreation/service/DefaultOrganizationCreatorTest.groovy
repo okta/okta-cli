@@ -33,7 +33,7 @@ class DefaultOrganizationCreatorTest implements WireMockSupport {
     @Override
     Collection<StubMapping> wireMockStubMapping() {
         return [
-            WireMock.post("/org/create")
+            WireMock.post("/create")
                 .withRequestBody(WireMock.equalToJson("""
                     {
                       "firstName": "Joe",
@@ -65,7 +65,7 @@ class DefaultOrganizationCreatorTest implements WireMockSupport {
         assertThat response.email, is("joe.coder@example.com")
 
         // check that the User-Agent was set
-        getWireMockServer().verify(postRequestedFor(urlEqualTo("/org/create")).withHeader("User-Agent", WireMock.containing("okta-maven-plugin/")))
+        getWireMockServer().verify(postRequestedFor(urlEqualTo("/create")).withHeader("User-Agent", WireMock.containing("okta-maven-plugin/")))
     }
 
     private String basicSuccess() {
