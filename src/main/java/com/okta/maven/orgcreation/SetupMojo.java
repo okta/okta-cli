@@ -23,6 +23,7 @@ import com.okta.maven.orgcreation.service.OidcAppCreator;
 import com.okta.maven.orgcreation.service.OktaOrganizationCreator;
 import com.okta.maven.orgcreation.service.SdkConfigurationService;
 import com.okta.maven.orgcreation.spring.MutablePropertySource;
+import com.okta.maven.orgcreation.support.SuppressFBWarnings;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
 import com.okta.sdk.impl.config.ClientConfiguration;
@@ -130,6 +131,7 @@ public class SetupMojo extends AbstractMojo {
     private SdkConfigurationService sdkConfigurationService;
 
     @Override
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", justification = "false positive on Java 11")
     public void execute() throws MojoExecutionException, MojoFailureException {
 
         // check if okta client config exists?

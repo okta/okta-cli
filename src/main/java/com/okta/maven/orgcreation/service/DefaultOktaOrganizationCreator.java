@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.okta.maven.orgcreation.model.OrganizationRequest;
 import com.okta.maven.orgcreation.model.OrganizationResponse;
+import com.okta.maven.orgcreation.support.SuppressFBWarnings;
 import com.okta.sdk.impl.http.support.UserAgent;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
@@ -43,6 +44,7 @@ public class DefaultOktaOrganizationCreator implements OktaOrganizationCreator {
     private static final String USER_AGENT_STRING = UserAgent.getUserAgentString(); // TDOD: Replaced with ApplicationInfo in future versions of the Okta SDK
 
     @Override
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "false positive on Java 11")
     public OrganizationResponse createNewOrg(String apiBaseUrl, OrganizationRequest orgRequest) throws IOException {
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {

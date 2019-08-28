@@ -15,6 +15,7 @@
  */
 package com.okta.maven.orgcreation.service;
 
+import com.okta.maven.orgcreation.support.SuppressFBWarnings;
 import com.okta.sdk.impl.client.DefaultClientBuilder;
 import com.okta.sdk.impl.config.ClientConfiguration;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -35,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component(role = SdkConfigurationService.class)
+@SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", justification = "false positive on Java 11")
 public class DefaultSdkConfigurationService implements SdkConfigurationService {
 
     @Override

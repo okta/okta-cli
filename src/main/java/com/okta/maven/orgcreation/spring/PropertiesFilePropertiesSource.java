@@ -15,6 +15,7 @@
  */
 package com.okta.maven.orgcreation.spring;
 
+import com.okta.maven.orgcreation.support.SuppressFBWarnings;
 import com.okta.sdk.impl.config.ResourcePropertiesSource;
 import com.okta.sdk.impl.io.FileResource;
 
@@ -34,6 +35,7 @@ public class PropertiesFilePropertiesSource extends WrappedMutablePropertiesSour
     }
 
     @Override
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", justification = "false positive on Java 11")
     public void addProperties(Map<String, String> properties) throws IOException {
 
         Properties existingProps = new Properties();

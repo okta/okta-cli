@@ -15,6 +15,7 @@
  */
 package com.okta.maven.orgcreation.spring;
 
+import com.okta.maven.orgcreation.support.SuppressFBWarnings;
 import com.okta.sdk.impl.config.YAMLPropertiesSource;
 import com.okta.sdk.impl.io.FileResource;
 import org.yaml.snakeyaml.DumperOptions;
@@ -40,6 +41,7 @@ public class YamlPropertiesSource extends WrappedMutablePropertiesSource {
     }
 
     @Override
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", justification = "false positive on Java 11")
     public void addProperties(Map<String, String> properties) throws IOException {
 
         Yaml springAppYaml = new Yaml(yamlOptions());
