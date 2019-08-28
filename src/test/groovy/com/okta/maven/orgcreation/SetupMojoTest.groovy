@@ -20,12 +20,19 @@ import com.okta.maven.orgcreation.model.OrganizationResponse
 import com.okta.maven.orgcreation.service.OidcAppCreator
 import com.okta.maven.orgcreation.service.DefaultOktaOrganizationCreator
 import com.okta.maven.orgcreation.service.SdkConfigurationService
+import com.okta.maven.orgcreation.test.RestoreSystemProperties
+import com.okta.maven.orgcreation.test.TestUtil
 import com.okta.sdk.client.Client
 import com.okta.sdk.impl.config.ClientConfiguration
 import com.okta.sdk.resource.ExtensibleResource
 import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.settings.Settings
 import org.codehaus.plexus.components.interactivity.Prompter
+import org.hamcrest.MatcherAssert
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
+import org.testng.annotations.BeforeClass
+import org.testng.annotations.Listeners
 import org.testng.annotations.Test
 
 import static org.hamcrest.Matchers.allOf
@@ -40,7 +47,14 @@ import static org.mockito.Mockito.never
 import static org.mockito.Mockito.verify
 import static org.mockito.Mockito.when
 
+@Listeners([RestoreSystemProperties])
 class SetupMojoTest {
+
+    @BeforeClass
+    void clearOktaEnvAndSysProps() {
+        System.clearProperty("okta.client.token")
+        System.clearProperty("okta.client.orgUrl")
+    }
 
     @Test
     void noPriorConfigTest() {
@@ -61,10 +75,17 @@ class SetupMojoTest {
         def orgResponse = new OrganizationResponse()
             .setEmail("jill.coder@exaple.com")
             .setApiToken("an-api-token")
-            .setOrgUrl("http://shinny-and-new.example.com")
+            .setOrgUrl("https://shinny-and-new.example.com")
 
         when(mojo.sdkConfigurationService.loadUnvalidatedConfiguration()).thenReturn(clientConfig)
-        when(mojo.organizationCreator.createNewOrg("http://foo.example.com/api", orgRequest)).thenReturn(orgResponse)
+        when(mojo.organizationCreator.createNewOrg("http://foo.example.com/api", orgRequest)).then( new Answer<Object>() {
+            @Override
+            Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                System.setProperty("okta.client.token", "test-api-token")
+                System.setProperty("okta.client.orgUrl", "https://shinny-and-new.example.com")
+                return orgResponse
+            }
+        })
         when(mojo.oidcAppCreator.createOidcApp(any(Client), eq("noPriorConfigTest"))).thenReturn(oidcCredentials)
         when(oidcCredentials.getString("client_id")).thenReturn("noPriorConfigTest-client-id")
         when(oidcCredentials.getString("client_secret")).thenReturn("noPriorConfigTest-client-secret")
@@ -72,15 +93,15 @@ class SetupMojoTest {
         mojo.execute()
 
         verify(mojo.organizationCreator).createNewOrg("http://foo.example.com/api", orgRequest)
-        verify(mojo.sdkConfigurationService).writeOktaYaml("http://shinny-and-new.example.com", "an-api-token", sdkConfigFile)
+        verify(mojo.sdkConfigurationService).writeOktaYaml("https://shinny-and-new.example.com", "an-api-token", sdkConfigFile)
         verify(mojo.oidcAppCreator).createOidcApp(any(Client), eq("noPriorConfigTest"))
 
         File springConfig = new File(testDir, "src/main/resources/application.yml")
         assertThat springConfig, anExistingFile()
-        assertThat TestUtil.readYamlFromFile(springConfig), is([
+        MatcherAssert.assertThat TestUtil.readYamlFromFile(springConfig), is([
                 okta: [
                     oauth2: [
-                        issuer: "http://shinny-and-new.example.com/oauth2/default",
+                        issuer: "https://shinny-and-new.example.com/oauth2/default",
                         "client-id": "noPriorConfigTest-client-id",
                         "client-secret": "noPriorConfigTest-client-secret"]]])
     }
@@ -88,12 +109,15 @@ class SetupMojoTest {
     @Test
     void sdkSetupButNoApp() {
 
+        System.setProperty("okta.client.token", "test-api-token")
+        System.setProperty("okta.client.orgUrl", "https://shinny-and-new.example.com")
+
         File testDir = File.createTempDir()
         File sdkConfigFile = new File(testDir, "home-okta.yaml")
         TestUtil.writeYamlToTempFile([
                 okta: [
                     client: [
-                        orgUrl: "http://shinny-and-new.example.com",
+                        orgUrl: "https://shinny-and-new.example.com",
                         token: "an-api-token"
                 ]]], sdkConfigFile)
 
@@ -101,7 +125,7 @@ class SetupMojoTest {
         def clientConfig = mock(ClientConfiguration)
         SetupMojo mojo = buildMojo("sdkSetupButNoApp", clientConfig, testDir, sdkConfigFile)
 
-        when(clientConfig.getBaseUrl()).thenReturn( "http://shinny-and-new.example.com")
+        when(clientConfig.getBaseUrl()).thenReturn( "https://shinny-and-new.example.com")
         when(mojo.sdkConfigurationService.loadUnvalidatedConfiguration()).thenReturn(clientConfig)
         when(mojo.oidcAppCreator.createOidcApp(any(Client), eq("sdkSetupButNoApp"))).thenReturn(oidcCredentials)
         when(oidcCredentials.getString("client_id")).thenReturn("sdkSetupButNoApp-client-id")
@@ -117,7 +141,7 @@ class SetupMojoTest {
         assertThat TestUtil.readYamlFromFile(springConfig), is([
                 okta: [
                     oauth2: [
-                        issuer: "http://shinny-and-new.example.com/oauth2/default",
+                        issuer: "https://shinny-and-new.example.com/oauth2/default",
                         "client-id": "sdkSetupButNoApp-client-id",
                         "client-secret": "sdkSetupButNoApp-client-secret"]]])
     }
@@ -130,7 +154,7 @@ class SetupMojoTest {
         TestUtil.writeYamlToTempFile([
                 okta: [
                     client: [
-                        orgUrl: "http://shinny-and-new.example.com",
+                        orgUrl: "https://shinny-and-new.example.com",
                         token: "an-api-token"
                 ]]], sdkConfigFile)
 
@@ -138,14 +162,14 @@ class SetupMojoTest {
         TestUtil.writeYamlToTempFile([
                 okta: [
                     oauth2: [
-                        issuer: "http://shinny-and-new.example.com/issuer",
+                        issuer: "https://shinny-and-new.example.com/issuer",
                         clientId: "sdkConfigAndSpringConfigExists-client-id"
                 ]]], springConfigFile)
 
         def clientConfig = mock(ClientConfiguration)
         SetupMojo mojo = buildMojo("sdkConfigAndSpringConfigExists", clientConfig, testDir, sdkConfigFile, springConfigFile)
 
-        when(clientConfig.getBaseUrl()).thenReturn( "http://shinny-and-new.example.com")
+        when(clientConfig.getBaseUrl()).thenReturn( "https://shinny-and-new.example.com")
 
         mojo.execute()
 

@@ -17,7 +17,7 @@ package com.okta.maven.orgcreation.service
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import com.okta.maven.orgcreation.WireMockSupport
+import com.okta.maven.orgcreation.test.WireMockSupport
 import com.okta.maven.orgcreation.model.OrganizationRequest
 import com.okta.maven.orgcreation.model.OrganizationResponse
 import org.testng.annotations.Test

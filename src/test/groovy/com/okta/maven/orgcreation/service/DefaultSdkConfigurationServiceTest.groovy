@@ -15,7 +15,7 @@
  */
 package com.okta.maven.orgcreation.service
 
-import com.okta.maven.orgcreation.TestUtil
+import com.okta.maven.orgcreation.test.TestUtil
 import com.okta.sdk.impl.client.DefaultClientBuilder
 import com.okta.sdk.impl.config.ClientConfiguration
 import org.testng.annotations.Test

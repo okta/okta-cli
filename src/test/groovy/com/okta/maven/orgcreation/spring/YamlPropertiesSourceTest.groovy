@@ -15,7 +15,7 @@
  */
 package com.okta.maven.orgcreation.spring
 
-import com.okta.maven.orgcreation.TestUtil
+import com.okta.maven.orgcreation.test.TestUtil
 import org.testng.annotations.Test
 
 import static org.hamcrest.MatcherAssert.assertThat
