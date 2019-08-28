@@ -32,7 +32,7 @@ mvn com.okta:okta-maven-plugin:setup
 
 This will prompt you for required information and setup a new OIDC application for you.
 
-For more complete information see the [complete plugin documentation](http://bdemers.github.io/okta-maven-plugin)
+For more complete information see the [complete plugin documentation](https://oktadeveloper.github.io/okta-maven-plugin)
 
 
 You MUST include the Sonatype OSSRH Snapshot repository (until we cut our first release), in your `settings.xml` or your `pom.xml`:
