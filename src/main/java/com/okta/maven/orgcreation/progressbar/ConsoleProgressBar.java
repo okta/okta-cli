@@ -23,12 +23,16 @@ import java.util.List;
 class ConsoleProgressBar implements ProgressBar {
 
     private final ProgressBarWriter progressBarWriter;
-    private final PrintStream stream = System.out;
+    private final PrintStream stream;
     private final Thread thread;
 
     ConsoleProgressBar() {
+        this(System.out, Duration.ofMillis(500)); // half second
+    }
 
-        this.progressBarWriter = new ProgressBarWriter(stream);
+    ConsoleProgressBar(PrintStream stream, Duration updateInterval) {
+        this.stream = stream;
+        this.progressBarWriter = new ProgressBarWriter(stream, updateInterval);
         this.thread = new Thread(progressBarWriter, ConsoleProgressBar.class.getName());
     }
 
@@ -63,14 +67,15 @@ class ConsoleProgressBar implements ProgressBar {
     static class ProgressBarWriter implements Runnable {
 
         private final PrintStream stream;
-        private final Duration updateInterval = Duration.ofMillis(500); // half second
+        private final Duration updateInterval;
 
         private final List<Character> animationChars = Arrays.asList('/', '-', '\\', '|');
 
         private boolean running = true;
 
-        ProgressBarWriter(PrintStream stream) {
+        ProgressBarWriter(PrintStream stream, Duration updateInterval) {
             this.stream = stream;
+            this.updateInterval = updateInterval;
         }
 
         @Override
