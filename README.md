@@ -30,3 +30,54 @@ mvn com.okta:okta-maven-plugin:setup
 This will prompt you for required information and setup a new OIDC application for you.
 
 For more complete information see the [complete plugin documentation](https://oktadeveloper.github.io/okta-maven-plugin)
+
+## Spring Boot Quick start
+
+Create a new Spring Boot project
+```bash
+curl https://start.spring.io/starter.tgz -d dependencies=web,okta \
+  -d baseDir=okta-spring-security-example-app | tar -xzvf -
+cd okta-spring-security-example-app
+```
+
+Run the Okta Maven Plugin to Register a new account and configure your new Spring OIDC application
+```bash
+./mvnw com.okta:okta-maven-plugin:setup
+```
+
+Add a simple REST controller, for example replace your `src/main/java/com/example/demo/DemoApplication.java` with:
+
+```java
+package com.example.demo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@SpringBootApplication
+public class DemoApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(DemoApplication.class, args);
+	}
+
+	@GetMapping("/")
+	String hello(@AuthenticationPrincipal OAuth2AuthenticationToken authenticationToken) {
+		// pull the name from the attributes
+		return "Welcome, "+ authenticationToken.getPrincipal().getAttributes().get("name");
+	}
+}
+```
+
+Start your Spring Boot application:
+```bash
+./mvnw spring-boot:run
+```
+
+Now just browse to: `http://localhost:8080/` you will be prompted to login.
+
+Check your email to for your new account details!
