@@ -26,7 +26,7 @@
 
     <artifactId>okta-maven-plugin</artifactId>
     <name>Okta Maven Plugin</name>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 
     <description>A Maven plugin that makes getting started with Okta even easier.</description>
     <packaging>maven-plugin</packaging>
@@ -219,4 +219,8 @@
             </plugin>
         </plugins>
     </reporting>
+
+  <scm>
+    <tag>okta-maven-plugin-0.1.0</tag>
+  </scm>
 </project>
