@@ -45,6 +45,7 @@ import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.never
 import static org.mockito.Mockito.verify
+import static org.mockito.Mockito.verifyNoMoreInteractions
 import static org.mockito.Mockito.when
 
 @Listeners([RestoreSystemProperties])
@@ -168,7 +169,12 @@ class SetupMojoTest {
 
         def clientConfig = mock(ClientConfiguration)
         SetupMojo mojo = buildMojo("sdkConfigAndSpringConfigExists", clientConfig, testDir, sdkConfigFile, springConfigFile)
-
+        // user info not required for this scenario
+        mojo.firstName = null
+        mojo.lastName = null
+        mojo.email = null
+        mojo.company = null
+        
         when(clientConfig.getBaseUrl()).thenReturn( "https://shinny-and-new.example.com")
 
         mojo.execute()
@@ -176,6 +182,7 @@ class SetupMojoTest {
         verify(mojo.organizationCreator, never()).createNewOrg(eq("http://foo.example.com/api"), any(OrganizationRequest))
         verify(mojo.oidcAppCreator, never()).createOidcApp(any(Client), eq("sdkConfigAndSpringConfigExists"))
 
+        verifyNoMoreInteractions(mojo.prompter)
     }
 
     SetupMojo buildMojo(String testName,

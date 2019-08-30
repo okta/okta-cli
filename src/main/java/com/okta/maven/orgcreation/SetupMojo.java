@@ -138,14 +138,12 @@ public class SetupMojo extends AbstractMojo {
         ClientConfiguration clientConfiguration = sdkConfigurationService.loadUnvalidatedConfiguration();
 
         try {
-
             String orgUrl;
-
-            // prompt for info before progress bar
-            OrganizationRequest request = organizationRequest();
-
             try (ProgressBar progressBar = ProgressBar.create(settings.isInteractiveMode())) {
                 if (StringUtils.isEmpty(clientConfiguration.getBaseUrl())) {
+
+                    // prompt for info before progress bar
+                    OrganizationRequest request = organizationRequest();
 
                     progressBar.start("Creating new Okta Organization, this may take a minute:");
 
@@ -166,9 +164,7 @@ public class SetupMojo extends AbstractMojo {
             }
 
             // Create new Application
-
             MutablePropertySource propertySource = ConfigFileUtil.findSpringApplicationConfig(baseDir, applicationConfigFile);
-
             String clientId = propertySource.getProperty("okta.oauth2.client-id");
 
             try (ProgressBar progressBar = ProgressBar.create(settings.isInteractiveMode())) {
