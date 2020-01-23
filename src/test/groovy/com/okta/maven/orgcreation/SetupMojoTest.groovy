@@ -17,6 +17,8 @@ package com.okta.maven.orgcreation
 
 import com.okta.maven.orgcreation.model.OrganizationRequest
 import com.okta.maven.orgcreation.model.OrganizationResponse
+import com.okta.maven.orgcreation.service.DependencyAddService
+import com.okta.maven.orgcreation.service.LatestVersionService
 import com.okta.maven.orgcreation.service.OidcAppCreator
 import com.okta.maven.orgcreation.service.DefaultOktaOrganizationCreator
 import com.okta.maven.orgcreation.service.SdkConfigurationService
@@ -25,7 +27,12 @@ import com.okta.maven.orgcreation.test.TestUtil
 import com.okta.sdk.client.Client
 import com.okta.sdk.impl.config.ClientConfiguration
 import com.okta.sdk.resource.ExtensibleResource
+import org.apache.maven.artifact.repository.ArtifactRepository
+import org.apache.maven.artifact.versioning.ArtifactVersion
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion
 import org.apache.maven.plugin.MojoExecutionException
+import org.apache.maven.project.MavenProject
+import org.apache.maven.repository.legacy.metadata.ArtifactMetadataRetrievalException
 import org.apache.maven.settings.Settings
 import org.codehaus.plexus.components.interactivity.Prompter
 import org.hamcrest.MatcherAssert
@@ -96,6 +103,7 @@ class SetupMojoTest {
         verify(mojo.organizationCreator).createNewOrg("http://foo.example.com/api", orgRequest)
         verify(mojo.sdkConfigurationService).writeOktaYaml("https://shinny-and-new.example.com", "an-api-token", sdkConfigFile)
         verify(mojo.oidcAppCreator).createOidcApp(any(Client), eq("noPriorConfigTest"))
+        verify(mojo.dependencyAddService).addDependencyToPom("com.okta.spring", "okta-spring-boot-starter", "1.2.3", mojo.project)
 
         File springConfig = new File(testDir, "src/main/resources/application.yml")
         assertThat springConfig, anExistingFile()
@@ -136,6 +144,7 @@ class SetupMojoTest {
 
         verify(mojo.organizationCreator, never()).createNewOrg(eq("http://foo.example.com/api"), any(OrganizationRequest))
         verify(mojo.oidcAppCreator).createOidcApp(any(Client), eq("sdkSetupButNoApp"))
+        verify(mojo.dependencyAddService).addDependencyToPom("com.okta.spring", "okta-spring-boot-starter", "1.2.3", mojo.project)
 
         File springConfig = new File(testDir, "src/main/resources/application.yml")
         assertThat springConfig, anExistingFile()
@@ -181,6 +190,7 @@ class SetupMojoTest {
 
         verify(mojo.organizationCreator, never()).createNewOrg(eq("http://foo.example.com/api"), any(OrganizationRequest))
         verify(mojo.oidcAppCreator, never()).createOidcApp(any(Client), eq("sdkConfigAndSpringConfigExists"))
+        verify(mojo.dependencyAddService).addDependencyToPom("com.okta.spring", "okta-spring-boot-starter", "1.2.3", mojo.project)
 
         verifyNoMoreInteractions(mojo.prompter)
     }
@@ -189,13 +199,22 @@ class SetupMojoTest {
                         ClientConfiguration clientConfig = mock(ClientConfiguration),
                         File testDir = File.createTempDir(),
                         File sdkConfigFile = null,
-                        File springConfigFile = null) {
+                        File springConfigFile = null,
+                        String version = "1.2.3") {
 
         def settings = mock(Settings)
         def prompter = mock(Prompter)
         def organizationCreator = mock(DefaultOktaOrganizationCreator)
         def oidcAppCreator = mock(OidcAppCreator)
         def sdkConfigurationService = mock(SdkConfigurationService)
+        def project = mock(MavenProject)
+        def dependencyAddService = mock(DependencyAddService)
+        def latestVersionService = new LatestVersionService() {
+            @Override
+            ArtifactVersion getLatestVersion(String groupId, String artifactId, String defaultVersion, ArtifactRepository localRepository, List<ArtifactRepository> remoteArtifactRepositories) throws ArtifactMetadataRetrievalException {
+                return new DefaultArtifactVersion(version)
+            }
+        }
 
         SetupMojo mojo = new SetupMojo()
         mojo.email = "jill.coder@example.com"
@@ -212,6 +231,9 @@ class SetupMojoTest {
         mojo.organizationCreator = organizationCreator
         mojo.oidcAppCreator = oidcAppCreator
         mojo.sdkConfigurationService = sdkConfigurationService
+        mojo.project = project
+        mojo.latestVersionService = latestVersionService
+        mojo.dependencyAddService = dependencyAddService
 
         when(sdkConfigurationService.loadUnvalidatedConfiguration()).thenReturn(clientConfig)
 
