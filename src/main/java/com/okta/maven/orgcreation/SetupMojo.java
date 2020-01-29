@@ -19,8 +19,11 @@ import com.okta.maven.orgcreation.model.OrganizationResponse;
 import com.okta.maven.orgcreation.model.OrganizationRequest;
 import com.okta.maven.orgcreation.progressbar.ProgressBar;
 import com.okta.maven.orgcreation.service.ConfigFileUtil;
+import com.okta.maven.orgcreation.service.DependencyAddService;
+import com.okta.maven.orgcreation.service.LatestVersionService;
 import com.okta.maven.orgcreation.service.OidcAppCreator;
 import com.okta.maven.orgcreation.service.OktaOrganizationCreator;
+import com.okta.maven.orgcreation.service.PomUpdateException;
 import com.okta.maven.orgcreation.service.SdkConfigurationService;
 import com.okta.maven.orgcreation.spring.MutablePropertySource;
 import com.okta.maven.orgcreation.support.SuppressFBWarnings;
@@ -28,6 +31,7 @@ import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
 import com.okta.sdk.impl.config.ClientConfiguration;
 import com.okta.sdk.resource.ExtensibleResource;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -35,6 +39,8 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.repository.legacy.metadata.ArtifactMetadataRetrievalException;
 import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.components.interactivity.Prompter;
 import org.codehaus.plexus.components.interactivity.PrompterException;
@@ -43,6 +49,7 @@ import org.codehaus.plexus.util.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -63,6 +70,10 @@ import java.util.Map;
  */
 @Mojo(name = "setup", defaultPhase = LifecyclePhase.NONE, threadSafe = false, aggregator = true, requiresProject=false)
 public class SetupMojo extends AbstractMojo {
+
+    private static final String GROUP_ID = "com.okta.spring";
+    private static final String ARTIFACT_ID = "okta-spring-boot-starter";
+    private static final String DEFAULT_VERSION = "1.3.0";
 
     /**
      * Email used when registering a new Okta account.
@@ -118,6 +129,15 @@ public class SetupMojo extends AbstractMojo {
     @Parameter(defaultValue = "${user.home}/.okta/okta.yaml", readonly = true)
     private File oktaPropsFile;
 
+    @Parameter(defaultValue = "${localRepository}", readonly = true)
+    protected ArtifactRepository localRepository;
+
+    @Parameter(defaultValue = "${project.remoteArtifactRepositories}", readonly = true)
+    protected List<ArtifactRepository> remoteArtifactRepositories;
+
+    @Parameter(defaultValue = "${project}", readonly = true)
+    protected MavenProject project;
+
     @Component
     private Prompter prompter;
 
@@ -129,6 +149,12 @@ public class SetupMojo extends AbstractMojo {
 
     @Component
     private SdkConfigurationService sdkConfigurationService;
+
+    @Component
+    protected DependencyAddService dependencyAddService;
+
+    @Component
+    protected LatestVersionService latestVersionService;
 
     @Override
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", justification = "false positive on Java 11")
@@ -189,10 +215,12 @@ public class SetupMojo extends AbstractMojo {
                     progressBar.info("Existing OIDC application detected for clientId: "+ clientId + ", skipping new application creation\n");
                 }
             }
-
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to write configuration file: " + e.getMessage(), e);
         }
+
+        // add okta-spring-boot-starter to the pom.xml
+        updatePomFileWithOktaDependency();
     }
 
     private OrganizationRequest organizationRequest() throws MojoExecutionException {
@@ -226,5 +254,41 @@ public class SetupMojo extends AbstractMojo {
 
     private String getApiBaseUrl() {
         return System.getProperty("okta.maven.apiBaseUrl", apiBaseUrl);
+    }
+
+    private void updatePomFileWithOktaDependency() throws MojoExecutionException, MojoFailureException {
+        if (!hasOktaDependency()) {
+
+            String version = DEFAULT_VERSION;
+            try {
+                version = latestVersionService.getLatestVersion(GROUP_ID, ARTIFACT_ID, DEFAULT_VERSION, localRepository, remoteArtifactRepositories).toString();
+                getLog().debug("latest version: " + version);
+
+                // add dependency to pom and write
+                dependencyAddService.addDependencyToPom(GROUP_ID, ARTIFACT_ID, version, project);
+            } catch (ArtifactMetadataRetrievalException e) {
+                throw new MojoExecutionException("Failed to lookup latest version of '" + GROUP_ID + ":" + ARTIFACT_ID + "', see https://github.com/okta/okta-spring-boot for instructions.", e);
+            } catch (PomUpdateException e) {
+                logErrorManualWorkAround(version);
+                throw new MojoFailureException("Failed to add dependency to Maven pom.xml, see log or more details.", e);
+            }
+        } else {
+            getLog().info("Dependency: 'com.okta.spring:okta-spring-boot-starter' found in project.");
+        }
+    }
+
+    boolean hasOktaDependency() {
+        return project.getDependencies().stream()
+                .filter(dependency -> GROUP_ID.equals(dependency.getGroupId()))
+                .anyMatch(dependency -> ARTIFACT_ID.equals(dependency.getArtifactId()));
+    }
+
+    private void logErrorManualWorkAround(String latestOktaVersion) {
+        getLog().error("The " + ARTIFACT_ID + " could not be automatically added to the pom.xml, add the following XML snippet manually:");
+        getLog().error("\n    <dependency>\n" +
+                "        <groupId>" + GROUP_ID + "</groupId>\n" +
+                "        <artifactId>" + ARTIFACT_ID + "</artifactId>\n" +
+                "        <version>" + latestOktaVersion + "</version>\n" +
+                "    </dependency>");
     }
 }
