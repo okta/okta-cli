@@ -97,6 +97,7 @@ class SetupMojoTest {
         when(mojo.oidcAppCreator.createOidcApp(any(Client), eq("noPriorConfigTest"))).thenReturn(oidcCredentials)
         when(oidcCredentials.getString("client_id")).thenReturn("noPriorConfigTest-client-id")
         when(oidcCredentials.getString("client_secret")).thenReturn("noPriorConfigTest-client-secret")
+        when(mojo.project.getFile()).thenReturn(File.createTempFile("noPriorConfigTest-", "-pom.xml"))
 
         mojo.execute()
 
@@ -113,6 +114,57 @@ class SetupMojoTest {
                         issuer: "https://shinny-and-new.example.com/oauth2/default",
                         "client-id": "noPriorConfigTest-client-id",
                         "client-secret": "noPriorConfigTest-client-secret"]]])
+    }
+
+    @Test
+    void noProjectPomTest() {
+
+        File testDir = File.createTempDir()
+        File sdkConfigFile = new File(testDir, "home-okta.yaml")
+
+        def clientConfig = mock(ClientConfiguration)
+        def oidcCredentials = mock(ExtensibleResource)
+        SetupMojo mojo = buildMojo("noPriorConfigTest", clientConfig, testDir, sdkConfigFile)
+        when(mojo.project.getFile()).thenReturn(null) // this project has no pom.xml file
+
+        def orgRequest = new OrganizationRequest()
+                .setFirstName("Jill")
+                .setLastName("Coder")
+                .setEmail("jill.coder@example.com")
+                .setOrganization("Test co.")
+
+        def orgResponse = new OrganizationResponse()
+                .setEmail("jill.coder@exaple.com")
+                .setApiToken("an-api-token")
+                .setOrgUrl("https://shinny-and-new.example.com")
+
+        when(mojo.sdkConfigurationService.loadUnvalidatedConfiguration()).thenReturn(clientConfig)
+        when(mojo.organizationCreator.createNewOrg("http://foo.example.com/api", orgRequest)).then( new Answer<Object>() {
+            @Override
+            Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                System.setProperty("okta.client.token", "test-api-token")
+                System.setProperty("okta.client.orgUrl", "https://shinny-and-new.example.com")
+                return orgResponse
+            }
+        })
+        when(mojo.oidcAppCreator.createOidcApp(any(Client), eq("noPriorConfigTest"))).thenReturn(oidcCredentials)
+        when(oidcCredentials.getString("client_id")).thenReturn("noPriorConfigTest-client-id")
+        when(oidcCredentials.getString("client_secret")).thenReturn("noPriorConfigTest-client-secret")
+
+        mojo.execute()
+
+        verify(mojo.organizationCreator).createNewOrg("http://foo.example.com/api", orgRequest)
+        verify(mojo.sdkConfigurationService).writeOktaYaml("https://shinny-and-new.example.com", "an-api-token", sdkConfigFile)
+        verify(mojo.oidcAppCreator).createOidcApp(any(Client), eq("noPriorConfigTest"))
+
+        File springConfig = new File(testDir, "src/main/resources/application.yml")
+        assertThat springConfig, anExistingFile()
+        MatcherAssert.assertThat TestUtil.readYamlFromFile(springConfig), is([
+                okta: [
+                        oauth2: [
+                                issuer: "https://shinny-and-new.example.com/oauth2/default",
+                                "client-id": "noPriorConfigTest-client-id",
+                                "client-secret": "noPriorConfigTest-client-secret"]]])
     }
 
     @Test
@@ -139,6 +191,7 @@ class SetupMojoTest {
         when(mojo.oidcAppCreator.createOidcApp(any(Client), eq("sdkSetupButNoApp"))).thenReturn(oidcCredentials)
         when(oidcCredentials.getString("client_id")).thenReturn("sdkSetupButNoApp-client-id")
         when(oidcCredentials.getString("client_secret")).thenReturn("sdkSetupButNoApp-client-secret")
+        when(mojo.project.getFile()).thenReturn(File.createTempFile("sdkSetupButNoApp-", "-pom.xml"))
 
         mojo.execute()
 
@@ -185,6 +238,7 @@ class SetupMojoTest {
         mojo.company = null
         
         when(clientConfig.getBaseUrl()).thenReturn( "https://shinny-and-new.example.com")
+        when(mojo.project.getFile()).thenReturn(File.createTempFile("sdkConfigAndSpringConfigExists-", "-pom.xml"))
 
         mojo.execute()
 

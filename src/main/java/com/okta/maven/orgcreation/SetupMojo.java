@@ -220,7 +220,11 @@ public class SetupMojo extends AbstractMojo {
         }
 
         // add okta-spring-boot-starter to the pom.xml
-        updatePomFileWithOktaDependency();
+        if (project != null && project.getFile() != null) {
+            updatePomFileWithOktaDependency();
+        } else {
+            getLog().warn("This project has no pom.xml file, see https://github.com/okta/okta-spring-boot for setup instructions.");
+        }
     }
 
     private OrganizationRequest organizationRequest() throws MojoExecutionException {
