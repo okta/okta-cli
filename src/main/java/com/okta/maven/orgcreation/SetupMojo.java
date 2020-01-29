@@ -138,6 +138,14 @@ public class SetupMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", readonly = true)
     protected MavenProject project;
 
+    /**
+     * Set {@code demo} to {@code true} to force the prompt to collect user info.
+     * This makes for a better demo without needing to create a new Okta Organization each time.
+     * <p><b>NOTE:</b> Most users will ignore this property.
+     */
+    @Parameter(property = "okta.demo", defaultValue = "false")
+    protected boolean demo = false;
+
     @Component
     private Prompter prompter;
 
@@ -184,6 +192,10 @@ public class SetupMojo extends AbstractMojo {
                     sdkConfigurationService.writeOktaYaml(orgUrl, newOrg.getApiToken(), oktaPropsFile);
 
                 } else {
+                    if (demo) { // always prompt for user info in "demo mode", this info will not be used but it makes for a more realistic demo
+                        organizationRequest();
+                    }
+
                     orgUrl = clientConfiguration.getBaseUrl();
                     progressBar.info("Current OrgUrl: " + clientConfiguration.getBaseUrl());
                 }
@@ -220,7 +232,11 @@ public class SetupMojo extends AbstractMojo {
         }
 
         // add okta-spring-boot-starter to the pom.xml
-        updatePomFileWithOktaDependency();
+        if (project != null && project.getFile() != null) {
+            updatePomFileWithOktaDependency();
+        } else {
+            getLog().warn("This project has no pom.xml file, see https://github.com/okta/okta-spring-boot for setup instructions.");
+        }
     }
 
     private OrganizationRequest organizationRequest() throws MojoExecutionException {
