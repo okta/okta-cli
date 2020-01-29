@@ -103,6 +103,10 @@
                     <groupId>org.codehaus.groovy</groupId>
                     <artifactId>groovy-all</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId> org.apache.maven.scm</groupId>
+                    <artifactId>maven-scm-providers-standard</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
