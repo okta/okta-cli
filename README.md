@@ -17,7 +17,7 @@ This library uses semantic versioning.
 
 | Version | Status                    |
 | ------- | ------------------------- |
-| 0.1.0 | GA |
+| 0.2.0 | GA |
 
 ## Usage
 
