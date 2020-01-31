@@ -120,6 +120,9 @@ public class SetupMojo extends AbstractMojo {
     @Parameter(property = "oidcAppName", defaultValue = "${project.name}")
     private String oidcAppName;
 
+    @Parameter(property = "useOktaPropertyNames", defaultValue = "true")
+    private boolean useOktaPropertyNames = true;
+
     @Parameter(defaultValue = "${settings}", readonly = true)
     private Settings settings;
 
@@ -203,12 +206,12 @@ public class SetupMojo extends AbstractMojo {
 
             // Create new Application
             MutablePropertySource propertySource = ConfigFileUtil.findSpringApplicationConfig(baseDir, applicationConfigFile);
-            String clientId = propertySource.getProperty("okta.oauth2.client-id");
+            String clientId = propertySource.getProperty(getClientIdPropertyName());
 
             try (ProgressBar progressBar = ProgressBar.create(settings.isInteractiveMode())) {
                 if (StringUtils.isEmpty(clientId)) {
 
-                     progressBar.start("Configuring a new OIDC, almost done:");
+                     progressBar.start("Configuring a new OIDC Application, almost done:");
 
                      // create ODIC application
                      Client client = Clients.builder().build();
@@ -216,9 +219,9 @@ public class SetupMojo extends AbstractMojo {
                      ExtensibleResource clientCredsResponse = oidcAppCreator.createOidcApp(client, oidcAppName);
 
                      Map<String, String> newProps = new HashMap<>();
-                     newProps.put("okta.oauth2.issuer", orgUrl + "/oauth2/default");
-                     newProps.put("okta.oauth2.client-id", clientCredsResponse.getString("client_id"));
-                     newProps.put("okta.oauth2.client-secret", clientCredsResponse.getString("client_secret"));
+                     newProps.put(getIssuerUriPropertyName(), orgUrl + "/oauth2/default");
+                     newProps.put(getClientIdPropertyName(), clientCredsResponse.getString("client_id"));
+                     newProps.put(getClientSecretPropertyName(), clientCredsResponse.getString("client_secret"));
 
                      propertySource.addProperties(newProps);
 
@@ -306,5 +309,23 @@ public class SetupMojo extends AbstractMojo {
                 "        <artifactId>" + ARTIFACT_ID + "</artifactId>\n" +
                 "        <version>" + latestOktaVersion + "</version>\n" +
                 "    </dependency>");
+    }
+
+    private String getIssuerUriPropertyName() {
+        return useOktaPropertyNames
+            ? "okta.oauth2.issuer"
+            : "spring.security.oauth2.client.provider.oidc.issuer-uri";
+    }
+
+    private String getClientIdPropertyName() {
+        return useOktaPropertyNames
+                ? "okta.oauth2.client-id"
+                : "spring.security.oauth2.client.registration.oidc.client-id";
+    }
+
+    private String getClientSecretPropertyName() {
+        return useOktaPropertyNames
+                ? "okta.oauth2.client-secret"
+                : "spring.security.oauth2.client.registration.oidc.client-secret";
     }
 }
