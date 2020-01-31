@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-name: Java CI
+name: Java 8 CI
 
 on:
   push:
@@ -29,19 +29,12 @@ jobs:
     name: Java ${{ matrix.java }}
     strategy:
       matrix:
-        java: [8, 11]
+        java: [8]
     env:
       REPO_SLUG: ${{ github.repository }}
       BRANCH: ${{ github.head_ref }}
     steps:
       - uses: actions/checkout@v2
-
-      - name: Set ENV variables
-        run: |
-          echo "::set-env name=BRANCH::${BRANCH:-$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')}"
-          echo "::set-env name=RUN_ITS::$(if [ -z "${{ secrets.run_its }}" ]; then echo "false"; else echo "true"; fi)"
-          echo "::set-env name=CRON::$(if [ "schedule" == "${{ github.event_name }}" ]; then echo "true"; fi)"
-          echo "::set-env name=PULL_REQUEST::$(if [ -z "${{ github.event.number }}" ]; then echo "false"; else echo "true"; fi)"
 
       - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v1
@@ -49,8 +42,8 @@ jobs:
           java-version: ${{ matrix.java }}
 
       - name: Build and Test
-        run: source ./src/ci/before_install.sh && ./src/ci/build.sh
+        run: ./src/ci/gh-build.sh
 
       - uses: codecov/codecov-action@v1
         with:
-         file: target/site/jacoco/jacoco.xml
+         file: coverage/target/site/jacoco-aggregate/jacoco.xml
