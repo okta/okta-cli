@@ -15,11 +15,13 @@
  */
 package com.okta.maven.orgcreation.service;
 
+import com.okta.maven.orgcreation.spring.EnvFilePropertiesSource;
 import com.okta.maven.orgcreation.spring.MutablePropertySource;
 import com.okta.maven.orgcreation.spring.PropertiesFilePropertiesSource;
 import com.okta.maven.orgcreation.spring.YamlPropertiesSource;
 
 import java.io.File;
+
 public class ConfigFileUtil {
 
     public static MutablePropertySource findSpringApplicationConfig(File projectRoot, File configFile) {
@@ -40,6 +42,8 @@ public class ConfigFileUtil {
                 return new YamlPropertiesSource(configFile);
             } else if (configFile.toString().endsWith(".properties")) {
                 return new PropertiesFilePropertiesSource(configFile);
+            } else if (configFile.toString().endsWith(".env")) {
+                return new EnvFilePropertiesSource(configFile);
             } else {
                 throw new IllegalArgumentException("Unsupported config file type: " + configFile);
             }

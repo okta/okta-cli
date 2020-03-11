@@ -338,18 +338,18 @@ public class SetupMojo extends AbstractMojo {
     private String getIssuerUriPropertyName() {
         return useOktaPropertyNames
             ? "okta.oauth2.issuer"
-            : "spring.security.oauth2.client.provider.oidc.issuer-uri";
+            : "spring.security.oauth2.client.provider.okta.issuer-uri";
     }
 
     private String getClientIdPropertyName() {
         return useOktaPropertyNames
                 ? "okta.oauth2.client-id"
-                : "spring.security.oauth2.client.registration.oidc.client-id";
+                : "spring.security.oauth2.client.registration.okta.client-id";
     }
 
     private String getClientSecretPropertyName() {
         return useOktaPropertyNames
                 ? "okta.oauth2.client-secret"
-                : "spring.security.oauth2.client.registration.oidc.client-secret";
+                : "spring.security.oauth2.client.registration.okta.client-secret";
     }
 }
