@@ -18,6 +18,7 @@ package com.okta.maven.orgcreation;
 import com.okta.maven.orgcreation.model.OrganizationResponse;
 import com.okta.maven.orgcreation.model.OrganizationRequest;
 import com.okta.maven.orgcreation.progressbar.ProgressBar;
+import com.okta.maven.orgcreation.service.AuthorizationServerConfigureService;
 import com.okta.maven.orgcreation.service.ConfigFileUtil;
 import com.okta.maven.orgcreation.service.DependencyAddService;
 import com.okta.maven.orgcreation.service.LatestVersionService;
@@ -107,11 +108,23 @@ public class SetupMojo extends AbstractMojo {
     @Parameter(property = "applicationConfigFile")
     private File applicationConfigFile;
 
+    @Parameter(property = "groupClaimName", defaultValue = "groups")
+    private String groupClaimName;
+
+    @Parameter(property = "createGroupClaim")
+    private boolean createGroupClaim;
+
     /**
      * The base URL of the service used to create a new Okta account.
      * This value is NOT exposed as a plugin parameter, but CAN be set using the system property {@code okta.maven.apiBaseUrl}.
      */
     private String apiBaseUrl = "https://start.okta.dev/";
+
+    /**
+     * The id of the authorization server.
+     */
+    @Parameter(property = "authorizationServerId", defaultValue = "default")
+    private String authorizationServerId = "default";
 
     /**
      * The Name / Label of the new OIDC application that will be created.  If an application with the same name already
@@ -166,6 +179,9 @@ public class SetupMojo extends AbstractMojo {
 
     @Component
     protected LatestVersionService latestVersionService;
+
+    @Component
+    protected AuthorizationServerConfigureService authorizationServerConfigureService;
 
     @Override
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", justification = "false positive on Java 11")
@@ -226,6 +242,14 @@ public class SetupMojo extends AbstractMojo {
                      propertySource.addProperties(newProps);
 
                     progressBar.info("Created OIDC application, client-id: " + clientCredsResponse.getString("client_id"));
+
+                    if (createGroupClaim) {
+                        progressBar.info("Creating Authorization Server claim '" + groupClaimName + "':");
+                        boolean asCreated = authorizationServerConfigureService.createGroupClaim(client, groupClaimName, authorizationServerId);
+                        if (!asCreated) {
+                            getLog().warn("Could not create an Authorization Server claim with the name of '" + groupClaimName + "', it likely already exists. You can verify this in your Okta Admin console.");
+                        }
+                    }
                 } else {
                     progressBar.info("Existing OIDC application detected for clientId: "+ clientId + ", skipping new application creation\n");
                 }
