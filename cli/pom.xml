@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.okta.cli</groupId>
+        <artifactId>okta-cli-tools</artifactId>
+        <version>0.2.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>okta-cli</artifactId>
+    <name>Okta CLI</name>
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.okta.sdk</groupId>
+            <artifactId>okta-sdk-api</artifactId>
+            <version>${okta.sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.okta.sdk</groupId>
+            <artifactId>okta-sdk-impl</artifactId>
+            <version>${okta.sdk.version}</version>
+            <!-- Uses APIs that are not exposed in the api project-->
+            <!-- <scope>runtime</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>com.okta.sdk</groupId>
+            <artifactId>okta-sdk-httpclient</artifactId>
+            <version>${okta.sdk.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.okta.commons</groupId>
+            <artifactId>okta-config-check</artifactId>
+            <version>1.2.3-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.okta.cli</groupId>
+            <artifactId>okta-cli-common</artifactId>
+            <version>0.2.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli-codegen</artifactId>
+            <version>4.2.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.29</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.29</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.7.29</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service</artifactId>
+            <version>1.0-rc6</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>com.okta.commons</groupId>
+            <artifactId>okta-config-check</artifactId>
+            <version>1.2.3-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/src/main/resources-filtered</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <configuration>
+                    <executable>java</executable>
+                    <arguments>
+                        <argument>-Xmx1000m</argument>
+                        <argument>-agentlib:native-image-agent=config-output-dir=target/foobar</argument>
+                        <argument>-classpath</argument>
+                        <classpath/>
+                        <argument>com.okta.cli.OktaCli</argument>
+                        <argument>register</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.graalvm.nativeimage</groupId>
+                <artifactId>native-image-maven-plugin</artifactId>
+                <version>20.0.0</version>
+                <configuration>
+                    <mainClass>com.okta.cli.OktaCli</mainClass>
+                    <skip>false</skip>
+                    <imageName>okta-cli</imageName>
+
+                    <buildArgs>--no-fallback --enable-url-protocols=http,https -H:ResourceConfigurationFiles=../src/main/graalvm/resource-config.json -H:ReflectionConfigurationFiles=../src/main/graalvm/reflect-config.json,../src/main/graalvm/otka-sdk-reflect-config.json -H:+TraceClassInitialization -H:+ReportExceptionStackTraces </buildArgs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>native-image</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>${project.build.directory}/okta-cli</file>
+                                    <type>${binary.type}</type>
+                                    <classifier>${binary.classifier}</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.2.6.RELEASE</version>
+                <configuration>
+                    <mainClass>com.okta.cli.OktaCli</mainClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <!-- force to after package phase -->
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>mac</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <properties>
+                <binary.classifier>mac-${os.arch}</binary.classifier>
+                <binary.type>bin</binary.type>
+            </properties>
+        </profile>
+        <profile>
+            <id>windows</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <binary.classifier>windows-${os.arch}</binary.classifier>
+                <binary.type>exe</binary.type>
+            </properties>
+        </profile>
+        <profile>
+            <id>linux</id>
+            <activation>
+                <os>
+                    <name>linux</name>
+                </os>
+            </activation>
+            <properties>
+                <binary.classifier>linux-${os.arch}</binary.classifier>
+                <binary.type>bin</binary.type>
+            </properties>
+        </profile>
+    </profiles>
+</project>

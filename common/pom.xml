@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.okta.cli</groupId>
+        <artifactId>okta-cli-tools</artifactId>
+        <version>0.2.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>okta-cli-common</artifactId>
+    <name>Okta CLI Common</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.okta.sdk</groupId>
+            <artifactId>okta-sdk-api</artifactId>
+            <version>${okta.sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.okta.sdk</groupId>
+            <artifactId>okta-sdk-impl</artifactId>
+            <version>${okta.sdk.version}</version>
+            <!-- TODO: use runtime scope, this plugin uses internal APIs to inspect the environment -->
+        </dependency>
+        <dependency>
+            <groupId>com.okta.sdk</groupId>
+            <artifactId>okta-sdk-httpclient</artifactId>
+            <version>${okta.sdk.version}</version>
+            <!-- TODO: import the correct http client dep and move this back to runtime -->
+            <!-- <scope>runtime</scope> -->
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>
