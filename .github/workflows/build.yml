@@ -34,3 +34,6 @@ jobs:
           java-version: ${{ matrix.java }}
       - name: Build and Test
         run: source ./src/ci/before_install.sh && ./src/ci/build.sh
+      - uses: codecov/codecov-action@v1
+        with:
+         file: coverage/target/site/jacoco/jacoco.xml
