@@ -32,7 +32,7 @@ jobs:
     env:
       TRAVIS_BRANCH: ${{ github.ref }}
       TRAVIS_PULL_REQUET: ${{ github.event.pull_request.number }}
-      TRAVIS_SECURE_ENV_VARS: ${{ secrets }}
+      TRAVIS_SECURE_ENV_VARS: ${{ secrets.something }}
     steps:
       - uses: actions/checkout@v2
       - name: Set ENV variables
