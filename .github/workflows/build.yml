@@ -31,7 +31,6 @@ jobs:
         java: [8, 11]
     env:
       TRAVIS_REPO_SLUG: ${{ github.repository }}
-      TRAVIS_PULL_REQUET: ${{ github.event.number }}
       TRAVIS_BRANCH: ${{ github.head_ref }}
       TRAVIS_SECURE_ENV_VARS: ${{ secrets.something }}
     steps:
@@ -39,6 +38,7 @@ jobs:
       - name: Set ENV variables
         run: |
           echo "::set-env name=TRAVIS_BRANCH::${TRAVIS_BRANCH:-$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')}"
+          echo "::set-env name=TRAVIS_PULL_REQUET::${{ github.event.number }}"
       - name: Print Travis ENV vars
         run: |
           echo "TRAVIS_BRANCH: ${TRAVIS_BRANCH}"
