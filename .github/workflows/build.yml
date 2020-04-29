@@ -33,19 +33,19 @@ jobs:
       TRAVIS_REPO_SLUG: ${{ github.repository }}
       TRAVIS_BRANCH: ${{ github.head_ref }}
       TRAVIS_PULL_REQUEST: ${{ github.event.number }}
-      TRAVIS_SECURE_ENV_VARS: ${{ secrets.something }}
     steps:
       - uses: actions/checkout@v2
       - name: Set ENV variables
         run: |
           echo "::set-env name=TRAVIS_BRANCH::${TRAVIS_BRANCH:-$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')}"
+          echo "::set-env name=TRAVIS_SECURE_ENV_VARS::$(if [ -z "${{ secrets.something }}" ]; then echo "false"; else echo "true"; fi)"
       - name: Print Travis ENV vars
         run: |
           echo "TRAVIS_BRANCH: ${TRAVIS_BRANCH}"
           echo "TRAVIS_PULL_REQUEST: ${TRAVIS_PULL_REQUEST}"
           echo "TRAVIS_REPO_SLUG: ${TRAVIS_REPO_SLUG}"
-          echo "github.event_name: ${{ github.event_name }}"
           echo "TRAVIS_SECURE_ENV_VARS: ${TRAVIS_SECURE_ENV_VARS}"
+          echo "github.event_name: ${{ github.event_name }}"
           echo "test: $GITHUB_HEAD_REF"
           echo "event number: ${{ github.event.number }}"
           echo "${{ toJson(github) }}"
