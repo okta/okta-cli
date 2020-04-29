@@ -21,6 +21,7 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    name: Java ${{ matrix.java }}
     strategy:
       matrix:
         java: [8, 11]
