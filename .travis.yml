@@ -10,6 +10,11 @@ addons:
     - libxml2-utils
 
 before_install:
+- export REPO_SLUG=$TRAVIS_REPO_SLUG
+- export BRANCH=$TRAVIS_BRANCH
+- export PULL_REQUEST=$TRAVIS_PULL_REQUEST
+- export RUN_ITS=$TRAVIS_SECURE_ENV_VARS
+- if [ "${TRAVIS_EVENT_TYPE}" = "cron" ] ; then export CRON=true; fi
 - source ./src/ci/before_install.sh
 
 # skip the Travis-CI install phase because Maven handles that directly
@@ -20,17 +25,4 @@ script:
 - "./src/ci/build.sh"
 
 after_success:
-- bash <(curl -s https://codecov.io/bash) -f coverage/target/site/jacoco/jacoco.xml
-
-#deploy:
-#- provider: pages
-#  skip_cleanup: true
-#  github_token: "$GH_API_KEY"
-#  local_dir: target/gh-pages
-#  email: developers@okta.com
-#  name: Travis CI - Auto Doc Build
-#  on:
-#    jdk: openjdk8
-#    branch: master
-#    condition: "$TRAVIS_EVENT_TYPE != cron"
-
+- bash <(curl -s https://codecov.io/bash) -f target/site/jacoco/jacoco.xml

@@ -1,0 +1,56 @@
+#
+# Copyright 2020-Present Okta, Inc, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+name: Java CI
+
+on:
+  push:
+    branches: # build any changes to master
+      - master
+  pull_request: # build all PRs
+  schedule:
+    - cron: '0 0 * * 0' # weekly
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Java ${{ matrix.java }}
+    strategy:
+      matrix:
+        java: [8, 11]
+    env:
+      REPO_SLUG: ${{ github.repository }}
+      BRANCH: ${{ github.head_ref }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set ENV variables
+        run: |
+          echo "::set-env name=BRANCH::${BRANCH:-$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')}"
+          echo "::set-env name=RUN_ITS::$(if [ -z "${{ secrets.run_its }}" ]; then echo "false"; else echo "true"; fi)"
+          echo "::set-env name=CRON::$(if [ "schedule" == "${{ github.event_name }}" ]; then echo "true"; fi)"
+          echo "::set-env name=PULL_REQUEST::$(if [ -z "${{ github.event.number }}" ]; then echo "false"; else echo "true"; fi)"
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+
+      - name: Build and Test
+        run: source ./src/ci/before_install.sh && ./src/ci/build.sh
+
+      - uses: codecov/codecov-action@v1
+        with:
+         file: target/site/jacoco/jacoco.xml

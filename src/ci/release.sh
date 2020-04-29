@@ -25,7 +25,7 @@ OLD_VERSION="$(xmllint --xpath "//*[local-name()='project']/*[local-name()='vers
 NEW_VERSION="${OLD_VERSION/-SNAPSHOT}"
 TAG_NAME="${PROJECT_NAME}-${NEW_VERSION}" # default release plugin tag format
 
-# TODO: we must use our local maven settings file as this script is NOT ready for triggered by travis
+# TODO: we must use our local maven settings file as this script is NOT ready for triggered by CI
 # GPG agent configuration needed to sign artifacts
 MVN_CMD="./mvnw"
 
