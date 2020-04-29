@@ -31,18 +31,22 @@ jobs:
         java: [8, 11]
     env:
       TRAVIS_BRANCH: ${{ github.ref }}
-      TRAVIS_PULL_REQUET: ${{ github.event.pull_request.number }}
+      TRAVIS_REPO_SLUG: ${{ github.repository }}
+      TRAVIS_PULL_REQUET: ${{ github.event.number }}
       TRAVIS_SECURE_ENV_VARS: ${{ secrets.something }}
     steps:
       - uses: actions/checkout@v2
       - name: Set ENV variables
-        run:  echo "::set-env name=TRAVIS_BRANCH::$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')"
+        run: |
+          echo "::set-env name=TRAVIS_BRANCH::$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')"
       - name: Print Travis ENV vars
         run: |
           echo "TRAVIS_BRANCH: ${TRAVIS_BRANCH}"
           echo "TRAVIS_PULL_REQUEST: ${TRAVIS_PULL_REQUEST}"
+          echo "TRAVIS_REPO_SLUG: ${TRAVIS_REPO_SLUG}"
           echo "github.event_name: ${{ github.event_name }}"
           echo "TRAVIS_SECURE_ENV_VARS: ${TRAVIS_SECURE_ENV_VARS}"
+          echo "test: $(echo $GITHUB_HEAD_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')"
           echo "${{ toJson(github) }}"
       - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v1
