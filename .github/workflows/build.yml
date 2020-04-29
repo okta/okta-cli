@@ -16,7 +16,11 @@
 
 name: Java CI
 
-on: [push, pull_request]
+on:
+  - push
+  - pull_request
+  - schedule:
+    - cron:  '*/15 * * * *'
 
 jobs:
   build:
@@ -28,14 +32,17 @@ jobs:
     env:
       TRAVIS_BRANCH: ${{ github.ref }}
       TRAVIS_PULL_REQUET: ${{ github.event.pull_request.number }}
+      TRAVIS_SECURE_ENV_VARS: ${{ secrets }}
     steps:
       - uses: actions/checkout@v2
       - name: Set ENV variables
-        run: echo "##[set-output name=TRAVIS_BRANCH;]$(echo ${GITHUB_REF#refs/heads/})"
+        run:  echo "::set-env name=TRAVIS_BRANCH::$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')"
       - name: Print Travis ENV vars
         run: |
           echo "TRAVIS_BRANCH: ${TRAVIS_BRANCH}"
           echo "TRAVIS_PULL_REQUEST: ${TRAVIS_PULL_REQUEST}"
+          echo "github.event_name: ${{ github.event_name }}"
+          echo "TRAVIS_SECURE_ENV_VARS: ${TRAVIS_SECURE_ENV_VARS}"
       - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v1
         with:
