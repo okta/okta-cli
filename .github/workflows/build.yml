@@ -37,7 +37,7 @@ jobs:
       - name: Set ENV variables
         run: |
           echo "::set-env name=BRANCH::${BRANCH:-$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')}"
-          echo "::set-env name=RUN_ITS::$(if [ -z "${{ secrets.something }}" ]; then echo "false"; else echo "true"; fi)"
+          echo "::set-env name=RUN_ITS::$(if [ -z "${{ secrets.run_its }}" ]; then echo "false"; else echo "true"; fi)"
           echo "::set-env name=CRON::$(if [ "schedule" == "${{ github.event_name }}" ]; then echo "true"; fi)"
           echo "::set-env name=PULL_REQUEST::$(if [ -z "${{ github.event.number }}" ]; then echo "false"; else echo "true"; fi)"
 
