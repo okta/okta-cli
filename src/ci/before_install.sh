@@ -17,7 +17,7 @@
 
 #Using xmllint is faster than invoking maven
 ARTIFACT_VERSION="$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" pom.xml)"
-IS_RELEASE=$([ "${ARTIFACT_VERSION/SNAPSHOT}" == "${ARTIFACT_VERSION}" ] && [ "${TRAVIS_BRANCH}" == 'master' ] && echo 'true')
+IS_RELEASE=$([ "${ARTIFACT_VERSION/SNAPSHOT}" == "${ARTIFACT_VERSION}" ] && [ "${BRANCH}" == 'master' ] && echo 'true')
 export ARTIFACT_VERSION
 export IS_RELEASE
 

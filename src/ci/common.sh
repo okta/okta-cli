@@ -22,30 +22,27 @@
 SNAPSHOT_BRANCH="master"
 PROJECT_NAME="okta-maven-plugin"
 
-# Get the slug from the TRAVIS var, or parse the 'origin' remote
-REPO_SLUG=${REPO_SLUG:-${TRAVIS_REPO_SLUG:-$(git remote get-url origin | sed 's_.*\:__; s_.*github.com/__; s_\.git__')}}
-PULL_REQUEST=${PULL_REQUEST:-${TRAVIS_PULL_REQUEST:-true}} # default to true
-BRANCH=${TRAVIS_BRANCH:-"$(git rev-parse --abbrev-ref HEAD)"}
-
-# run the ITs if we have an ENV_VARS are set
-if [ "${TRAVIS_SECURE_ENV_VARS}" = true ] ; then
-    RUN_ITS=true
-fi
-RUN_ITS=${RUN_ITS:-false}
+# Get the slug from the env var, or parse the 'origin' remote
+REPO_SLUG=${REPO_SLUG:-$(git remote get-url origin | sed 's_.*\:__; s_.*github.com/__; s_\.git__')}
+PULL_REQUEST=${PULL_REQUEST:-true} # default to true
+BRANCH=${BRANCH:-"$(git rev-parse --abbrev-ref HEAD)"}
+CRON=${CRON:-false}
+RUN_ITS=${RUN_ITS:-false} # run the ITs if we have an ENV_VARS are set
 
 # we only deploy from a given branch NOT for pull requests, and ONLY when we can run the ITs
 # and do NOT deploy releases, only snapshots right now
 if [ "$BRANCH" = "$SNAPSHOT_BRANCH" ] && [ "$PULL_REQUEST" = false ] && [ "$RUN_ITS" = true ] && [ ! "$IS_RELEASE" = true ]; then
-        DEPLOY=true
+    DEPLOY=true
 fi
 DEPLOY=${DEPLOY:-false}
 
-# print the props so it is easier to debug on Travis or locally.
+# print the props so it is easier to debug on CI or locally.
 echo "REPO_SLUG: ${REPO_SLUG}"
 echo "PULL_REQUEST: ${PULL_REQUEST}"
 echo "BRANCH: ${BRANCH}"
 echo "IS_RELEASE: ${IS_RELEASE}"
 echo "RUN_ITS: ${RUN_ITS}"
+echo "CRON: ${CRON}"
 
 # all the prep is done, lets run the build!
 MVN_CMD="./mvnw -s src/ci/settings.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -V"

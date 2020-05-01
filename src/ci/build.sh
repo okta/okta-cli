@@ -22,7 +22,7 @@ COMMON_SCRIPT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common.sh"
 source "${COMMON_SCRIPT}"
 
 cron () {
-    echo "Running TRAVIS CRON task"
+    echo "Running CI CRON task"
     ${MVN_CMD} dependency-check:aggregate -Powasp
 
     echo "Running Integration Tests against Trex Org"
@@ -49,7 +49,7 @@ no_its_build () {
 }
 
 # if this build was triggered via a cron job, just scan the dependencies
-if [ "${TRAVIS_EVENT_TYPE}" = "cron" ] ; then
+if [ "${CRON}" = true ] ; then
     cron
 else
     # run 'mvn deploy' if we can
