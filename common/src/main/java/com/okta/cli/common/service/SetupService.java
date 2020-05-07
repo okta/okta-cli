@@ -2,7 +2,6 @@ package com.okta.cli.common.service;
 
 import com.okta.cli.common.config.MutablePropertySource;
 import com.okta.cli.common.model.OrganizationRequest;
-import com.okta.cli.common.progressbar.ProgressBar;
 
 import java.io.File;
 import java.io.IOException;

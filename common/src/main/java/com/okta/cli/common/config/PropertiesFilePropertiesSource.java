@@ -34,6 +34,11 @@ public class PropertiesFilePropertiesSource extends WrappedMutablePropertiesSour
     }
 
     @Override
+    public String getName() {
+        return propertiesFile.getAbsolutePath();
+    }
+
+    @Override
     public void addProperties(Map<String, String> properties) throws IOException {
 
         Properties existingProps = new Properties();

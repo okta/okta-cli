@@ -48,6 +48,11 @@ public class EnvFilePropertiesSource implements MutablePropertySource {
     }
 
     @Override
+    public String getName() {
+        return envFile.getAbsolutePath();
+    }
+
+    @Override
     public void addProperties(Map<String, String> properties) throws IOException {
 
         Map<String, String> allProperties = new LinkedHashMap<>(getProperties()); // start with existing properties

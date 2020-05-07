@@ -1,14 +1,11 @@
 package com.okta.cli.test
 
-
 import okhttp3.mockwebserver.MockWebServer
 import org.testng.annotations.Test
 
 import static com.okta.cli.test.CommandRunner.resultMatches
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.allOf
-import static org.hamcrest.Matchers.containsString
-import static org.hamcrest.Matchers.equalTo
+import static org.hamcrest.Matchers.*
 
 class JHipsterIT implements MockWebSupport, CreateAppSupport {
 

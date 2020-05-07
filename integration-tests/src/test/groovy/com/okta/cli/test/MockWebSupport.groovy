@@ -1,6 +1,6 @@
 package com.okta.cli.test
 
-import groovy.json.JsonOutput
+
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 

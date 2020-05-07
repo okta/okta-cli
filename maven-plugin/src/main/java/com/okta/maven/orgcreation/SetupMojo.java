@@ -18,7 +18,6 @@ package com.okta.maven.orgcreation;
 import com.okta.cli.common.config.MutablePropertySource;
 import com.okta.cli.common.service.ClientConfigurationException;
 import com.okta.cli.common.service.ConfigFileLocatorService;
-import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.common.service.SetupService;
 import com.okta.maven.orgcreation.service.DependencyAddService;
 import com.okta.maven.orgcreation.service.LatestVersionService;

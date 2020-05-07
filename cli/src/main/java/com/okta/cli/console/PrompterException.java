@@ -1,4 +1,4 @@
-package com.okta.cli.prompter;
+package com.okta.cli.console;
 
 public class PrompterException extends RuntimeException {
 

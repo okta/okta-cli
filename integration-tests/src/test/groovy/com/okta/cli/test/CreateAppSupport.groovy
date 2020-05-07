@@ -23,11 +23,7 @@ import org.yaml.snakeyaml.Yaml
 import java.nio.charset.StandardCharsets
 
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.allOf
-import static org.hamcrest.Matchers.containsString
-import static org.hamcrest.Matchers.equalTo
+import static org.hamcrest.Matchers.*
 import static org.mockito.Mockito.mock
 
 trait CreateAppSupport {

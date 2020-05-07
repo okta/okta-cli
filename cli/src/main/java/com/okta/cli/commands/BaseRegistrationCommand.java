@@ -1,13 +1,16 @@
 package com.okta.cli.commands;
 
+import com.okta.cli.OktaCli;
 import com.okta.cli.common.model.OrganizationRequest;
-import com.okta.cli.prompter.Prompter;
-import com.okta.commons.lang.Strings;
+import com.okta.cli.console.Prompter;
 import picocli.CommandLine;
 
 import java.util.concurrent.Callable;
 
-abstract class BaseRegistrationCommand extends BaseEnvCommand {
+abstract class BaseRegistrationCommand implements Callable<Integer> {
+
+    @CommandLine.Mixin
+    protected OktaCli.StandardOptions standardOptions;
 
     @CommandLine.Option(names = "--batch", description = "Batch mode, will not prompt for user input")
     protected boolean interactive = true;
@@ -25,7 +28,7 @@ abstract class BaseRegistrationCommand extends BaseEnvCommand {
     protected String company;
 
     protected OrganizationRequest organizationRequest() {
-        Prompter prompter = environment.prompter();
+        Prompter prompter = standardOptions.getEnvironment().prompter();
         return new OrganizationRequest()
                 .setFirstName(prompter.promptUntilValue(firstName, "First name"))
                 .setLastName(prompter.promptUntilValue(lastName, "Last name"))

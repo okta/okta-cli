@@ -17,12 +17,10 @@ package com.okta.cli.common.service;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Strings;
 import com.google.common.io.CharStreams;
 import com.okta.cli.common.model.OrganizationRequest;
 import com.okta.cli.common.model.OrganizationResponse;
-import com.okta.sdk.impl.http.support.UserAgent;
-import com.okta.sdk.impl.util.StringInputStream;
+import com.okta.commons.lang.ApplicationInfo;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -37,13 +35,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
 
 public class DefaultOktaOrganizationCreator implements OktaOrganizationCreator {
 
     private static final String APPLICATION_JSON = "application/json";
     private static final Logger LOG = LoggerFactory.getLogger(DefaultOktaOrganizationCreator.class);
 
-    private static final String USER_AGENT_STRING = UserAgent.getUserAgentString(); // TDOD: Replaced with ApplicationInfo in future versions of the Okta SDK
+    private static final String USER_AGENT_STRING = ApplicationInfo.get().entrySet().stream()
+            .map(e -> e.getKey() + "/" + e.getValue())
+            .collect(Collectors.joining(" "));
 
     @Override
     public OrganizationResponse createNewOrg(String apiBaseUrl, OrganizationRequest orgRequest) throws IOException {

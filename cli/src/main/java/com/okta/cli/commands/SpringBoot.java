@@ -1,13 +1,9 @@
 package com.okta.cli.commands;
 
-import com.okta.cli.common.config.MutablePropertySource;
-import com.okta.cli.common.service.ConfigFileLocatorService;
-import com.okta.cli.common.service.DefaultAuthorizationServerConfigureService;
-import com.okta.cli.common.service.DefaultOidcAppCreator;
-import com.okta.cli.common.service.DefaultOktaOrganizationCreator;
-import com.okta.cli.common.service.DefaultSdkConfigurationService;
+import com.okta.cli.commands.apps.AppCreationMixin;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.common.service.SetupService;
+import com.okta.commons.lang.Strings;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -15,30 +11,35 @@ import java.io.File;
 
 @Command(name = "spring-boot",
          description = "Registers a new Okta OAuth 2.0 application and configures Spring's application properties",
-         mixinStandardHelpOptions = true, // adds --help, --version
-         usageHelpAutoWidth = true,
-         usageHelpWidth = 200)
+         hidden = true)
 public class SpringBoot extends BaseRegistrationCommand {
 
     @CommandLine.Option(names = "--use-standard-spring-properties", description = "Defaults to 'true', and uses 'okta.oauth2.*' property format")
-    protected boolean useStandardSpringProperties = false;
+    private boolean useStandardSpringProperties = false;
+
+    @CommandLine.Mixin
+    private AppCreationMixin appCreationMixin;
 
     @Override
-    public Integer doCall() throws Exception {
+    public Integer call() throws Exception {
 
-        File baseDir = new File(System.getProperty("user.dir"));
         File oktaPropsFile = new File(System.getProperty("user.home"), ".okta/okta.yaml");
         String springPropertyKey = useStandardSpringProperties ? "okta" : null;
 
         // TODO these should be options
         String groupClaim = null;
 
-        MutablePropertySource propertySource = new ConfigFileLocatorService().findApplicationConfig(baseDir, applicationConfigFile);
+        SetupService setupService = new DefaultSetupService(springPropertyKey);
 
-        SetupService setupService = new DefaultSetupService(new DefaultSdkConfigurationService(), new DefaultOktaOrganizationCreator(), new DefaultOidcAppCreator(), new DefaultAuthorizationServerConfigureService(), springPropertyKey);
-
-        setupService.configureEnvironment(this::organizationRequest, oktaPropsFile, propertySource, oidcAppName, groupClaim, authorizationServerId, environment.isDemo(), interactive, springBasedRedirectUris("okta"));
-
+        setupService.configureEnvironment(this::organizationRequest,
+                                          oktaPropsFile,
+                                          appCreationMixin.getPropertySource(),
+                                          appCreationMixin.getOrDefaultAppName(),
+                                          groupClaim,
+                                          Strings.isEmpty(appCreationMixin.authorizationServerId) ? "default" : appCreationMixin.authorizationServerId,
+                                          standardOptions.getEnvironment().isDemo(),
+                                          interactive,
+                                          appCreationMixin.springBasedRedirectUris("okta"));
         return 0;
     }
 }

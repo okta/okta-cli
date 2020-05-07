@@ -22,6 +22,8 @@ import java.util.Map;
 
 public interface MutablePropertySource extends PropertiesSource {
 
+    String getName();
+
     void addProperties(Map<String, String> properties) throws IOException;
 
     String getProperty(String key);

@@ -19,7 +19,8 @@ import com.okta.cli.common.config.MutablePropertySource
 import com.okta.cli.common.model.OrganizationRequest
 import com.okta.cli.common.service.SdkConfigurationService
 import com.okta.cli.common.service.SetupService
-import com.okta.maven.orgcreation.service.*
+import com.okta.maven.orgcreation.service.DependencyAddService
+import com.okta.maven.orgcreation.service.LatestVersionService
 import com.okta.maven.orgcreation.test.RestoreSystemProperties
 import com.okta.sdk.impl.config.ClientConfiguration
 import org.apache.maven.artifact.repository.ArtifactRepository

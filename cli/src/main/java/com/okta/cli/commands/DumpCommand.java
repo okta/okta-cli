@@ -1,40 +1,41 @@
 package com.okta.cli.commands;
 
+import com.okta.cli.OktaCli;
 import com.okta.cli.common.service.DefaultSetupService;
+import com.okta.cli.console.ConsoleOutput;
 import picocli.CommandLine;
 
+import java.util.concurrent.Callable;
+
 @CommandLine.Command(name = "dump", description = "Dump environment for debugging", hidden = true)
-public class DumpCommand extends BaseCommand {
+public class DumpCommand implements Callable<Integer> {
 
-    @CommandLine.Spec
-    protected CommandLine.Model.CommandSpec spec;
-
+    @CommandLine.Mixin
+    OktaCli.StandardOptions standardOptions;
+    
     @Override
-    Integer doCall() throws Exception {
+    public Integer call() throws Exception {
 
-        System.out.println("Dumping environment");
+        ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
+
+        out.writeLine("Dumping environment");
         System.getenv().forEach((key, value) -> {
-            System.out.print("\t");
-            System.out.print(key);
-            System.out.print(" = ");
-            System.out.println(value);
+            out.write("\t");
+            out.write(key);
+            out.write(" = ");
+            out.writeLine(value);
         });
 
-        System.out.println("System Properties");
+        out.writeLine("System Properties");
         System.getProperties().forEach((key, value) -> {
-            System.out.print("\t");
-            System.out.print(key);
-            System.out.print(" = ");
-            System.out.println(value);
+            out.write("\t");
+            out.write(key);
+            out.write(" = ");
+            out.writeLine(value);
         });
 
-        System.out.println("broken: " + new DefaultSetupService("invalid").getApiBaseUrl());
+        out.writeLine("broken: " + new DefaultSetupService("invalid").getApiBaseUrl());
 
         return 0;
-    }
-
-    @Override
-    CommandLine.Model.CommandSpec getCommandSpec() {
-        return spec;
     }
 }

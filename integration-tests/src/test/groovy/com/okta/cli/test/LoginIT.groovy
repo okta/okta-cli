@@ -1,14 +1,11 @@
 package com.okta.cli.test
 
-import groovy.json.JsonOutput
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import org.testng.annotations.Test
-import org.yaml.snakeyaml.Yaml
 
-import static org.hamcrest.Matchers.*
+import org.testng.annotations.Test
+
 import static com.okta.cli.test.CommandRunner.resultMatches
 import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.*
 
 class LoginIT implements MockWebSupport{
 

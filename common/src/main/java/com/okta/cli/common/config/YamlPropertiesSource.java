@@ -40,6 +40,11 @@ public class YamlPropertiesSource extends WrappedMutablePropertiesSource {
     }
 
     @Override
+    public String getName() {
+        return yamlFile.getAbsolutePath();
+    }
+
+    @Override
     public void addProperties(Map<String, String> properties) throws IOException {
 
         Yaml springAppYaml = new Yaml(yamlOptions());

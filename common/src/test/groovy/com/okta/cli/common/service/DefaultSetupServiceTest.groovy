@@ -3,7 +3,6 @@ package com.okta.cli.common.service
 import com.okta.cli.common.config.MutablePropertySource
 import com.okta.cli.common.model.OrganizationRequest
 import com.okta.cli.common.model.OrganizationResponse
-import com.okta.cli.common.progressbar.ProgressBar
 import com.okta.sdk.client.Client
 import com.okta.sdk.client.ClientBuilder
 import com.okta.sdk.client.Clients
