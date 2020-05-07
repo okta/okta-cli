@@ -35,6 +35,8 @@ class CommandRunner {
         def serr = new StringBuilder()
         process.consumeProcessOutput(sout, serr)
 
+        Thread.sleep(100)
+
         if (process.isAlive() && input != null && !input.empty) {
             def writer = new OutputStreamWriter(process.getOutputStream())
             input.forEach {
