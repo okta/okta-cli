@@ -81,8 +81,13 @@ jobs:
         run: |
           choco install visualstudio2017-workload-vctools
 
+      - name: mvnw --version
+        run: mvnw --version
+        shell: cmd
+
       - name: Build and Test
         run: mvnw install -Pci
+        shell: cmd
 
       - name: Archive Binary
         uses: actions/upload-artifact@v1
