@@ -35,11 +35,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set ENV variables
-        run: |
-          echo "::set-env name=BRANCH::${BRANCH:-$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')}"
-          echo "::set-env name=PULL_REQUEST::$(if [ -z "${{ github.event.number }}" ]; then echo "false"; else echo "true"; fi)"
-
       - name: Set up GraalVM (Java 11)
         uses: DeLaGuardo/setup-graalvm@3
         with:
@@ -49,7 +44,7 @@ jobs:
         run: gu install native-image
 
       - name: Build and Test
-        run: source ./src/ci/before_install.sh && ./src/ci/build.sh
+        run: ./src/ci/gh-build.sh
 
       - name: Archive Binary
         uses: actions/upload-artifact@v1
@@ -95,6 +90,11 @@ jobs:
       - name: mvnw --version
         run: mvnw --version
         shell: cmd
+
+      - name: Maven Resolve
+        run: |
+          mvnw -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -V -Pci dependency:resolve
+          mvnw -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -V -Pci dependency:resolve-plugins
 
       - name: Build and Test
         run: |
