@@ -85,6 +85,13 @@ jobs:
         run: |
           choco install visualstudio2017-workload-vctools
 
+      - name: Configure Pagefile
+        uses: al-cheb/configure-pagefile-action@v1.2
+
+      - name:
+        run: |
+          (Get-CimInstance Win32_PageFileUsage).AllocatedBaseSize
+
       - name: mvnw --version
         run: mvnw --version
         shell: cmd
