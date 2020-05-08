@@ -194,7 +194,7 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>${project.build.directory}/okta</file>
+                                    <file>${project.build.directory}/okta${binary.ext}</file>
                                     <type>${binary.type}</type>
                                     <classifier>${binary.classifier}</classifier>
                                 </artifact>
@@ -234,6 +234,7 @@
             <properties>
                 <binary.classifier>mac-${os.arch}</binary.classifier>
                 <binary.type>bin</binary.type>
+                <binary.ext></binary.ext>
             </properties>
         </profile>
         <profile>
@@ -246,48 +247,8 @@
             <properties>
                 <binary.classifier>windows-${os.arch}</binary.classifier>
                 <binary.type>exe</binary.type>
+                <binary.ext>.exe</binary.ext>
             </properties>
-            <build>
-                <plugins>
-
-<!--                    &lt;!&ndash; the GraalVM native-image maven plugin is broken on windows &ndash;&gt;-->
-<!--                    <plugin>-->
-<!--                        <groupId>org.graalvm.nativeimage</groupId>-->
-<!--                        <artifactId>native-image-maven-plugin</artifactId>-->
-<!--                        <configuration>-->
-<!--                            <skip>true</skip>-->
-<!--                        </configuration>-->
-<!--                    </plugin>-->
-<!--                    <plugin>-->
-<!--                        <groupId>org.codehaus.mojo</groupId>-->
-<!--                        <artifactId>exec-maven-plugin</artifactId>-->
-<!--                        <version>1.6.0</version>-->
-<!--                        <executions>-->
-<!--                            <execution>-->
-<!--                                <phase>package</phase>-->
-<!--                                <goals>-->
-<!--                                    <goal>exec</goal>-->
-<!--                                </goals>-->
-<!--                            </execution>-->
-<!--                        </executions>-->
-<!--                        <configuration>-->
-<!--                            <executable>native-image</executable>-->
-<!--                            <arguments>-->
-<!--                                <argument>&#45;&#45;no-fallback</argument>-->
-<!--                                <argument>&#45;&#45;enable-url-protocols=http,https</argument>-->
-<!--                                <argument>-H:ResourceConfigurationFiles=src/main/graalvm/resource-config.json</argument>-->
-<!--                                <argument>-H:ReflectionConfigurationFiles=src/main/graalvm/reflect-config.json,src/main/graalvm/otka-sdk-reflect-config.json</argument>-->
-<!--                                <argument>-H:+TraceClassInitialization</argument>-->
-<!--                                <argument>-H:+ReportExceptionStackTraces</argument>-->
-<!--                                <argument>-H:Class=com.okta.cli.OktaCli</argument>-->
-<!--                                <argument>-H:Name=target/okta-cli</argument>-->
-<!--                                <argument>-cp</argument>-->
-<!--                                <classpath/>-->
-<!--                            </arguments>-->
-<!--                        </configuration>-->
-<!--                    </plugin>-->
-                </plugins>
-            </build>
         </profile>
         <profile>
             <id>linux</id>
@@ -299,6 +260,7 @@
             <properties>
                 <binary.classifier>linux-${os.arch}</binary.classifier>
                 <binary.type>bin</binary.type>
+                <binary.ext></binary.ext>
             </properties>
         </profile>
     </profiles>
