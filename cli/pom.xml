@@ -125,17 +125,17 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.6.0</version>
-                <configuration>
-                    <executable>java</executable>
-                    <arguments>
-                        <argument>-Xmx1000m</argument>
-                        <argument>-agentlib:native-image-agent=config-output-dir=target/foobar</argument>
-                        <argument>-classpath</argument>
-                        <classpath/>
-                        <argument>com.okta.cli.OktaCli</argument>
-                        <argument>register</argument>
-                    </arguments>
-                </configuration>
+<!--                <configuration>-->
+<!--                    <executable>java</executable>-->
+<!--                    <arguments>-->
+<!--                        <argument>-Xmx1000m</argument>-->
+<!--                        <argument>-agentlib:native-image-agent=config-output-dir=target/foobar</argument>-->
+<!--                        <argument>-classpath</argument>-->
+<!--                        <classpath/>-->
+<!--                        <argument>com.okta.cli.OktaCli</argument>-->
+<!--                        <argument>register</argument>-->
+<!--                    </arguments>-->
+<!--                </configuration>-->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -229,6 +229,47 @@
                 <binary.classifier>windows-${os.arch}</binary.classifier>
                 <binary.type>exe</binary.type>
             </properties>
+            <build>
+                <plugins>
+
+                    <!-- the GraalVM native-image maven plugin is broken on windows -->
+                    <plugin>
+                        <groupId>org.graalvm.nativeimage</groupId>
+                        <artifactId>native-image-maven-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.6.0</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <executable>native-image</executable>
+                            <arguments>
+                                <argument>--no-fallback</argument>
+                                <argument>--enable-url-protocols=http,https</argument>
+                                <argument>-H:ResourceConfigurationFiles=src/main/graalvm/resource-config.json</argument>
+                                <argument>-H:ReflectionConfigurationFiles=src/main/graalvm/reflect-config.json,src/main/graalvm/otka-sdk-reflect-config.json</argument>
+                                <argument>-H:+TraceClassInitialization</argument>
+                                <argument>-H:+ReportExceptionStackTraces</argument>
+                                <argument>-H:Class=com.okta.cli.OktaCli</argument>
+                                <argument>-H:Name=target/okta-cli</argument>
+                                <argument>-cp</argument>
+                                <classpath/>
+                            </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <id>linux</id>
