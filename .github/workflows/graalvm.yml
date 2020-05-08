@@ -99,7 +99,7 @@ jobs:
       - name: Build and Test
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-          mvnw -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -V install -Pci -DskipTests -DskipITs
+          mvnw -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -V install -Pci -DskipTests -DskipITs -e
         shell: cmd
 
       - name: Archive Binary
