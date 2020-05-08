@@ -49,7 +49,7 @@ jobs:
         run: source ./src/ci/before_install.sh && ./src/ci/build.sh
 
       - name: Archive Binary
-          uses: actions/upload-artifact@v1
-          with:
-            name: okta-cli-linux-x86_64
-            path: cli/target/okta-cli
+        uses: actions/upload-artifact@v1
+        with:
+          name: okta-cli-linux-x86_64
+          path: cli/target/okta-cli
