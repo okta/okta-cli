@@ -106,4 +106,4 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: okta-cli-${{ matrix.os }}-x86_64.exe
-          path: cli/target/okta
+          path: cli/target/okta.exe
