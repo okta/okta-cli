@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: okta-cli-${{ matrix.os }}-x86_64
-          path: cli/target/okta-cli
+          path: cli/target/okta
 
   build-windows:
     name: GraalVM - ${{ matrix.os }}
@@ -95,6 +95,7 @@ jobs:
         run: |
           mvnw -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -V -Pci dependency:resolve
           mvnw -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -V -Pci dependency:resolve-plugins
+        shell: cmd
 
       - name: Build and Test
         run: |
@@ -106,4 +107,4 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: okta-cli-${{ matrix.os }}-x86_64.exe
-          path: cli/target/okta-cli
+          path: cli/target/okta

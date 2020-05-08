@@ -186,7 +186,7 @@
                         <argument>-H:+TraceClassInitialization</argument>
                         <argument>-H:+ReportExceptionStackTraces</argument>
                         <argument>-H:Class=com.okta.cli.OktaCli</argument>
-                        <argument>-H:Name=target/okta-cli</argument>
+                        <argument>-H:Name=target/okta</argument>
                         <argument>-cp</argument>
                         <classpath/>
                     </arguments>
@@ -207,7 +207,7 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>${project.build.directory}/okta-cli</file>
+                                    <file>${project.build.directory}/okta</file>
                                     <type>${binary.type}</type>
                                     <classifier>${binary.classifier}</classifier>
                                 </artifact>
