@@ -33,9 +33,13 @@ public interface ConsoleOutput extends Closeable {
         writeLine(obj + "");
     }
 
+    void writeError(String message);
+
+    void bold(String message);
+
     void flush();
 
-    public static ConsoleOutput create(boolean colors) {
+    static ConsoleOutput create(boolean colors) {
 
         return new AnsiConsoleOutput(System.out, colors && !System.getProperty("os.name").startsWith("Windows"));
     }
@@ -60,6 +64,26 @@ public interface ConsoleOutput extends Closeable {
         public void writeLine(String msg) {
             out.println(msg);
             flush();
+        }
+
+        public void writeError(String message) {
+            writeWithColor(message, ConsoleColors.RED);
+        }
+
+        public void bold(String message) {
+            writeWithColor(message, ConsoleColors.BOLD);
+        }
+
+        public void writeWithColor(String message, String ansiColor) {
+            if (colors) {
+                out.print(ansiColor);
+            }
+
+            out.print(message);
+
+            if (colors) {
+                out.print(ConsoleColors.RESET);
+            }
         }
 
         @Override

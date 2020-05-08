@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.okta</groupId>
         <artifactId>okta-parent</artifactId>
-        <version>15</version>
+        <version>17</version>
     </parent>
 
     <groupId>com.okta.cli</groupId>
@@ -57,7 +57,7 @@
         <module>maven-plugin</module>
         <!-- see below for enabling the CLI module when building with Graalvm -->
         <!-- <module>cli</module>-->
-        <module>integration-tests</module>
+        <!-- <module>integration-tests</module> -->
         <module>coverage</module>
     </modules>
 
@@ -135,6 +135,30 @@
             </resource>
         </resources>
 
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>3.1.12.2</version>
+                    <configuration>
+                        <effort>Max</effort>
+                        <threshold>Low</threshold>
+                        <failOnError>true</failOnError>
+                        <omitVisitors>CrlfLogInjectionDetector</omitVisitors>
+                        <excludeFilterFile>${root.dir}/src/findbugs/findbugs-exclude.xml</excludeFilterFile>
+                        <plugins>
+                            <plugin>
+                                <groupId>com.h3xstream.findsecbugs</groupId>
+                                <artifactId>findsecbugs-plugin</artifactId>
+                                <version>1.10.1</version>
+                            </plugin>
+                        </plugins>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -161,11 +185,55 @@
         <profile>
             <id>graalvm</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <!-- There is no _easy_ way to detect if running with a GraalVM, so just assume Java 11 is GraalVM -->
+                <jdk>11</jdk>
             </activation>
             <modules>
                 <module>cli</module>
+                <module>integration-tests</module>
             </modules>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
+                        <configuration>
+                            <!-- work around a SpotBugs Java 11 bug -->
+                            <excludeFilterFile>${root.dir}/src/findbugs/findbugs-exclude.xml,${root.dir}/src/findbugs/findbugs-exclude-jdk11.xml</excludeFilterFile>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>ci</id>
+            <build>
+                <plugins>
+                    <!-- replace findbugs (from the parent pom) with spotbugs -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>scan</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

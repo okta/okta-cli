@@ -63,11 +63,11 @@ public class AppsCreate implements Callable<Integer> {
 
         Prompter prompter = standardOptions.getEnvironment().prompter();
 
-        Map<String, String> appTypes = Map.of("web", "Web",
-                                              "spa", "Single Page App",
-                                              "native", "Native App (mobile)");
-
-        String appType = prompter.prompt("Type of Application\n(The Okta CLI only supports a subset of application types and properties):", appTypes, "web"); // TODO everything below assumes "web"
+//        Map<String, String> appTypes = Map.of("web", "Web",
+//                                              "spa", "Single Page App",
+//                                              "native", "Native App (mobile)");
+//
+//        String appType = prompter.prompt("Type of Application\n(The Okta CLI only supports a subset of application types and properties):", appTypes, "web"); // TODO everything below assumes "web"
 
         String appName = prompter.promptIfEmpty(appCreationMixin.appName,"Application name", appCreationMixin.getDefaultAppName());
 

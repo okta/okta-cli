@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,7 +29,7 @@ import java.util.stream.IntStream;
 
 public class DefaultPrompter implements Prompter, Closeable {
 
-    private final BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
+    private final BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
 
     private final ConsoleOutput out;
 
@@ -71,7 +72,7 @@ public class DefaultPrompter implements Prompter, Closeable {
     public String prompt(String message, Map<String, String> choices, String defaultChoice) {
         out.write(message + "\n");
         choices.forEach((key, value) -> {
-            bold("> " + key + ": ");
+            out.bold("> " + key + ": ");
             out.write(value + "\n");
         });
 
@@ -89,7 +90,7 @@ public class DefaultPrompter implements Prompter, Closeable {
         }
 
         if (!choices.containsKey(result)) {
-            writeError("\nInvalid choice, try again\n\n");
+            out.writeError("\nInvalid choice, try again\n\n");
             return prompt(message, choices, defaultChoice);
         }
         return result;
@@ -99,25 +100,5 @@ public class DefaultPrompter implements Prompter, Closeable {
     public void close() throws IOException {
         out.close();
         consoleReader.close();
-    }
-
-    private void writeError(String message) {
-        writeWithColor(message, ConsoleColors.RED);
-    }
-
-    private void bold(String message) {
-        writeWithColor(message, ConsoleColors.BOLD);
-    }
-
-    private void writeWithColor(String message, String ansiColor) {
-        if (true) { // TODO check if ANSI
-            out.write(ansiColor);
-        }
-
-        out.write(message);
-
-        if (true) { // TODO check if ANSI
-            out.write(ConsoleColors.RESET);
-        }
     }
 }
