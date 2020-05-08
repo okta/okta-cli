@@ -44,7 +44,7 @@ jobs:
           echo "::set-env name=PULL_REQUEST::$(if [ -z "${{ github.event.number }}" ]; then echo "false"; else echo "true"; fi)"
 
       - name: Set up JDK ${{ matrix.java }}
-      - uses: actions/setup-java@v1
+        uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
 
