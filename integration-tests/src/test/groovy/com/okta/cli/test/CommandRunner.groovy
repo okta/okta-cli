@@ -69,7 +69,7 @@ class CommandRunner {
     static String getCli() {
         String cli = System.getProperty("okta-cli-test.path")
         if (cli == null || cli.isBlank()) {
-            return new File("../cli/target/okta-cli").absolutePath
+            return new File("../cli/target/okta").absolutePath
         }
         return cli
     }
