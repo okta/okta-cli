@@ -58,7 +58,7 @@
         <!-- see below for enabling the CLI module when building with Graalvm -->
         <!-- <module>cli</module>-->
         <!-- <module>integration-tests</module> -->
-        <module>coverage</module>
+        <!-- <module>coverage</module> -->
     </modules>
 
     <dependencyManagement>
@@ -191,6 +191,7 @@
             <modules>
                 <module>cli</module>
                 <module>integration-tests</module>
+                <module>coverage</module>
             </modules>
 
             <build>

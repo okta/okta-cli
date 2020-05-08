@@ -121,10 +121,10 @@
             </resource>
         </resources>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
+<!--            <plugin>-->
+<!--                <groupId>org.codehaus.mojo</groupId>-->
+<!--                <artifactId>exec-maven-plugin</artifactId>-->
+<!--                <version>1.6.0</version>-->
 <!--                <configuration>-->
 <!--                    <executable>java</executable>-->
 <!--                    <arguments>-->
@@ -136,32 +136,63 @@
 <!--                        <argument>register</argument>-->
 <!--                    </arguments>-->
 <!--                </configuration>-->
-            </plugin>
+<!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
             </plugin>
-            <plugin>
-                <groupId>org.graalvm.nativeimage</groupId>
-                <artifactId>native-image-maven-plugin</artifactId>
-                <version>20.0.0</version>
-                <configuration>
-                    <mainClass>com.okta.cli.OktaCli</mainClass>
-                    <skip>false</skip>
-                    <imageName>okta-cli</imageName>
+<!--            <plugin>-->
+<!--                <groupId>org.graalvm.nativeimage</groupId>-->
+<!--                <artifactId>native-image-maven-plugin</artifactId>-->
+<!--                <version>20.0.0</version>-->
+<!--                <configuration>-->
+<!--                    <mainClass>com.okta.cli.OktaCli</mainClass>-->
+<!--                    <skip>false</skip>-->
+<!--                    <imageName>okta-cli</imageName>-->
 
-                    <buildArgs>--no-fallback --enable-url-protocols=http,https -H:ResourceConfigurationFiles=../src/main/graalvm/resource-config.json -H:ReflectionConfigurationFiles=../src/main/graalvm/reflect-config.json,../src/main/graalvm/otka-sdk-reflect-config.json -H:+TraceClassInitialization -H:+ReportExceptionStackTraces </buildArgs>
-                </configuration>
+<!--                    <buildArgs>&#45;&#45;no-fallback &#45;&#45;enable-url-protocols=http,https -H:ResourceConfigurationFiles=../src/main/graalvm/resource-config.json -H:ReflectionConfigurationFiles=../src/main/graalvm/reflect-config.json,../src/main/graalvm/otka-sdk-reflect-config.json -H:+TraceClassInitialization -H:+ReportExceptionStackTraces </buildArgs>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <goals>-->
+<!--                            <goal>native-image</goal>-->
+<!--                        </goals>-->
+<!--                        <phase>package</phase>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
+
+            <!-- the GraalVM native-image maven plugin is broken on windows, so just execute `native-image` directly -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
                 <executions>
                     <execution>
-                        <goals>
-                            <goal>native-image</goal>
-                        </goals>
                         <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <executable>native-image</executable>
+                    <arguments>
+                        <argument>--no-fallback</argument>
+                        <argument>--enable-url-protocols=http,https</argument>
+                        <argument>-H:ResourceConfigurationFiles=src/main/graalvm/resource-config.json</argument>
+                        <argument>-H:ReflectionConfigurationFiles=src/main/graalvm/reflect-config.json,src/main/graalvm/otka-sdk-reflect-config.json</argument>
+                        <argument>-H:+TraceClassInitialization</argument>
+                        <argument>-H:+ReportExceptionStackTraces</argument>
+                        <argument>-H:Class=com.okta.cli.OktaCli</argument>
+                        <argument>-H:Name=target/okta-cli</argument>
+                        <argument>-cp</argument>
+                        <classpath/>
+                    </arguments>
+                </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -232,42 +263,42 @@
             <build>
                 <plugins>
 
-                    <!-- the GraalVM native-image maven plugin is broken on windows -->
-                    <plugin>
-                        <groupId>org.graalvm.nativeimage</groupId>
-                        <artifactId>native-image-maven-plugin</artifactId>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.6.0</version>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <executable>native-image</executable>
-                            <arguments>
-                                <argument>--no-fallback</argument>
-                                <argument>--enable-url-protocols=http,https</argument>
-                                <argument>-H:ResourceConfigurationFiles=src/main/graalvm/resource-config.json</argument>
-                                <argument>-H:ReflectionConfigurationFiles=src/main/graalvm/reflect-config.json,src/main/graalvm/otka-sdk-reflect-config.json</argument>
-                                <argument>-H:+TraceClassInitialization</argument>
-                                <argument>-H:+ReportExceptionStackTraces</argument>
-                                <argument>-H:Class=com.okta.cli.OktaCli</argument>
-                                <argument>-H:Name=target/okta-cli</argument>
-                                <argument>-cp</argument>
-                                <classpath/>
-                            </arguments>
-                        </configuration>
-                    </plugin>
+<!--                    &lt;!&ndash; the GraalVM native-image maven plugin is broken on windows &ndash;&gt;-->
+<!--                    <plugin>-->
+<!--                        <groupId>org.graalvm.nativeimage</groupId>-->
+<!--                        <artifactId>native-image-maven-plugin</artifactId>-->
+<!--                        <configuration>-->
+<!--                            <skip>true</skip>-->
+<!--                        </configuration>-->
+<!--                    </plugin>-->
+<!--                    <plugin>-->
+<!--                        <groupId>org.codehaus.mojo</groupId>-->
+<!--                        <artifactId>exec-maven-plugin</artifactId>-->
+<!--                        <version>1.6.0</version>-->
+<!--                        <executions>-->
+<!--                            <execution>-->
+<!--                                <phase>package</phase>-->
+<!--                                <goals>-->
+<!--                                    <goal>exec</goal>-->
+<!--                                </goals>-->
+<!--                            </execution>-->
+<!--                        </executions>-->
+<!--                        <configuration>-->
+<!--                            <executable>native-image</executable>-->
+<!--                            <arguments>-->
+<!--                                <argument>&#45;&#45;no-fallback</argument>-->
+<!--                                <argument>&#45;&#45;enable-url-protocols=http,https</argument>-->
+<!--                                <argument>-H:ResourceConfigurationFiles=src/main/graalvm/resource-config.json</argument>-->
+<!--                                <argument>-H:ReflectionConfigurationFiles=src/main/graalvm/reflect-config.json,src/main/graalvm/otka-sdk-reflect-config.json</argument>-->
+<!--                                <argument>-H:+TraceClassInitialization</argument>-->
+<!--                                <argument>-H:+ReportExceptionStackTraces</argument>-->
+<!--                                <argument>-H:Class=com.okta.cli.OktaCli</argument>-->
+<!--                                <argument>-H:Name=target/okta-cli</argument>-->
+<!--                                <argument>-cp</argument>-->
+<!--                                <classpath/>-->
+<!--                            </arguments>-->
+<!--                        </configuration>-->
+<!--                    </plugin>-->
                 </plugins>
             </build>
         </profile>
