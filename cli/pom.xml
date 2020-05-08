@@ -54,15 +54,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.okta.commons</groupId>
-            <artifactId>okta-config-check</artifactId>
-            <version>1.2.3-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.okta.cli</groupId>
             <artifactId>okta-cli-common</artifactId>
-            <version>0.2.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -101,12 +94,6 @@
             <artifactId>auto-service</artifactId>
             <version>1.0-rc6</version>
             <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>com.okta.commons</groupId>
-            <artifactId>okta-config-check</artifactId>
-            <version>1.2.3-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
