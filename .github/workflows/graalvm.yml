@@ -23,8 +23,11 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    name: GraalVM
+    name: GraalVM - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
     env:
       REPO_SLUG: ${{ github.repository }}
       BRANCH: ${{ github.head_ref }}
@@ -51,5 +54,38 @@ jobs:
       - name: Archive Binary
         uses: actions/upload-artifact@v1
         with:
-          name: okta-cli-linux-x86_64
+          name: okta-cli-${{ matrix.os }}-x86_64
+          path: cli/target/okta-cli
+
+  build-windows:
+    name: GraalVM - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+    env:
+      REPO_SLUG: ${{ github.repository }}
+      BRANCH: ${{ github.head_ref }}
+      RUN_IT: true
+
+    steps:
+      - uses: actions/checkout@v1
+        -
+      - name: Set up GraalVM (Java 11)
+        uses: DeLaGuardo/setup-graalvm@3
+        with:
+          graalvm-version: '20.0.0.java11'
+
+      - name: Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools
+        run: |
+          choco install visualstudio2017-workload-vctools
+
+      - name: Build and Test
+        run: mvnw install -Pci
+
+      - name: Archive Binary
+        uses: actions/upload-artifact@v1
+        with:
+          name: okta-cli-${{ matrix.os }}-x86_64.exe
           path: cli/target/okta-cli
