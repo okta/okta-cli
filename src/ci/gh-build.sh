@@ -20,7 +20,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export BRANCH="${BRANCH:-$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')}"
 export PULL_REQUEST=$(if [ -z "${GITHUB_EVENT_NUMBER}" ]; then echo "false"; else echo "true"; fi)
 export CRON=$(if [ "schedule" == "${GITHUB_EVENT_NAME}" ]; then echo "true"; fi)
-export RUN_ITS=false
+export RUN_ITS=true
 
 source "${SCRIPT_DIR}/before_install.sh"
 "${SCRIPT_DIR}/build.sh"
