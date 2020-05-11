@@ -20,13 +20,7 @@ import com.okta.sdk.client.Client
 import com.okta.sdk.impl.client.DefaultClientBuilder
 import com.okta.sdk.impl.ds.JacksonMapMarshaller
 import com.okta.sdk.impl.util.BaseUrlResolver
-import com.okta.sdk.resource.application.ApplicationSignOnMode
-import com.okta.sdk.resource.application.OAuthGrantType
-import com.okta.sdk.resource.application.OAuthResponseType
-import com.okta.sdk.resource.application.OpenIdConnectApplication
-import com.okta.sdk.resource.application.OpenIdConnectApplicationSettings
-import com.okta.sdk.resource.application.OpenIdConnectApplicationSettingsClient
-import com.okta.sdk.resource.application.OpenIdConnectApplicationType
+import com.okta.sdk.resource.application.*
 import com.okta.sdk.resource.group.Group
 import com.okta.sdk.resource.group.GroupProfile
 import groovy.json.JsonSlurper

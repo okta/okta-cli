@@ -21,4 +21,8 @@ import com.okta.sdk.resource.ExtensibleResource;
 public interface OidcAppCreator {
 
     ExtensibleResource createOidcApp(Client client, String oidcAppName, String... redirectUris);
+
+    ExtensibleResource createOidcNativeApp(Client client, String oidcAppName, String... redirectUris);
+
+    ExtensibleResource createOidcSpaApp(Client client, String oidcAppName, String... redirectUris);
 }

@@ -24,6 +24,7 @@ import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
 import com.okta.sdk.impl.config.ClientConfiguration;
 import com.okta.sdk.resource.ExtensibleResource;
+import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +91,7 @@ public class DefaultSetupService implements SetupService {
             String orgUrl = createOktaOrg(organizationRequestSupplier, oktaPropsFile, demo, interactive);
 
             // Create new Application
-            createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, authorizationServerId, interactive, redirectUris);
+            createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB, redirectUris);
 
     }
 
@@ -141,6 +142,7 @@ public class DefaultSetupService implements SetupService {
                                       String groupClaimName,
                                       String authorizationServerId,
                                       boolean interactive,
+                                      OpenIdConnectApplicationType appType,
                                       String... redirectUris) throws IOException {
 
         // Create new Application
@@ -154,7 +156,20 @@ public class DefaultSetupService implements SetupService {
                 // create ODIC application
                 Client client = Clients.builder().build();
 
-                ExtensibleResource clientCredsResponse = oidcAppCreator.createOidcApp(client, oidcAppName, redirectUris);
+                ExtensibleResource clientCredsResponse;
+                switch (appType) {
+                    case WEB:
+                        clientCredsResponse = oidcAppCreator.createOidcApp(client, oidcAppName, redirectUris);
+                        break;
+                    case NATIVE:
+                        clientCredsResponse = oidcAppCreator.createOidcNativeApp(client, oidcAppName, redirectUris);
+                        break;
+                    case BROWSER:
+                        clientCredsResponse = oidcAppCreator.createOidcSpaApp(client, oidcAppName, redirectUris);
+                        break;
+                    default:
+                        throw new IllegalStateException("Unsupported Application Type: "+ appType);
+                }
 
                 Map<String, String> newProps = new HashMap<>();
                 newProps.put(getIssuerUriPropertyName(), orgUrl + "/oauth2/" + authorizationServerId);

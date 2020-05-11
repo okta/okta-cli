@@ -17,6 +17,7 @@ package com.okta.cli.common.service;
 
 import com.okta.cli.common.config.MutablePropertySource;
 import com.okta.cli.common.model.OrganizationRequest;
+import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,5 +47,6 @@ public interface SetupService {
                                String groupClaimName,
                                String authorizationServerId,
                                boolean interactive,
+                               OpenIdConnectApplicationType appType,
                                String... redirectUris) throws IOException;
 }

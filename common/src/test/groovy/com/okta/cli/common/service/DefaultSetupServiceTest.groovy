@@ -23,6 +23,7 @@ import com.okta.sdk.client.ClientBuilder
 import com.okta.sdk.client.Clients
 import com.okta.sdk.impl.config.ClientConfiguration
 import com.okta.sdk.resource.ExtensibleResource
+import com.okta.sdk.resource.application.OpenIdConnectApplicationType
 import org.mockito.ArgumentCaptor
 import org.powermock.api.mockito.PowerMockito
 import org.powermock.core.classloader.annotations.PrepareForTest
@@ -70,7 +71,7 @@ class DefaultSetupServiceTest {
         when(organizationRequestSupplier.get()).thenReturn(request)
 
         // these methods are tested elsewhere in this class
-        doNothing().when(setupService).createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, authorizationServerId, interactive)
+        doNothing().when(setupService).createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
 
         setupService.configureEnvironment(organizationRequestSupplier,
                                           oktaPropsFile,
@@ -81,7 +82,7 @@ class DefaultSetupServiceTest {
                                           demo,
                                           interactive)
 
-        verify(setupService).createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, authorizationServerId, interactive)
+        verify(setupService).createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
     }
 
     @Test
@@ -109,7 +110,7 @@ class DefaultSetupServiceTest {
         when(organizationRequestSupplier.get()).thenReturn(request)
 
         // these methods are tested elsewhere in this class
-        doNothing().when(setupService).createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, authorizationServerId, interactive)
+        doNothing().when(setupService).createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
         doReturn(orgUrl).when(setupService).createOktaOrg(organizationRequestSupplier, oktaPropsFile, demo, interactive)
 
         setupService.configureEnvironment(organizationRequestSupplier,
@@ -121,7 +122,7 @@ class DefaultSetupServiceTest {
                 demo,
                 interactive)
 
-        verify(setupService).createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, authorizationServerId, interactive)
+        verify(setupService).createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
     }
 
     @Test
@@ -162,7 +163,7 @@ class DefaultSetupServiceTest {
 
         DefaultSetupService setupService = setupService()
 
-        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, authorizationServerId, interactive)
+        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
 
         // verify nothing happened
         PowerMockito.verifyNoMoreInteractions(setupService.organizationCreator,
@@ -193,7 +194,7 @@ class DefaultSetupServiceTest {
         when(resource.getString("client_secret")).thenReturn("test-client-secret")
         when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName)).thenReturn(resource)
 
-        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, authorizationServerId, interactive)
+        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
 
         ArgumentCaptor<Map> mapCapture = ArgumentCaptor.forClass(Map)
         verify(propertySource).addProperties(mapCapture.capture())
@@ -229,7 +230,7 @@ class DefaultSetupServiceTest {
         when(resource.getString("client_secret")).thenReturn("test-client-secret")
         when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName)).thenReturn(resource)
 
-        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, authorizationServerId, interactive)
+        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
 
         ArgumentCaptor<Map> mapCapture = ArgumentCaptor.forClass(Map)
         verify(propertySource).addProperties(mapCapture.capture())

@@ -34,7 +34,15 @@
   },
 
 
-
+{
+  "name": "com.fasterxml.jackson.databind.ext.Java7HandlersImpl",
+  "methods": [
+    {
+      "name": "<init>",
+      "parameterTypes": []
+    }
+  ]
+},
   {
     "name": "com.fasterxml.jackson.databind.ext.Java7SupportImpl",
     "methods": [

@@ -61,6 +61,15 @@ public interface Prompter {
         return value;
     }
 
+    <T> T prompt(String message, List<PromptOption<T>> options, PromptOption<T> defaultChoice);
+
+    default <T> T promptIfEmpty(T value, String message, List<PromptOption<T>> options, PromptOption<T> defaultChoice) {
+        if (value != null) {
+            return value;
+        }
+        return prompt(message, options, defaultChoice);
+    }
+
     String prompt(String message, Map<String, String> choices, String defaultChoice);
 
     String prompt(String message, List<String> choices, Integer defaultChoiceIndex);

@@ -16,24 +16,33 @@
 package com.okta.cli.commands.apps;
 
 import com.okta.cli.OktaCli;
+import com.okta.cli.commands.apps.templates.AppType;
+import com.okta.cli.commands.apps.templates.NativeAppTemplate;
+import com.okta.cli.commands.apps.templates.SpaAppTemplate;
+import com.okta.cli.commands.apps.templates.WebAppTemplate;
+import com.okta.cli.common.config.MapPropertySource;
 import com.okta.cli.common.config.MutablePropertySource;
+import com.okta.cli.common.service.ClientConfigurationException;
 import com.okta.cli.common.service.DefaultSdkConfigurationService;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.console.ConsoleOutput;
+import com.okta.cli.console.PromptOption;
 import com.okta.cli.console.Prompter;
 import com.okta.cli.util.InternalApiUtil;
 import com.okta.commons.lang.Strings;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
+import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
 import picocli.CommandLine;
 
-import java.time.Duration;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @CommandLine.Command(name = "create",
         description = "Create an new Okta app")
@@ -46,129 +55,216 @@ public class AppsCreate implements Callable<Integer> {
     private AppCreationMixin appCreationMixin;
 
     @CommandLine.Parameters(hidden = true, converter = EnumTypeConverter.class)
-    List<AppTemplate> appTemplates;
+    List<QuickTemplate> quickTemplates;
 
     @Override
     public Integer call() throws Exception {
 
         ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
 
-        if (appTemplates != null && appTemplates.size() > 1) {
+        if (quickTemplates != null && quickTemplates.size() > 1) {
             throw new IllegalArgumentException("Only one positional parameter is allowed");
         }
 
-        AppTemplate appTemplate = appTemplates == null
-                ? AppTemplate.GENERIC_WEB
-                : appTemplates.get(0);
+        QuickTemplate quickTemplate = quickTemplates == null
+                ? null
+                : quickTemplates.get(0);
 
         Prompter prompter = standardOptions.getEnvironment().prompter();
 
-//        Map<String, String> appTypes = Map.of("web", "Web",
-//                                              "spa", "Single Page App",
-//                                              "native", "Native App (mobile)");
-//
-//        String appType = prompter.prompt("Type of Application\n(The Okta CLI only supports a subset of application types and properties):", appTypes, "web"); // TODO everything below assumes "web"
+        AppType appType;
+        Object appTemplate = null;
+        if (quickTemplate == null) {
+            appType = prompter.prompt("Type of Application\n(The Okta CLI only supports a subset of application types and properties):", Arrays.asList(AppType.values()), AppType.WEB);
+        } else {
+            appType = quickTemplate.appType;
+            appTemplate = quickTemplate.appTemplate;
+        }
 
-        String appName = prompter.promptIfEmpty(appCreationMixin.appName,"Application name", appCreationMixin.getDefaultAppName());
+        switch(appType) {
+            case WEB:
+                return createWebApp((WebAppTemplate) appTemplate);
+            case SPA:
+                return createSpaApp((SpaAppTemplate) appTemplate);
+            case NATIVE:
+                return createNativeApp((NativeAppTemplate) appTemplate);
+            default:
+                throw new IllegalStateException("Unsupported AppType: "+ appType);
+        }
+    }
 
-        String redirectUriPrompt = "Redirect URI\n" +
-                                   "Common defaults:\n" +
-                                   " Spring Security - http://localhost:8080/login/oauth2/code/okta\n" +
-                                   " JHipster -        http://localhost:8080/login/oauth2/code/oidc\n" +
-                                   "\n" +
-                                   "Enter your Redirect URI";
+    private int createWebApp(WebAppTemplate webAppTemplate) throws IOException {
 
-        String redirectUri = prompter.promptIfEmpty(appCreationMixin.redirectUri, redirectUriPrompt, appTemplate.defaultRedirectUri);
+        ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
+        Prompter prompter = standardOptions.getEnvironment().prompter();
+        String appName = getAppName();
+
+        WebAppTemplate appTemplate = prompter.promptIfEmpty(webAppTemplate, "Type of Application", Arrays.asList(WebAppTemplate.values()), WebAppTemplate.GENERIC_WEB);
+
+        String redirectUri = getRedirectUri(Map.of("Spring Security", "http://localhost:8080/login/oauth2/code/okta",
+                                                   "JHipster", "http://localhost:8080/login/oauth2/code/oidc"),
+                                            appTemplate.getDefaultRedirectUri());
 
         Client client = Clients.builder().build();
 
+        Map<String, Object> issuer = getIssuer(client);
+
+        String baseUrl = getBaseUrl();
+
+        String groupClaimName = appTemplate.getGroupsClaim();
+
+        MutablePropertySource propertySource = appCreationMixin.getPropertySource(appTemplate.getDefaultConfigFileName());
+
+        new DefaultSetupService(appTemplate.getSpringPropertyKey()).createOidcApplication(propertySource, appName, baseUrl, groupClaimName, (String) issuer.get("id"), true, OpenIdConnectApplicationType.WEB, redirectUri);
+
+        out.writeLine("Okta application configuration has been written to: " + propertySource.getName());
+
+        return 0;
+    }
+
+    private Integer createNativeApp(NativeAppTemplate appTemplate) throws IOException {
+
+        ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
+        String appName = getAppName();
+
+        String baseUrl = getBaseUrl();
+
+        String[] parts = URI.create(baseUrl).getHost().split("\\.");
+        String reverseDomain = IntStream.rangeClosed(1, parts.length)
+                .mapToObj(i -> parts[parts.length - i])
+                .collect(Collectors.joining("."));
+
+        String defaultRedirectUri = reverseDomain + ":/callback";
+
+        String redirectUri = getRedirectUri(Map.of("Reverse Domain name", "com.example:/callback"), defaultRedirectUri);
+
+        Client client = Clients.builder().build();
+
+        Map<String, Object> issuer = getIssuer(client);
+
+        MutablePropertySource propertySource = new MapPropertySource();
+
+        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, (String) issuer.get("id"), true, OpenIdConnectApplicationType.NATIVE, redirectUri);
+
+        out.writeLine("Okta application configuration: ");
+        propertySource.getProperties().forEach((key, value) -> {
+            out.bold(key);
+            out.write(": ");
+            out.writeLine(value);
+        });
+
+        return 0;
+    }
+
+    private Integer createSpaApp(SpaAppTemplate appTemplate) throws IOException {
+
+        ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
+        String appName = getAppName();
+
+        String baseUrl = getBaseUrl();
+
+        String redirectUri = getRedirectUri(Map.of("/callback", "http://localhost:8080/callback"), "http://localhost:8080/callback");
+
+        Client client = Clients.builder().build();
+
+        Map<String, Object> issuer = getIssuer(client);
+
+        MutablePropertySource propertySource = new MapPropertySource();
+
+        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, (String) issuer.get("id"), true, OpenIdConnectApplicationType.BROWSER, redirectUri);
+
+        out.writeLine("Okta application configuration: ");
+        propertySource.getProperties().forEach((key, value) -> {
+            out.bold(key);
+            out.write(": ");
+            out.writeLine(value);
+        });
+
+        return 0;
+    }
+
+    private String getAppName() {
+        Prompter prompter = standardOptions.getEnvironment().prompter();
+        return prompter.promptIfEmpty(appCreationMixin.appName,"Application name", appCreationMixin.getDefaultAppName());
+    }
+
+    private Map<String, Object> getIssuer(Client client) {
+        Prompter prompter = standardOptions.getEnvironment().prompter();
         Map<String, Map<String, Object>> asMap = InternalApiUtil.getAuthorizationServers(client);
 
-        String issuer;
         if (!Strings.isEmpty(appCreationMixin.authorizationServerId)) {
             Map<String, Object> as = asMap.get(appCreationMixin.authorizationServerId);
             if (as == null) {
                 throw new IllegalArgumentException("The authorization-server-id specified was not found");
             } else {
-                issuer = (String) as.get("issuer");
+                return as;
             }
         } else if (asMap.isEmpty()) {
             throw new IllegalArgumentException("No custom authorization servers were found in this Okta org, create one in the Okta Admin Console and try again");
         } else if (asMap.size() == 1) {
-            issuer = asMap.keySet().iterator().next();
+            return asMap.values().iterator().next();
         } else if (asMap.containsKey("default")) {
-            issuer = (String) asMap.get("default").get("issuer");
+            return asMap.get("default");
         } else {
-            issuer = prompter.prompt("Issuer:", new ArrayList<>(asMap.keySet()), 0);
+            List<PromptOption<Map<String, Object>>> issuerOptions = asMap.values().stream()
+                    .map(it -> PromptOption.of((String) it.get("issuer"), it))
+                    .collect(Collectors.toList());
+
+            return prompter.prompt("Issuer:", issuerOptions, issuerOptions.get(0));
         }
-
-        // TODO more hacking
-        String baseUrl = new DefaultSdkConfigurationService().loadUnvalidatedConfiguration().getBaseUrl();
-
-        String groupClaimName = appTemplate.groupsClaim;
-
-        MutablePropertySource propertySource = appCreationMixin.getPropertySource(appTemplate.defaultConfigFileName);
-
-        new DefaultSetupService(appTemplate.springPropertyKey).createOidcApplication(propertySource, appName, baseUrl, groupClaimName, (String) asMap.get(issuer).get("id"), true, redirectUri);
-
-        out.writeLine("This configuration has been written to: " + propertySource.getName());
-
-        return 0;
     }
 
-    private enum AppTemplate {
-        SPRING_BOOT("spring-boot", "okta", "src/main/resources/application.properties", "http://localhost:8080/login/oauth2/code/okta", null),
-        JHIPSTER("jhipster", "oidc", ".okta.env", "http://localhost:8080/login/oauth2/code/oidc", "groups"),
-        GENERIC_WEB("web", null, ".okta.env", "http://localhost:8080/authorization-code/callback", null);
+    private String getBaseUrl() {
+        try {
+            // TODO more hacking
+            return new DefaultSdkConfigurationService().loadUnvalidatedConfiguration().getBaseUrl();
+        } catch (ClientConfigurationException e) {
+            throw new IllegalStateException("Unable to find base URL, run `okta login` and try again");
+        }
+    }
 
-        private static final List<String> names = Arrays.stream(AppTemplate.values()).map(it -> it.friendlyName).collect(Collectors.toList());
+    private String getRedirectUri(Map<String, String> commonExamples, String defaultRedirectUri) {
+        Prompter prompter = standardOptions.getEnvironment().prompter();
+
+        StringBuilder redirectUriPrompt = new StringBuilder("Redirect URI\nCommon defaults:\n");
+        commonExamples.forEach((key, value) -> {
+                redirectUriPrompt.append(" ").append(key).append(" - ").append(value).append("\n");
+        });
+       redirectUriPrompt.append("Enter your Redirect URI");
+
+        return prompter.promptIfEmpty(appCreationMixin.redirectUri, redirectUriPrompt.toString(), defaultRedirectUri);
+    }
+
+    private enum QuickTemplate {
+        SPRING_BOOT("spring-boot", AppType.WEB, WebAppTemplate.SPRING_BOOT),
+        JHIPSTER("jhipster", AppType.WEB, WebAppTemplate.JHIPSTER),
+        GENERIC_WEB("web", AppType.WEB, WebAppTemplate.GENERIC_WEB);
+
+        private static final List<String> names = Arrays.stream(values()).map(it -> it.friendlyName).collect(Collectors.toList());
 
         private final String friendlyName;
-        private final String springPropertyKey;
-        private final String defaultConfigFileName;
-        private final String defaultRedirectUri;
-        private final String groupsClaim;
+        private final AppType appType;
+        private final Object appTemplate; // TODO, this is ugly
 
-        AppTemplate(String friendlyName, String springPropertyKey, String defaultConfigFileName, String defaultRedirectUri, String groupsClaim) {
+        QuickTemplate(String friendlyName, AppType appType, Object appTemplate) {
             this.friendlyName = friendlyName;
-            this.springPropertyKey = springPropertyKey;
-            this.defaultConfigFileName = defaultConfigFileName;
-            this.defaultRedirectUri = defaultRedirectUri;
-            this.groupsClaim = groupsClaim;
+            this.appType = appType;
+            this.appTemplate = appTemplate;
         }
 
-        static AppTemplate fromName(String name) {
-            return Arrays.stream(AppTemplate.values())
+        static QuickTemplate fromName(String name) {
+            return Arrays.stream(values())
                     .filter(it -> it.friendlyName.equals(name))
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("template must be empty or one of: " + names));
         }
     }
 
-    static class EnumTypeConverter implements CommandLine.ITypeConverter<AppTemplate> {
+    static class EnumTypeConverter implements CommandLine.ITypeConverter<QuickTemplate> {
 
         @Override
-        public AppTemplate convert(String value) throws Exception {
-            return AppTemplate.fromName(value);
-        }
-    }
-
-    static class Timer {
-        private long start = System.currentTimeMillis();
-
-        public static Timer start() {
-            return new Timer();
-        }
-
-        public Duration mark() {
-            long now = System.currentTimeMillis();
-            Duration result = Duration.ofMillis(now - start);
-            start = System.currentTimeMillis();
-            return result;
-        }
-
-        public void printMark() {
-            System.out.println(mark());
+        public QuickTemplate convert(String value) throws Exception {
+            return QuickTemplate.fromName(value);
         }
     }
 }
