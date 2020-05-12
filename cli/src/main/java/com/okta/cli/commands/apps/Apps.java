@@ -38,7 +38,7 @@ public class Apps implements Callable<Integer> {
         Clients.builder().build()
                 .listApplications().stream()
                 .forEach(app -> {
-                    standardOptions.getEnvironment().getConsoleOutput().writeLine(app.getLabel() + "\t\t" + app.getId());
+                    standardOptions.getEnvironment().getConsoleOutput().writeLine(app.getId() + "\t" + app.getLabel());
                 });
         return 0;
     }
