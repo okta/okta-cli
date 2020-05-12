@@ -21,26 +21,22 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public enum WebAppTemplate implements PromptOption<WebAppTemplate> {
+public enum ServiceAppTemplate implements PromptOption<ServiceAppTemplate> {
 
-    SPRING_BOOT("Spring Boot", "okta", "src/main/resources/application.properties", "http://localhost:8080/login/oauth2/code/okta", null),
-    JHIPSTER("JHipster", "oidc", ".okta.env", "http://localhost:8080/login/oauth2/code/oidc", "groups"),
-    GENERIC("Other", null, ".okta.env", "http://localhost:8080/callback", null);
+    SPRING_BOOT("Spring Boot", "okta",  "application.properties"),
+    JHIPSTER("JHipster", "oidc", ".okta.env"),
+    GENERIC("Other", null, ".okta.env");
 
-    private static final Map<String, WebAppTemplate> nameToTemplateMap = Arrays.stream(values()).collect(Collectors.toMap(it -> it.friendlyName, it -> it));
+    private static final Map<String, ServiceAppTemplate> nameToTemplateMap = Arrays.stream(values()).collect(Collectors.toMap(it -> it.friendlyName, it -> it));
 
     private final String friendlyName;
     private final String springPropertyKey;
     private final String defaultConfigFileName;
-    private final String defaultRedirectUri;
-    private final String groupsClaim;
 
-    WebAppTemplate(String friendlyName, String springPropertyKey, String defaultConfigFileName, String defaultRedirectUri, String groupsClaim) {
+    ServiceAppTemplate(String friendlyName, String springPropertyKey, String defaultConfigFileName) {
         this.friendlyName = friendlyName;
         this.springPropertyKey = springPropertyKey;
         this.defaultConfigFileName = defaultConfigFileName;
-        this.defaultRedirectUri = defaultRedirectUri;
-        this.groupsClaim = groupsClaim;
     }
 
     public String getSpringPropertyKey() {
@@ -51,17 +47,9 @@ public enum WebAppTemplate implements PromptOption<WebAppTemplate> {
         return defaultConfigFileName;
     }
 
-    public String getDefaultRedirectUri() {
-        return defaultRedirectUri;
-    }
+    static ServiceAppTemplate fromName(String name) {
 
-    public String getGroupsClaim() {
-        return groupsClaim;
-    }
-
-    static WebAppTemplate fromName(String name) {
-
-        WebAppTemplate result = nameToTemplateMap.get(name);
+        ServiceAppTemplate result = nameToTemplateMap.get(name);
         if (result == null) {
             throw new IllegalArgumentException("template must be empty or one of: " + nameToTemplateMap.keySet());
         }
@@ -74,7 +62,7 @@ public enum WebAppTemplate implements PromptOption<WebAppTemplate> {
     }
 
     @Override
-    public WebAppTemplate value() {
+    public ServiceAppTemplate value() {
         return this;
     }
 }

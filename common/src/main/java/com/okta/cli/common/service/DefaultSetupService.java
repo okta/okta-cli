@@ -49,7 +49,7 @@ public class DefaultSetupService implements SetupService {
 
     /**
      * The base URL of the service used to create a new Okta account.
-     * This value is NOT exposed as a plugin parameter, but CAN be set using the system property {@code okta.maven.apiBaseUrl}.
+     * This value is NOT exposed as a plugin parameter, but CAN be set using the env var {@code OKTA_CLI_BASE_URL}.
      */
     private String apiBaseUrl = "https://start.okta.dev/";
 
@@ -119,7 +119,6 @@ public class DefaultSetupService implements SetupService {
                 progressBar.info("OrgUrl: " + orgUrl);
                 progressBar.info("Check your email address to verify your account.\n");
 
-                progressBar.info("Writing Okta SDK config to: " + oktaPropsFile.getAbsolutePath());
                 // write ~/.okta/okta.yaml
                 sdkConfigurationService.writeOktaYaml(orgUrl, newOrg.getApiToken(), oktaPropsFile);
             } else {
@@ -166,6 +165,9 @@ public class DefaultSetupService implements SetupService {
                         break;
                     case BROWSER:
                         clientCredsResponse = oidcAppCreator.createOidcSpaApp(client, oidcAppName, redirectUris);
+                        break;
+                    case SERVICE:
+                        clientCredsResponse = oidcAppCreator.createOidcServiceApp(client, oidcAppName, redirectUris);
                         break;
                     default:
                         throw new IllegalStateException("Unsupported Application Type: "+ appType);

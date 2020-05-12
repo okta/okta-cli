@@ -38,11 +38,15 @@ public interface Prompter {
         return value;
     }
 
-    default String promptUntilIfEmpty(String value, String message) {
+    default String promptUntilIfEmpty(String value, String message, String defaultValue) {
 
         // prompt if empty
         if (!Strings.isEmpty(value)) {
             return value;
+        }
+
+        if (!Strings.isEmpty(defaultValue)) {
+            return promptIfEmpty(value, message, defaultValue);
         }
 
         return promptUntilValue(message);

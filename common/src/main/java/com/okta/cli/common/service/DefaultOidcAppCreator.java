@@ -125,6 +125,35 @@ public class DefaultOidcAppCreator implements OidcAppCreator {
         return getClientCredentials(client, oidcApplication);
     }
 
+    @Override
+    public ExtensibleResource createOidcServiceApp(Client client, String oidcAppName, String... redirectUris) {
+
+        Optional<Application> existingApp = getApplication(client, oidcAppName);
+
+        // create a new OIDC app if one does NOT exist
+        Application oidcApplication = existingApp.orElseGet(() -> {
+
+            Application app = client.instantiate(OpenIdConnectApplication.class)
+                    .setSettings(client.instantiate(OpenIdConnectApplicationSettings.class)
+                            .setOAuthClient(client.instantiate(OpenIdConnectApplicationSettingsClient.class)
+                                    .setRedirectUris(Arrays.asList(redirectUris))
+                                    .setResponseTypes(Collections.singletonList(OAuthResponseType.TOKEN))
+                                    .setGrantTypes(Collections.singletonList(OAuthGrantType.CLIENT_CREDENTIALS))
+                                    .setApplicationType(OpenIdConnectApplicationType.SERVICE)))
+                    .setLabel(oidcAppName);
+
+            // TODO post_logout_redirect_uris
+
+            app = client.createApplication(app);
+            assignAppToEveryoneGroup(client, app);
+
+            return app;
+        });
+
+        // lookup the credentials for this application
+        return getClientCredentials(client, oidcApplication);
+    }
+
     private Optional<Application> getApplication(Client client, String appName) {
         return client.listApplications(appName, null, null, null).stream()
                 .filter(app -> appName.equalsIgnoreCase(app.getLabel()))

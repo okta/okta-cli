@@ -17,6 +17,7 @@ package com.okta.cli.commands.apps;
 
 import com.okta.cli.OktaCli;
 import com.okta.cli.commands.apps.templates.AppType;
+import com.okta.cli.commands.apps.templates.ServiceAppTemplate;
 import com.okta.cli.commands.apps.templates.WebAppTemplate;
 import com.okta.cli.common.config.MapPropertySource;
 import com.okta.cli.common.config.MutablePropertySource;
@@ -84,6 +85,8 @@ public class AppsCreate implements Callable<Integer> {
                 return createSpaApp();
             case NATIVE:
                 return createNativeApp();
+            case SERVICE:
+                return createServiceApp((ServiceAppTemplate) appTemplate);
             default:
                 throw new IllegalStateException("Unsupported AppType: "+ appType);
         }
@@ -95,7 +98,7 @@ public class AppsCreate implements Callable<Integer> {
         Prompter prompter = standardOptions.getEnvironment().prompter();
         String appName = getAppName();
 
-        WebAppTemplate appTemplate = prompter.promptIfEmpty(webAppTemplate, "Type of Application", Arrays.asList(WebAppTemplate.values()), WebAppTemplate.GENERIC_WEB);
+        WebAppTemplate appTemplate = prompter.promptIfEmpty(webAppTemplate, "Type of Application", Arrays.asList(WebAppTemplate.values()), WebAppTemplate.GENERIC);
 
         String redirectUri = getRedirectUri(Map.of("Spring Security", "http://localhost:8080/login/oauth2/code/okta",
                                                    "JHipster", "http://localhost:8080/login/oauth2/code/oidc"),
@@ -152,6 +155,26 @@ public class AppsCreate implements Callable<Integer> {
         return 0;
     }
 
+    private Integer createServiceApp(ServiceAppTemplate appTemplate) throws IOException {
+
+        ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
+        Prompter prompter = standardOptions.getEnvironment().prompter();
+
+        appTemplate = prompter.promptIfEmpty(appTemplate, "Framework of Application", Arrays.asList(ServiceAppTemplate.values()), ServiceAppTemplate.SPRING_BOOT);
+
+        String appName = getAppName();
+        String baseUrl = getBaseUrl();
+        Client client = Clients.builder().build();
+        Map<String, Object> issuer = getIssuer(client);
+
+        MutablePropertySource propertySource = appCreationMixin.getPropertySource(appTemplate.getDefaultConfigFileName());
+        new DefaultSetupService(appTemplate.getSpringPropertyKey()).createOidcApplication(propertySource, appName, baseUrl, null, (String) issuer.get("id"), true, OpenIdConnectApplicationType.SERVICE);
+
+        out.writeLine("Okta application configuration has been written to: " + propertySource.getName());
+
+        return 0;
+    }
+
     private Integer createSpaApp() throws IOException {
 
         ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
@@ -181,7 +204,7 @@ public class AppsCreate implements Callable<Integer> {
 
     private String getAppName() {
         Prompter prompter = standardOptions.getEnvironment().prompter();
-        return prompter.promptIfEmpty(appCreationMixin.appName,"Application name", appCreationMixin.getDefaultAppName());
+        return prompter.promptUntilIfEmpty(appCreationMixin.appName,"Application name", appCreationMixin.getDefaultAppName());
     }
 
     private Map<String, Object> getIssuer(Client client) {
@@ -232,15 +255,20 @@ public class AppsCreate implements Callable<Integer> {
     }
 
     private enum QuickTemplate {
+        // web
         SPRING_BOOT("spring-boot", AppType.WEB, WebAppTemplate.SPRING_BOOT),
         JHIPSTER("jhipster", AppType.WEB, WebAppTemplate.JHIPSTER),
-        GENERIC_WEB("web", AppType.WEB, WebAppTemplate.GENERIC_WEB);
+        GENERIC_WEB("web", AppType.WEB, WebAppTemplate.GENERIC),
+        // service
+        SPRING_BOOT_SERVICE("spring-boot-service", AppType.SERVICE, ServiceAppTemplate.SPRING_BOOT),
+        JHIPSTER_SERVICE("jhipster-service", AppType.SERVICE, ServiceAppTemplate.JHIPSTER),
+        GENERIC_SERVICE("service", AppType.SERVICE, ServiceAppTemplate.GENERIC);
 
         private static final List<String> names = Arrays.stream(values()).map(it -> it.friendlyName).collect(Collectors.toList());
 
         private final String friendlyName;
         private final AppType appType;
-        private final Object appTemplate; // TODO, this is ugly
+        private final Object appTemplate; // TODO, this is ugly (needs a base type)
 
         QuickTemplate(String friendlyName, AppType appType, Object appTemplate) {
             this.friendlyName = friendlyName;

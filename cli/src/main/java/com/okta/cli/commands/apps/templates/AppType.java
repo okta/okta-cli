@@ -20,7 +20,8 @@ import com.okta.cli.console.PromptOption;
 public enum AppType implements PromptOption<AppType> {
     WEB("Web"),
     SPA("Single Page App"),
-    NATIVE("Native App (mobile)");
+    NATIVE("Native App (mobile)"),
+    SERVICE("Service (Machine-to-Machine)");
 
     private final String friendlyName;
 
