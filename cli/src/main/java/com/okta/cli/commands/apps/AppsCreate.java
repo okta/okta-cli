@@ -17,8 +17,6 @@ package com.okta.cli.commands.apps;
 
 import com.okta.cli.OktaCli;
 import com.okta.cli.commands.apps.templates.AppType;
-import com.okta.cli.commands.apps.templates.NativeAppTemplate;
-import com.okta.cli.commands.apps.templates.SpaAppTemplate;
 import com.okta.cli.commands.apps.templates.WebAppTemplate;
 import com.okta.cli.common.config.MapPropertySource;
 import com.okta.cli.common.config.MutablePropertySource;
@@ -60,8 +58,6 @@ public class AppsCreate implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
 
-        ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
-
         if (quickTemplates != null && quickTemplates.size() > 1) {
             throw new IllegalArgumentException("Only one positional parameter is allowed");
         }
@@ -85,9 +81,9 @@ public class AppsCreate implements Callable<Integer> {
             case WEB:
                 return createWebApp((WebAppTemplate) appTemplate);
             case SPA:
-                return createSpaApp((SpaAppTemplate) appTemplate);
+                return createSpaApp();
             case NATIVE:
-                return createNativeApp((NativeAppTemplate) appTemplate);
+                return createNativeApp();
             default:
                 throw new IllegalStateException("Unsupported AppType: "+ appType);
         }
@@ -122,7 +118,7 @@ public class AppsCreate implements Callable<Integer> {
         return 0;
     }
 
-    private Integer createNativeApp(NativeAppTemplate appTemplate) throws IOException {
+    private Integer createNativeApp() throws IOException {
 
         ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
         String appName = getAppName();
@@ -156,7 +152,7 @@ public class AppsCreate implements Callable<Integer> {
         return 0;
     }
 
-    private Integer createSpaApp(SpaAppTemplate appTemplate) throws IOException {
+    private Integer createSpaApp() throws IOException {
 
         ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
         String appName = getAppName();
