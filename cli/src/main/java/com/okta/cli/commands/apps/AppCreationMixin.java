@@ -42,7 +42,7 @@ public class AppCreationMixin {
             return new String[] { redirectUri };
         }
 
-        return new String[] {"http://localhost:8080/authorization-code/callback", // Okta Dev console defaults
+        return new String[] {"http://localhost:8080/callback",
                 "http://localhost:8080/login/oauth2/code/" + key};
     }
 

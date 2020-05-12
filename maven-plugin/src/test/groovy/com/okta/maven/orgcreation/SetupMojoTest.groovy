@@ -75,7 +75,7 @@ class SetupMojoTest {
                                       eq("default"),
                                       eq(false),
                                       eq(false),
-                                      eq("http://localhost:8080/authorization-code/callback"),
+                                      eq("http://localhost:8080/callback"),
                                       eq("http://localhost:8080/login/oauth2/code/okta"))
 
         assertThat(supplierArgumentCaptor.getValue().get(), equalTo(new OrganizationRequest()
@@ -149,7 +149,7 @@ class SetupMojoTest {
                                                         eq("default"),
                                                         eq(false),
                                                         eq(false),
-                                                        eq("http://localhost:8080/authorization-code/callback"),
+                                                        eq("http://localhost:8080/callback"),
                                                         eq("http://localhost:8080/login/oauth2/code/okta"))
 
         assertThat(supplierArgumentCaptor.getValue().get(), equalTo(new OrganizationRequest()

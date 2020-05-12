@@ -90,7 +90,7 @@ trait CreateAppSupport {
         return toString(group)
     }
 
-    String application(String label = "test-project", List<String> redirectUris = ["http://localhost:8080/authorization-code/callback","http://localhost:8080/login/oauth2/code/okta"]) {
+    String application(String label = "test-project", List<String> redirectUris = ["http://localhost:8080/callback","http://localhost:8080/login/oauth2/code/okta"]) {
 
         Client client = client()
         OpenIdConnectApplication app = client.instantiate(OpenIdConnectApplication)

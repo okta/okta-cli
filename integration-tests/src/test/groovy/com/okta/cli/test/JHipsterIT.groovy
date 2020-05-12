@@ -63,7 +63,7 @@ class JHipsterIT implements MockWebSupport, CreateAppSupport {
             // validate the user-agent is correct
             verifyUserAgent(mockWebServer.takeRequest())
 
-            verifyJsonRequestBody(mockWebServer.takeRequest(), containsString("http://localhost:8080/authorization-code/callback"),
+            verifyJsonRequestBody(mockWebServer.takeRequest(), containsString("http://localhost:8080/callback"),
                                                                containsString("http://localhost:8080/login/oauth2/code/oidc"))
 
             // verify okta.yaml was configured with token

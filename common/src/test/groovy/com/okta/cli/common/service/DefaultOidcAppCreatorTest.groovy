@@ -107,11 +107,11 @@ class DefaultOidcAppCreatorTest {
         when(client.http()).thenReturn(http)
         when(http.get("/api/v1/internal/apps/${appId}/settings/clientcreds", ExtensibleResource)).thenReturn(response)
 
-        ExtensibleResource result = appCreator.createOidcApp(client, appName, "http://localhost:8080/authorization-code/callback", "http://localhost:8080/login/oauth2/code/okta")
+        ExtensibleResource result = appCreator.createOidcApp(client, appName, "http://localhost:8080/callback", "http://localhost:8080/login/oauth2/code/okta")
 
         assertThat result, is(response)
 
-        verify(settingsClient).setRedirectUris(["http://localhost:8080/authorization-code/callback",
+        verify(settingsClient).setRedirectUris(["http://localhost:8080/callback",
                                                 "http://localhost:8080/login/oauth2/code/okta"])
         verify(settingsClient).setResponseTypes([OAuthResponseType.CODE])
         verify(settingsClient).setGrantTypes([OAuthGrantType.AUTHORIZATION_CODE])

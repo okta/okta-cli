@@ -126,7 +126,7 @@ abstract class BaseSetupMojo extends AbstractMojo {
     }
 
     protected String[] springBasedRedirectUris(String key) {
-        return new String[] {"http://localhost:8080/authorization-code/callback", // Okta Dev console defaults
+        return new String[] {"http://localhost:8080/callback", // Okta Dev console defaults
                 "http://localhost:8080/login/oauth2/code/" + key};
     }
 }
