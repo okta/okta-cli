@@ -20,6 +20,8 @@ import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import org.hamcrest.TypeSafeMatcher
 
+import java.time.Duration
+
 class CommandRunner {
 
     private final String regServiceUrl
@@ -45,9 +47,9 @@ class CommandRunner {
         String command = [cli, "-Duser.home=${homeDir}", args].flatten().join(" ")
         String[] envVars = ["OKTA_CLI_BASE_URL=${regServiceUrl}"]
 
-        def process = Runtime.getRuntime().exec(command, envVars, workingDir)
         def sout = new StringBuilder()
         def serr = new StringBuilder()
+        def process = Runtime.getRuntime().exec(command, envVars, workingDir)
         process.consumeProcessOutput(sout, serr)
 
         Thread.sleep(100)
@@ -61,7 +63,7 @@ class CommandRunner {
             }
         }
 
-        process.waitForOrKill(10000)
+        process.waitForOrKill(Duration.ofSeconds(30).toMillis())
 
         return new Result(process.exitValue(), command, envVars, sout.toString(), serr.toString(), workingDir, homeDir)
     }
