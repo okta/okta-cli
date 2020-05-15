@@ -16,7 +16,6 @@
 package com.okta.cli.commands;
 
 import com.okta.cli.OktaCli;
-import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.console.ConsoleOutput;
 import picocli.CommandLine;
 
@@ -48,8 +47,6 @@ public class DumpCommand implements Callable<Integer> {
             out.write(" = ");
             out.writeLine(value);
         });
-
-        out.writeLine("broken: " + new DefaultSetupService("invalid").getApiBaseUrl());
 
         return 0;
     }

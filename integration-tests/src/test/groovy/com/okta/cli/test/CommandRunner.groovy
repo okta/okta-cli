@@ -41,11 +41,12 @@ class CommandRunner {
     Result runCommandWithInput(List<String> input, String... args) {
 
         File homeDir = File.createTempDir()
+        setupHomeDir(homeDir)
         File workingDir = new File(File.createTempDir(), "test-project")
         workingDir.mkdirs()
 
-        String command = [cli, "-Duser.home=${homeDir}", args].flatten().join(" ")
-        String[] envVars = ["OKTA_CLI_BASE_URL=${regServiceUrl}"]
+        String command = [getCli(homeDir), "-Duser.home=${homeDir}", args].flatten().join(" ")
+        String[] envVars = ["HOME=${homeDir}", "OKTA_CLI_BASE_URL=${regServiceUrl}"]
 
         def sout = new StringBuilder()
         def serr = new StringBuilder()
@@ -68,12 +69,20 @@ class CommandRunner {
         return new Result(process.exitValue(), command, envVars, sout.toString(), serr.toString(), workingDir, homeDir)
     }
 
-    static String getCli() {
+    protected void setupHomeDir(File homeDir) { }
+
+    static String getCli(File homeDir) {
+//        String javaExec = new File(System.getProperty("java.home"), "bin/java").absolutePath
+//        String jarFile = new File("../cli/target/okta-cli-0.2.1-SNAPSHOT.jar").absolutePath
+//        String cli = "${javaExec} -Duser.home=##user.home## -jar ${jarFile}"
+
         String cli = System.getProperty("okta-cli-test.path")
         if (cli == null || cli.isBlank()) {
             return new File("../cli/target/okta").absolutePath
         }
-        return cli
+
+        // setting the home directory is tricky, so fitler it into the command
+        return cli.replaceAll("##user.home##", homeDir.absolutePath)
     }
 
     static class Result {

@@ -96,20 +96,20 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>3.0.0-M4</version>
-<!--                <executions>-->
+                <executions>
                     <!-- We should be able to run coverage using something like this, but we need to resolve a user home issue first -->
-<!--                    <execution>-->
-<!--                        <id>coverage</id>-->
-<!--                        <goals>-->
-<!--                            <goal>integration-test</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <systemProperties>-->
-<!--                                <okta-cli-test.path>${java.home}/bin/java ${argLine} -jar ${project.build.directory}/../../cli/target/okta-cli-${project.version}.jar</okta-cli-test.path>-->
-<!--                            </systemProperties>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
+                    <execution>
+                        <id>coverage</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                        <configuration>
+                            <systemProperties>
+                                <okta-cli-test.path>${java.home}/bin/java -Duser.home=##user.home##  ${argLine} -jar ${project.build.directory}/../../cli/target/okta-cli-${project.version}.jar</okta-cli-test.path>
+                            </systemProperties>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

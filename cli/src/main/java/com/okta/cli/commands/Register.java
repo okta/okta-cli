@@ -15,18 +15,51 @@
  */
 package com.okta.cli.commands;
 
+import com.okta.cli.OktaCli;
+import com.okta.cli.common.model.OrganizationRequest;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.common.service.SetupService;
+import com.okta.cli.console.Prompter;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
+
+import java.util.concurrent.Callable;
 
 @Command(name = "register",
          description = "Sign up for a new Okta account")
-public class Register extends BaseRegistrationCommand {
+public class Register implements Callable<Integer> {
+
+    @CommandLine.Mixin
+    protected OktaCli.StandardOptions standardOptions;
+
+    @CommandLine.Option(names = "--email", description = "Email used when registering a new Okta account")
+    protected String email;
+
+    @CommandLine.Option(names = "--first-name", description = "First name used when registering a new Okta account")
+    protected String firstName;
+
+    @CommandLine.Option(names = "--last-name", description = "Last name used when registering a new Okta account")
+    protected String lastName;
+
+    @CommandLine.Option(names = "--company", description = "Company / organization used when registering a new Okta account")
+    protected String company;
+
+    protected OrganizationRequest organizationRequest() {
+        Prompter prompter = standardOptions.getEnvironment().prompter();
+        return new OrganizationRequest()
+                .setFirstName(prompter.promptUntilValue(firstName, "First name"))
+                .setLastName(prompter.promptUntilValue(lastName, "Last name"))
+                .setEmail(prompter.promptUntilValue(email, "Email address"))
+                .setOrganization(prompter.promptUntilValue(company, "Company"));
+    }
 
     @Override
     public Integer call() throws Exception {
         SetupService setupService = new DefaultSetupService(null);
-        setupService.createOktaOrg(this::organizationRequest, standardOptions.getEnvironment().getOktaPropsFile(), standardOptions.getEnvironment().isDemo(), interactive);
+        setupService.createOktaOrg(this::organizationRequest,
+                                   standardOptions.getEnvironment().getOktaPropsFile(),
+                                   standardOptions.getEnvironment().isDemo(),
+                                   standardOptions.getEnvironment().isInteractive());
         return 0;
     }
 }

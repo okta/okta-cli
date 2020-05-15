@@ -31,6 +31,17 @@ public class Environment {
 
     private final Prompter prompter = new DefaultPrompter(consoleOutput);
 
+    private boolean interactive = true;
+
+    public boolean isInteractive() {
+        return interactive;
+    }
+
+    public Environment setInteractive(boolean interactive) {
+        this.interactive = interactive;
+        return this;
+    }
+
     public File workingDirectory() {
         return baseDir;
     }

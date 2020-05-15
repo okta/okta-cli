@@ -21,20 +21,14 @@ import java.util.stream.Collectors;
 
 public enum NativeAppTemplate {
 
-    GENERIC("Native App", ".okta.env", "com.oktapreview.dev-259824:/callback", "com.oktapreview.dev-259824:/");
+    GENERIC("Native App");
 
     private static final List<String> names = Arrays.stream(values()).map(it -> it.friendlyName).collect(Collectors.toList());
 
     private final String friendlyName;
-    private final String defaultConfigFileName;
-    private final String defaultRedirectUri;
-    private final String defaultLogoutUri;
 
-    NativeAppTemplate(String friendlyName, String defaultConfigFileName, String defaultRedirectUri, String defaultLogoutUri) {
+    NativeAppTemplate(String friendlyName) {
         this.friendlyName = friendlyName;
-        this.defaultConfigFileName = defaultConfigFileName;
-        this.defaultRedirectUri = defaultRedirectUri;
-        this.defaultLogoutUri = defaultLogoutUri;
     }
 
     static NativeAppTemplate fromName(String name) {

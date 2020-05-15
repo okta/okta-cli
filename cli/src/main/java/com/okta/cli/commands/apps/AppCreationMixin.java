@@ -43,7 +43,7 @@ public class AppCreationMixin {
         }
 
         return new String[] {"http://localhost:8080/callback",
-                "http://localhost:8080/login/oauth2/code/" + key};
+                             "http://localhost:8080/login/oauth2/code/" + key};
     }
 
     public MutablePropertySource getPropertySource() {

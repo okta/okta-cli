@@ -16,10 +16,8 @@
 package com.okta.cli;
 
 import com.okta.cli.commands.DumpCommand;
-import com.okta.cli.commands.JHipster;
 import com.okta.cli.commands.Login;
 import com.okta.cli.commands.Register;
-import com.okta.cli.commands.SpringBoot;
 import com.okta.cli.commands.apps.Apps;
 import com.okta.commons.lang.ApplicationInfo;
 import picocli.AutoComplete;
@@ -37,8 +35,6 @@ import java.util.List;
                 Register.class,
                 Login.class,
                 Apps.class,
-                SpringBoot.class,
-                JHipster.class,
                 DumpCommand.class,
                 CommandLine.HelpCommand.class,
                 AutoComplete.GenerateCompletion.class})
@@ -72,6 +68,8 @@ public class OktaCli implements Runnable {
         @Override
         public int handleExecutionException(Exception ex, CommandLine commandLine, CommandLine.ParseResult parseResult) throws Exception {
 
+            // TODO get the root cause exception
+
             // `null` is the typical message for an NPE, so print the stack traces
             if (standardOptions.isVerbose()|| ex instanceof NullPointerException) {
                 ex.printStackTrace();
@@ -94,8 +92,14 @@ public class OktaCli implements Runnable {
 
         private boolean verbose = false;
 
+        @Option(names = "--batch", description = "Batch mode, will not prompt for user input")
+        public void setBatch(boolean batch) {
+            environment.setInteractive(!batch);
+        }
+
         @Option(names = "--verbose", description = "Verbose logging")
         public void setVerbose(boolean verbose) {
+            this.verbose = verbose;
             if (verbose) {
                 System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
             }
@@ -109,7 +113,7 @@ public class OktaCli implements Runnable {
         public void setSystemProperties(List<String> props) {
             if (props != null) {
                 props.forEach(it -> {
-                    String[] keyValue = it.split("=", 1);
+                    String[] keyValue = it.split("=", 2);
                     String key = keyValue[0];
                     String value = "";
                     if (keyValue.length == 2) { // TODO: fail here if not 2?

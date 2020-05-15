@@ -18,17 +18,16 @@ package com.okta.cli.commands.apps;
 import com.okta.cli.OktaCli;
 import com.okta.cli.commands.apps.templates.AppType;
 import com.okta.cli.commands.apps.templates.ServiceAppTemplate;
+import com.okta.cli.commands.apps.templates.SpaAppTemplate;
 import com.okta.cli.commands.apps.templates.WebAppTemplate;
 import com.okta.cli.common.config.MapPropertySource;
 import com.okta.cli.common.config.MutablePropertySource;
+import com.okta.cli.common.model.AuthorizationServer;
 import com.okta.cli.common.service.ClientConfigurationException;
 import com.okta.cli.common.service.DefaultSdkConfigurationService;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.console.ConsoleOutput;
-import com.okta.cli.console.PromptOption;
 import com.okta.cli.console.Prompter;
-import com.okta.cli.util.InternalApiUtil;
-import com.okta.commons.lang.Strings;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
 import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
@@ -105,15 +104,11 @@ public class AppsCreate implements Callable<Integer> {
                                             appTemplate.getDefaultRedirectUri());
 
         Client client = Clients.builder().build();
-
         Map<String, Object> issuer = getIssuer(client);
-
         String baseUrl = getBaseUrl();
-
         String groupClaimName = appTemplate.getGroupsClaim();
 
         MutablePropertySource propertySource = appCreationMixin.getPropertySource(appTemplate.getDefaultConfigFileName());
-
         new DefaultSetupService(appTemplate.getSpringPropertyKey()).createOidcApplication(propertySource, appName, baseUrl, groupClaimName, (String) issuer.get("id"), true, OpenIdConnectApplicationType.WEB, redirectUri);
 
         out.writeLine("Okta application configuration has been written to: " + propertySource.getName());
@@ -124,8 +119,8 @@ public class AppsCreate implements Callable<Integer> {
     private Integer createNativeApp() throws IOException {
 
         ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
-        String appName = getAppName();
 
+        String appName = getAppName();
         String baseUrl = getBaseUrl();
 
         String[] parts = URI.create(baseUrl).getHost().split("\\.");
@@ -134,16 +129,12 @@ public class AppsCreate implements Callable<Integer> {
                 .collect(Collectors.joining("."));
 
         String defaultRedirectUri = reverseDomain + ":/callback";
-
         String redirectUri = getRedirectUri(Map.of("Reverse Domain name", "com.example:/callback"), defaultRedirectUri);
-
         Client client = Clients.builder().build();
-
         Map<String, Object> issuer = getIssuer(client);
 
         MutablePropertySource propertySource = new MapPropertySource();
-
-        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, (String) issuer.get("id"), true, OpenIdConnectApplicationType.NATIVE, redirectUri);
+        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, (String) issuer.get("id"), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.NATIVE, redirectUri);
 
         out.writeLine("Okta application configuration: ");
         propertySource.getProperties().forEach((key, value) -> {
@@ -168,7 +159,7 @@ public class AppsCreate implements Callable<Integer> {
         Map<String, Object> issuer = getIssuer(client);
 
         MutablePropertySource propertySource = appCreationMixin.getPropertySource(appTemplate.getDefaultConfigFileName());
-        new DefaultSetupService(appTemplate.getSpringPropertyKey()).createOidcApplication(propertySource, appName, baseUrl, null, (String) issuer.get("id"), true, OpenIdConnectApplicationType.SERVICE);
+        new DefaultSetupService(appTemplate.getSpringPropertyKey()).createOidcApplication(propertySource, appName, baseUrl, null, (String) issuer.get("id"), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.SERVICE);
 
         out.writeLine("Okta application configuration has been written to: " + propertySource.getName());
 
@@ -178,19 +169,15 @@ public class AppsCreate implements Callable<Integer> {
     private Integer createSpaApp() throws IOException {
 
         ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
+
         String appName = getAppName();
-
         String baseUrl = getBaseUrl();
-
-        String redirectUri = getRedirectUri(Map.of("/callback", "http://localhost:8080/callback"), "http://localhost:8080/callback");
-
+        String redirectUri = getRedirectUri(Map.of("/callback", "http://localhost:8080/callback"), SpaAppTemplate.GENERIC.getDefaultRedirectUri());
         Client client = Clients.builder().build();
-
-        Map<String, Object> issuer = getIssuer(client);
+        AuthorizationServer authorizationServer = getIssuer(client);
 
         MutablePropertySource propertySource = new MapPropertySource();
-
-        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, (String) issuer.get("id"), true, OpenIdConnectApplicationType.BROWSER, redirectUri);
+        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, authorizationServer.getId(), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.BROWSER, redirectUri);
 
         out.writeLine("Okta application configuration: ");
         propertySource.getProperties().forEach((key, value) -> {
@@ -207,30 +194,9 @@ public class AppsCreate implements Callable<Integer> {
         return prompter.promptUntilIfEmpty(appCreationMixin.appName,"Application name", appCreationMixin.getDefaultAppName());
     }
 
-    private Map<String, Object> getIssuer(Client client) {
+    private AuthorizationServer getIssuer(Client client) {
         Prompter prompter = standardOptions.getEnvironment().prompter();
-        Map<String, Map<String, Object>> asMap = InternalApiUtil.getAuthorizationServers(client);
-
-        if (!Strings.isEmpty(appCreationMixin.authorizationServerId)) {
-            Map<String, Object> as = asMap.get(appCreationMixin.authorizationServerId);
-            if (as == null) {
-                throw new IllegalArgumentException("The authorization-server-id specified was not found");
-            } else {
-                return as;
-            }
-        } else if (asMap.isEmpty()) {
-            throw new IllegalArgumentException("No custom authorization servers were found in this Okta org, create one in the Okta Admin Console and try again");
-        } else if (asMap.size() == 1) {
-            return asMap.values().iterator().next();
-        } else if (asMap.containsKey("default")) {
-            return asMap.get("default");
-        } else {
-            List<PromptOption<Map<String, Object>>> issuerOptions = asMap.values().stream()
-                    .map(it -> PromptOption.of((String) it.get("issuer"), it))
-                    .collect(Collectors.toList());
-
-            return prompter.prompt("Issuer:", issuerOptions, issuerOptions.get(0));
-        }
+        return CommonAppsPrompts.getIssuer(client, prompter, appCreationMixin.authorizationServerId);
     }
 
     private String getBaseUrl() {
@@ -254,6 +220,10 @@ public class AppsCreate implements Callable<Integer> {
         return prompter.promptIfEmpty(appCreationMixin.redirectUri, redirectUriPrompt.toString(), defaultRedirectUri);
     }
 
+    /**
+     * Quick templates are meant to reduce prompts for the end user, for example you could instruct a user to run
+     * {@code okta apps create spring-boot-service} and they would be minimally prompted.
+     */
     private enum QuickTemplate {
         // web
         SPRING_BOOT("spring-boot", AppType.WEB, WebAppTemplate.SPRING_BOOT),

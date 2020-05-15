@@ -61,8 +61,6 @@ public class Login implements Callable<Integer> {
             out.writeLine("Okta Org already configured: "+ orgUrl);
         }
 
-        // TODO create cli-token client application?
-
         return 0;
     }
 }

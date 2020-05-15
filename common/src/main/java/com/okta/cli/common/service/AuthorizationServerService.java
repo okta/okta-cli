@@ -15,9 +15,14 @@
  */
 package com.okta.cli.common.service;
 
+import com.okta.cli.common.model.AuthorizationServer;
 import com.okta.sdk.client.Client;
 
-public interface AuthorizationServerConfigureService {
+import java.util.Map;
 
-    boolean createGroupClaim(Client client, String groupClaimName, String authorizationServerId);
+public interface AuthorizationServerService {
+
+    Map<String, AuthorizationServer> authorizationServersMap(Client client);
+
+    void createGroupClaim(Client client, String groupClaimName, String authorizationServerId);
 }

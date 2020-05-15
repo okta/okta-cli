@@ -20,18 +20,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public enum SpaAppTemplate {
-    GENERIC("Single Page App", ".okta.env", "http://localhost:8080/callback");
+    GENERIC("Single Page App", "http://localhost:8080/callback");
 
     private static final List<String> names = Arrays.stream(values()).map(it -> it.friendlyName).collect(Collectors.toList());
 
     private final String friendlyName;
-    private final String defaultConfigFileName;
     private final String defaultRedirectUri;
 
-    SpaAppTemplate(String friendlyName, String defaultConfigFileName, String defaultRedirectUri) {
+    SpaAppTemplate(String friendlyName, String defaultRedirectUri) {
         this.friendlyName = friendlyName;
-        this.defaultConfigFileName = defaultConfigFileName;
         this.defaultRedirectUri = defaultRedirectUri;
+    }
+
+    public String getDefaultRedirectUri() {
+        return defaultRedirectUri;
     }
 
     static SpaAppTemplate fromName(String name) {

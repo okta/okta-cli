@@ -1,5 +1,28 @@
 [
   {
+    "name": "com.okta.cli.common.model.AuthorizationServerList",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+    }, {
+      "name" : "<init>",
+      "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+    }, {
+      "name" : "<init>",
+      "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
+    } ]
+  },
+  {
+    "name": "com.okta.cli.common.model.AuthorizationServer",
+    "methods" : [ {
+      "name" : "<init>",
+      "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+    }, {
+      "name" : "<init>",
+      "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+    } ]
+  },
+  {
     "name": "com.okta.cli.common.model.OrganizationRequest",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,
@@ -54,24 +77,6 @@
   },
   {
     "name": "com.fasterxml.jackson.databind.ser.Serializers[]"
-  },
-  {
-    "name": "com.okta.cli.OktaCli",
-    "allDeclaredFields": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true
-  },
-  {
-    "name": "com.okta.cli.commands.SpringBoot",
-    "allDeclaredFields": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      }
-    ]
   },
   {
     "name": "com.okta.sdk.impl.cache.DefaultCacheManagerBuilder",

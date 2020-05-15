@@ -41,6 +41,11 @@
             <groupId>com.okta.cli</groupId>
             <artifactId>okta-cli-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.okta.cli</groupId>
+            <artifactId>okta-cli-its</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -25,8 +25,6 @@ import com.okta.sdk.client.Clients;
 import com.okta.sdk.impl.config.ClientConfiguration;
 import com.okta.sdk.resource.ExtensibleResource;
 import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +41,7 @@ public class DefaultSetupService implements SetupService {
 
     private final OidcAppCreator oidcAppCreator;
 
-    private final AuthorizationServerConfigureService authorizationServerConfigureService;
+    private final AuthorizationServerService authorizationServerService;
 
     private final String springPropertyKey;
 
@@ -53,25 +51,23 @@ public class DefaultSetupService implements SetupService {
      */
     private String apiBaseUrl = "https://start.okta.dev/";
 
-    private final Logger logger = LoggerFactory.getLogger(DefaultSetupService.class);
-
     public DefaultSetupService(String springPropertyKey) {
         this(new DefaultSdkConfigurationService(),
                 new DefaultOktaOrganizationCreator(),
                 new DefaultOidcAppCreator(),
-                new DefaultAuthorizationServerConfigureService(),
+                new DefaultAuthorizationServerService(),
                 springPropertyKey);
     }
 
     public DefaultSetupService(SdkConfigurationService sdkConfigurationService,
                                OktaOrganizationCreator organizationCreator,
                                OidcAppCreator oidcAppCreator, 
-                               AuthorizationServerConfigureService authorizationServerConfigureService,
+                               AuthorizationServerService authorizationServerService,
                                String springPropertyKey) {
         this.sdkConfigurationService = sdkConfigurationService;
         this.organizationCreator = organizationCreator;
         this.oidcAppCreator = oidcAppCreator;
-        this.authorizationServerConfigureService = authorizationServerConfigureService;
+        this.authorizationServerService = authorizationServerService;
         this.springPropertyKey = springPropertyKey;
     }
 
@@ -185,10 +181,7 @@ public class DefaultSetupService implements SetupService {
                 if (!Strings.isEmpty(groupClaimName)) {
 
                     progressBar.info("Creating Authorization Server claim '" + groupClaimName + "':");
-                    boolean asCreated = authorizationServerConfigureService.createGroupClaim(client, groupClaimName, authorizationServerId);
-                    if (!asCreated) {
-                        logger.warn("Could not create an Authorization Server claim with the name of '" + groupClaimName + "', it likely already exists. You can verify this in your Okta Admin console.");
-                    }
+                    authorizationServerService.createGroupClaim(client, groupClaimName, authorizationServerId);
                 }
             } else {
                 progressBar.info("Existing OIDC application detected for clientId: "+ clientId + ", skipping new application creation\n");

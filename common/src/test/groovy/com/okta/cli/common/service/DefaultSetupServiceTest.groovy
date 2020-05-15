@@ -169,7 +169,7 @@ class DefaultSetupServiceTest {
         PowerMockito.verifyNoMoreInteractions(setupService.organizationCreator,
                 setupService.sdkConfigurationService,
                 setupService.oidcAppCreator,
-                setupService.authorizationServerConfigureService)
+                setupService.authorizationServerService)
     }
 
     @Test
@@ -205,7 +205,7 @@ class DefaultSetupServiceTest {
         ])
 
         // no group claim created
-        PowerMockito.verifyNoMoreInteractions(setupService.authorizationServerConfigureService)
+        PowerMockito.verifyNoMoreInteractions(setupService.authorizationServerService)
     }
 
     @Test
@@ -240,7 +240,7 @@ class DefaultSetupServiceTest {
                 "okta.oauth2.client-secret": "test-client-secret"
         ])
 
-        verify(setupService.authorizationServerConfigureService).createGroupClaim(client, groupClaimName, authorizationServerId)
+        verify(setupService.authorizationServerService).createGroupClaim(client, groupClaimName, authorizationServerId)
     }
 
     @Test
@@ -266,7 +266,7 @@ class DefaultSetupServiceTest {
         OktaOrganizationCreator organizationCreator = mock(OktaOrganizationCreator)
         SdkConfigurationService sdkConfigurationService = mock(SdkConfigurationService)
         OidcAppCreator oidcAppCreator = mock(OidcAppCreator)
-        AuthorizationServerConfigureService authServerService = mock(AuthorizationServerConfigureService)
+        AuthorizationServerService authServerService = mock(AuthorizationServerService)
         when(sdkConfigurationService.loadUnvalidatedConfiguration()).thenReturn(new ClientConfiguration())
 
         DefaultSetupService setupService = new DefaultSetupService(sdkConfigurationService, organizationCreator, oidcAppCreator, authServerService, springPropertyKey)
