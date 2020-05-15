@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-Present Okta, Inc, Inc.
+ * Copyright 2020-Present Okta, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,20 +36,10 @@ class AppsIT implements MockWebSupport {
         mockWebServer.with {
             responses.forEach { mockWebServer.enqueue(it) }
 
-            CommandRunner commandRunner = new CommandRunner() {
-                @Override
-                protected void setupHomeDir(File homeDir) {
+            def result = new CommandRunner()
+                    .withSdkConfig(mockWebServer.url("/").toString())
+                    .runCommand("-Dokta.testing.disableHttpsCheck=true", "apps")
 
-                    File file = new File(homeDir,".okta/okta.yaml")
-                    file.getParentFile().mkdir()
-                    file.write "okta:\n"
-                    file << "  client:\n"
-                    file << "    orgUrl: ${mockWebServer.url("/")}\n"
-                    file << "    token: some-test-token\n"
-                }
-            }
-
-            def result = commandRunner.runCommand("-Dokta.testing.disableHttpsCheck=true", "apps")
             assertThat result, resultMatches(0, allOf(containsString("app-id-1\tApp 1"),
                                                                containsString("app-id-2\tApp 2")),
                                                           null)

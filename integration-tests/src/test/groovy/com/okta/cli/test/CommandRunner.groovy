@@ -26,12 +26,37 @@ class CommandRunner {
 
     private final String regServiceUrl
 
+    private final File homeDir = File.createTempDir()
+    private final File workingDir = new File(File.createTempDir(), "test-project")
+
+    private Closure initHomeDir;
+
     CommandRunner() {
         this(null)
     }
 
     CommandRunner(String regServiceUrl) {
         this.regServiceUrl = regServiceUrl
+
+        this.workingDir.mkdirs()
+    }
+
+    CommandRunner withHomeDirectory(Closure initHomeDir) {
+        this.initHomeDir = initHomeDir
+        setupHomeDir(homeDir)
+        return this
+    }
+
+    CommandRunner withSdkConfig(String baseUrl, String token="some-test-token") {
+        this.withHomeDirectory( {
+            File file = new File(homeDir,".okta/okta.yaml")
+            file.getParentFile().mkdir()
+            file.write "okta:\n"
+            file << "  client:\n"
+            file << "    orgUrl: ${baseUrl}\n"
+            file << "    token: ${token}\n"
+        })
+        return this
     }
 
     Result runCommand(String... args) {
@@ -40,12 +65,7 @@ class CommandRunner {
 
     Result runCommandWithInput(List<String> input, String... args) {
 
-        File homeDir = File.createTempDir()
-        setupHomeDir(homeDir)
-        File workingDir = new File(File.createTempDir(), "test-project")
-        workingDir.mkdirs()
-
-        String command = [getCli(homeDir), "-Duser.home=${homeDir}", args].flatten().join(" ")
+        String command = [getCli(homeDir), "-Duser.home=${homeDir}", "-Dokta.testing.disableHttpsCheck=true", args].flatten().join(" ")
         String[] envVars = ["HOME=${homeDir}", "OKTA_CLI_BASE_URL=${regServiceUrl}"]
 
         def sout = new StringBuilder()
@@ -69,7 +89,11 @@ class CommandRunner {
         return new Result(process.exitValue(), command, envVars, sout.toString(), serr.toString(), workingDir, homeDir)
     }
 
-    protected void setupHomeDir(File homeDir) { }
+    protected void setupHomeDir(File homeDir) {
+        if (initHomeDir != null) {
+            initHomeDir.call(homeDir)
+        }
+    }
 
     static String getCli(File homeDir) {
 //        String javaExec = new File(System.getProperty("java.home"), "bin/java").absolutePath

@@ -47,13 +47,17 @@ public class OktaCli implements Runnable {
     private StandardOptions standardOptions;
 
     public static void main(String... args) {
+        System.exit(run(args));
+    }
+
+    public static int run(String... args) {
         OktaCli oktaCli = new OktaCli();
         CommandLine commandLine = new CommandLine(oktaCli)
                 .setExecutionExceptionHandler(oktaCli.new ExceptionHandler())
                 .setExecutionStrategy(new CommandLine.RunLast())
                 .setUsageHelpAutoWidth(true)
                 .setUsageHelpWidth(200);
-        System.exit(commandLine.execute(args));
+        return commandLine.execute(args);
     }
 
     public OktaCli() {}
@@ -88,9 +92,14 @@ public class OktaCli implements Runnable {
     @Command(versionProvider = VersionProvider.class, mixinStandardHelpOptions = true)
     public static class StandardOptions {
 
-        private final Environment environment = new Environment();
+        private final static Environment environment = new Environment();
 
         private boolean verbose = false;
+
+        @Option(names = "--color", hidden = true) // gnu tools use --color=always,never,auto (for not just support always and never)
+        public void setColor(ColorOptions color) {
+            environment.setConsoleColors(color == ColorOptions.always);
+        }
 
         @Option(names = "--batch", description = "Batch mode, will not prompt for user input")
         public void setBatch(boolean batch) {
@@ -127,6 +136,10 @@ public class OktaCli implements Runnable {
         public Environment getEnvironment() {
             return environment;
         }
+    }
+
+    public enum ColorOptions {
+        never, always
     }
 
     public static class VersionProvider implements CommandLine.IVersionProvider {

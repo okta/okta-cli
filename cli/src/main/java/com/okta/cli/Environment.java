@@ -27,11 +27,13 @@ public class Environment {
 
     private final File oktaPropsFile = new File(System.getProperty("user.home"), ".okta/okta.yaml");
 
-    private final ConsoleOutput consoleOutput = ConsoleOutput.create(true); // TODO force into constructor
+    private Prompter prompter;
 
-    private final Prompter prompter = new DefaultPrompter(consoleOutput);
+    private ConsoleOutput consoleOutput;
 
     private boolean interactive = true;
+
+    private boolean consoleColors = true;
 
     public boolean isInteractive() {
         return interactive;
@@ -39,6 +41,11 @@ public class Environment {
 
     public Environment setInteractive(boolean interactive) {
         this.interactive = interactive;
+        return this;
+    }
+
+    public Environment setConsoleColors(boolean consoleColors) {
+        this.consoleColors = consoleColors;
         return this;
     }
 
@@ -50,15 +57,22 @@ public class Environment {
         return oktaPropsFile;
     }
 
-    public Prompter prompter() {
-        return prompter;
-    }
-
     public boolean isDemo() {
         return Boolean.parseBoolean(System.getenv("OKTA_CLI_DEMO"));
     }
 
+    public Prompter prompter() {
+        if (prompter == null) {
+            prompter = new DefaultPrompter(getConsoleOutput());
+        }
+        return prompter;
+    }
+
     public ConsoleOutput getConsoleOutput() {
+        if (consoleOutput == null) {
+            consoleOutput = ConsoleOutput.create(consoleColors);
+        }
+
         return consoleOutput;
     }
 }
