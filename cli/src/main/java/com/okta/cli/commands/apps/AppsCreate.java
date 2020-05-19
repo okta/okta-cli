@@ -151,7 +151,7 @@ public class AppsCreate implements Callable<Integer> {
         ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
         Prompter prompter = standardOptions.getEnvironment().prompter();
 
-        appTemplate = prompter.promptIfEmpty(appTemplate, "Framework of Application", Arrays.asList(ServiceAppTemplate.values()), ServiceAppTemplate.SPRING_BOOT);
+        appTemplate = prompter.promptIfEmpty(appTemplate, "Framework of Application", Arrays.asList(ServiceAppTemplate.values()), ServiceAppTemplate.GENERIC);
 
         String appName = getAppName();
         String baseUrl = getBaseUrl();

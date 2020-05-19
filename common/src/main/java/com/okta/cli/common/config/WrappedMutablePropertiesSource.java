@@ -21,8 +21,8 @@ import com.okta.sdk.impl.config.OptionalPropertiesSource;
 import com.okta.sdk.impl.config.PropertiesSource;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
@@ -53,7 +53,11 @@ abstract class WrappedMutablePropertiesSource implements MutablePropertySource {
         return result;
     }
 
-    Writer fileWriter(File file) throws FileNotFoundException {
+    Writer fileWriter(File file) throws IOException {
+        File parent = file.getParentFile();
+        if (!(parent.exists() || file.getParentFile().mkdirs())) {
+            throw new IOException("Could not create directory: " + parent.getAbsolutePath());
+        }
         return new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
     }
 }

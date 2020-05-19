@@ -31,6 +31,8 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+
+        <picocli.version>4.2.0</picocli.version>
     </properties>
 
     <dependencies>
@@ -61,13 +63,7 @@
         <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
-            <version>4.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>info.picocli</groupId>
-            <artifactId>picocli-codegen</artifactId>
-            <version>4.2.0</version>
-            <scope>provided</scope>
+            <version>${picocli.version}</version>
         </dependency>
 
         <dependency>
@@ -128,6 +124,16 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
+                <configuration>
+                    <verbose>true</verbose>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>info.picocli</groupId>
+                            <artifactId>picocli-codegen</artifactId>
+                            <version>${picocli.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
 <!--            <plugin>-->
 <!--                <groupId>org.graalvm.nativeimage</groupId>-->
