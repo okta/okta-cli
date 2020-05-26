@@ -113,7 +113,7 @@
                         </goals>
                         <configuration>
                             <systemProperties>
-                                <okta-cli-test.path>${java.home}/bin/java -Duser.home=##user.home##  ${argLine} -jar ${project.build.directory}/../../cli/target/okta-cli-${project.version}.jar</okta-cli-test.path>
+                                <okta-cli-test.path>${java.home}/bin/java -Duser.home=##user.home## -Dokta.testing.disableHttpsCheck=true ${argLine} -jar ${project.build.directory}/../../cli/target/okta-cli-${project.version}.jar</okta-cli-test.path>
                             </systemProperties>
                         </configuration>
                     </execution>
