@@ -118,7 +118,7 @@ public class OktaCli implements Runnable {
             return verbose;
         }
 
-        @Option(names = "-D", hidden = true, description = "Set Java system property key value pairs")
+        @Option(names = "-D", hidden = true, description = "Set Java System Property key value pairs", paramLabel = "<key=value>")
         public void setSystemProperties(List<String> props) {
             if (props != null) {
                 props.forEach(it -> {

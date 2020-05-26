@@ -17,6 +17,7 @@ package com.okta.cli;
 
 import com.okta.cli.console.ConsoleOutput;
 import com.okta.cli.console.DefaultPrompter;
+import com.okta.cli.console.DisabledPrompter;
 import com.okta.cli.console.Prompter;
 
 import java.io.File;
@@ -63,7 +64,9 @@ public class Environment {
 
     public Prompter prompter() {
         if (prompter == null) {
-            prompter = new DefaultPrompter(getConsoleOutput());
+            prompter = interactive
+                    ? new DefaultPrompter(getConsoleOutput())
+                    : new DisabledPrompter();
         }
         return prompter;
     }
