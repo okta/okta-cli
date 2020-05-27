@@ -59,6 +59,7 @@ public class JHipsterMojo extends BaseSetupMojo {
                     getPropertySource(),
                     oidcAppName,
                     "groups",
+                    null,
                     authorizationServerId,
                     demo,
                     settings.isInteractiveMode(),

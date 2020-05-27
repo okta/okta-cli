@@ -104,12 +104,12 @@ public class AppsCreate implements Callable<Integer> {
                                             appTemplate.getDefaultRedirectUri());
 
         Client client = Clients.builder().build();
-        Map<String, Object> issuer = getIssuer(client);
+        AuthorizationServer issuer = getIssuer(client);
         String baseUrl = getBaseUrl();
         String groupClaimName = appTemplate.getGroupsClaim();
 
         MutablePropertySource propertySource = appCreationMixin.getPropertySource(appTemplate.getDefaultConfigFileName());
-        new DefaultSetupService(appTemplate.getSpringPropertyKey()).createOidcApplication(propertySource, appName, baseUrl, groupClaimName, (String) issuer.get("id"), true, OpenIdConnectApplicationType.WEB, redirectUri);
+        new DefaultSetupService(appTemplate.getSpringPropertyKey()).createOidcApplication(propertySource, appName, baseUrl, groupClaimName, issuer.getIssuer(), issuer.getId(), true, OpenIdConnectApplicationType.WEB, redirectUri);
 
         out.writeLine("Okta application configuration has been written to: " + propertySource.getName());
 
@@ -131,10 +131,10 @@ public class AppsCreate implements Callable<Integer> {
         String defaultRedirectUri = reverseDomain + ":/callback";
         String redirectUri = getRedirectUri(Map.of("Reverse Domain name", "com.example:/callback"), defaultRedirectUri);
         Client client = Clients.builder().build();
-        Map<String, Object> issuer = getIssuer(client);
+        AuthorizationServer issuer = getIssuer(client);
 
         MutablePropertySource propertySource = new MapPropertySource();
-        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, (String) issuer.get("id"), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.NATIVE, redirectUri);
+        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, issuer.getIssuer(), issuer.getId(), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.NATIVE, redirectUri);
 
         out.writeLine("Okta application configuration: ");
         propertySource.getProperties().forEach((key, value) -> {
@@ -156,10 +156,10 @@ public class AppsCreate implements Callable<Integer> {
         String appName = getAppName();
         String baseUrl = getBaseUrl();
         Client client = Clients.builder().build();
-        Map<String, Object> issuer = getIssuer(client);
+        AuthorizationServer issuer = getIssuer(client);
 
         MutablePropertySource propertySource = appCreationMixin.getPropertySource(appTemplate.getDefaultConfigFileName());
-        new DefaultSetupService(appTemplate.getSpringPropertyKey()).createOidcApplication(propertySource, appName, baseUrl, null, (String) issuer.get("id"), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.SERVICE);
+        new DefaultSetupService(appTemplate.getSpringPropertyKey()).createOidcApplication(propertySource, appName, baseUrl, null, issuer.getIssuer(), issuer.getId(), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.SERVICE);
 
         out.writeLine("Okta application configuration has been written to: " + propertySource.getName());
 
@@ -177,15 +177,13 @@ public class AppsCreate implements Callable<Integer> {
         AuthorizationServer authorizationServer = getIssuer(client);
 
         MutablePropertySource propertySource = new MapPropertySource();
-        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, authorizationServer.getId(), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.BROWSER, redirectUri);
+        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, authorizationServer.getIssuer(), authorizationServer.getId(), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.BROWSER, redirectUri);
 
         out.writeLine("Okta application configuration: ");
-        propertySource.getProperties().forEach((key, value) -> {
-            out.bold(key);
-            out.write(": ");
-            out.writeLine(value);
-        });
-
+        out.bold("Issuer:    ");
+        out.writeLine(propertySource.getProperty("okta.oauth2.issuer"));
+        out.bold("Client ID: ");
+        out.writeLine(propertySource.getProperty("okta.oauth2.client-id"));
         return 0;
     }
 
@@ -226,6 +224,7 @@ public class AppsCreate implements Callable<Integer> {
      */
     private enum QuickTemplate {
         // web
+        OKTA_SPRING_BOOT("okta-spring-boot", AppType.WEB, WebAppTemplate.OKTA_SPRING_BOOT),
         SPRING_BOOT("spring-boot", AppType.WEB, WebAppTemplate.SPRING_BOOT),
         JHIPSTER("jhipster", AppType.WEB, WebAppTemplate.JHIPSTER),
         GENERIC_WEB("web", AppType.WEB, WebAppTemplate.GENERIC),

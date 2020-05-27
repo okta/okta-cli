@@ -19,6 +19,7 @@ import com.okta.cli.common.config.MutablePropertySource;
 import com.okta.cli.common.model.OrganizationRequest;
 import com.okta.cli.common.model.OrganizationResponse;
 import com.okta.cli.common.progressbar.ProgressBar;
+import com.okta.commons.configcheck.ConfigurationValidator;
 import com.okta.commons.lang.Strings;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
@@ -78,6 +79,7 @@ public class DefaultSetupService implements SetupService {
             MutablePropertySource propertySource,
             String oidcAppName,
             String groupClaimName,
+            String issuerUri,
             String authorizationServerId,
             boolean demo,
             boolean interactive,
@@ -87,7 +89,7 @@ public class DefaultSetupService implements SetupService {
             String orgUrl = createOktaOrg(organizationRequestSupplier, oktaPropsFile, demo, interactive);
 
             // Create new Application
-            createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB, redirectUris);
+            createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, issuerUri, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB, redirectUris);
 
     }
 
@@ -135,6 +137,7 @@ public class DefaultSetupService implements SetupService {
                                       String oidcAppName,
                                       String orgUrl,
                                       String groupClaimName,
+                                      String issuerUri,
                                       String authorizationServerId,
                                       boolean interactive,
                                       OpenIdConnectApplicationType appType,
@@ -144,7 +147,7 @@ public class DefaultSetupService implements SetupService {
         String clientId = propertySource.getProperty(getClientIdPropertyName());
 
         try (ProgressBar progressBar = ProgressBar.create(interactive)) {
-            if (Strings.isEmpty(clientId)) {
+            if (!ConfigurationValidator.validateClientId(clientId).isValid()) {
 
                 progressBar.start("Configuring a new OIDC Application, almost done:");
 
@@ -169,8 +172,12 @@ public class DefaultSetupService implements SetupService {
                         throw new IllegalStateException("Unsupported Application Type: "+ appType);
                 }
 
+                if (Strings.isEmpty(issuerUri)) {
+                    issuerUri = orgUrl + "/oauth2/" + authorizationServerId;
+                }
+
                 Map<String, String> newProps = new HashMap<>();
-                newProps.put(getIssuerUriPropertyName(), orgUrl + "/oauth2/" + authorizationServerId);
+                newProps.put(getIssuerUriPropertyName(), issuerUri);
                 newProps.put(getClientIdPropertyName(), clientCredsResponse.getString("client_id"));
                 newProps.put(getClientSecretPropertyName(), clientCredsResponse.getString("client_secret"));
 

@@ -60,8 +60,8 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
 
             assertThat result, resultMatches(0, allOf(
                                                             containsString("Okta application configuration:"),
-                                                            containsString("okta.oauth2.client-id: test-id"),
-                                                            containsString("okta.oauth2.issuer: ${mockWebServer.url("/")}/oauth2/test-as"),
+                                                            containsString("Client ID: test-id"),
+                                                            containsString("Issuer:    ${mockWebServer.url("/")}/oauth2/test-as"),
                                                             not(containsString("okta.oauth2.client-secret"))),
                                         null)
 

@@ -109,6 +109,7 @@ public class SetupMojo extends BaseSetupMojo {
                                               getPropertySource(),
                                               oidcAppName,
                                               groupClaim,
+                                              null,
                                               authorizationServerId,
                                               demo,
                                               settings.isInteractiveMode(),

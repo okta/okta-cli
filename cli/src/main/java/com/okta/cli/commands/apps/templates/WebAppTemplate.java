@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 public enum WebAppTemplate implements PromptOption<WebAppTemplate> {
 
+    OKTA_SPRING_BOOT("Okta Spring Boot Starter", null, "src/main/resources/application.properties", "http://localhost:8080/login/oauth2/code/okta", null),
     SPRING_BOOT("Spring Boot", "okta", "src/main/resources/application.properties", "http://localhost:8080/login/oauth2/code/okta", null),
     JHIPSTER("JHipster", "oidc", ".okta.env", "http://localhost:8080/login/oauth2/code/oidc", "groups"),
     GENERIC("Other", null, ".okta.env", "http://localhost:8080/callback", null);
