@@ -15,63 +15,29 @@
  */
 package com.okta.maven.orgcreation;
 
-import com.okta.cli.common.config.MutablePropertySource;
-import com.okta.cli.common.service.ClientConfigurationException;
-import com.okta.cli.common.service.ConfigFileLocatorService;
-import com.okta.cli.common.service.DefaultSetupService;
-import com.okta.cli.common.service.SetupService;
-import com.okta.maven.orgcreation.support.SuppressFBWarnings;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-
-import java.io.File;
-import java.io.IOException;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
- * Creates a free Okta Developer account and registers / configures a new OIDC application. To signup for an account
- * without using this plugin visit  <a href="https://developer.okta.com/signup">developer.okta.com</a>.
+ * Creates a new Okta OIDC Web Application for use with your JHipster application and writes an {@code .okta.env} file with it's configuration.
  * <p>
- * If you have an existing Okta account, you can configure this plugin to use it by configuring a
- * {@code ~/.okta/okta.yaml} configuration (or equivalent, see the <a href="https://github.com/okta/okta-sdk-java#configuration-reference">Okta SDK configuration reference</a> for more info).
+ * NOTE: You must have an existing Okta account to use this Mojo, use the goals: {@code okta:register} or {@code okta:login}.
  * <p>
- * TL;DR: If you have an exiting account create a <code>~/.okta/okta.yaml</code> with your URL and API token:
- * <pre><code>
- * okta:
- *   client:
- *     orgUrl: https://{yourOktaDomain}
- *     token: {yourApiToken}
- * </code></pre>
- *
+ * To create other types of applications on the command line see the <a href="https://github.com/oktadeveloper/okta-maven-plugin">Okta CLI</a>.
  */
 @Mojo(name = "jhipster", defaultPhase = LifecyclePhase.NONE, threadSafe = false, aggregator = true, requiresProject=false)
-public class JHipsterMojo extends BaseSetupMojo {
+public class JHipsterMojo extends BaseAppMojo {
+
+    /**
+     * The redirect URI used for the OIDC application.
+     */
+    @Parameter(property = "redirectUri", defaultValue = "http://localhost:8080/login/oauth2/code/oidc")
+    protected String redirectUri = "http://localhost:8080/login/oauth2/code/oidc";
 
     @Override
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", justification = "false positive on Java 11")
     public void execute() throws MojoExecutionException {
-
-        try {
-            String springPropertyKey = "oidc";
-            SetupService setupService = new DefaultSetupService(springPropertyKey);
-            setupService.configureEnvironment(this::organizationRequest,
-                    oktaPropsFile,
-                    getPropertySource(),
-                    oidcAppName,
-                    "groups",
-                    null,
-                    authorizationServerId,
-                    demo,
-                    settings.isInteractiveMode(),
-                    springBasedRedirectUris(springPropertyKey));
-
-        } catch (IOException | ClientConfigurationException e) {
-            throw new MojoExecutionException("Failed to setup environment", e);
-        }
-    }
-
-    @Override
-    MutablePropertySource getPropertySource() {
-        return new ConfigFileLocatorService().findApplicationConfig(baseDir, new File(baseDir, ".okta.env"));
+        createWebApplication("oidc", "groups", redirectUri);
     }
 }
