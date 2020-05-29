@@ -28,9 +28,10 @@ import org.apache.maven.plugins.annotations.Mojo;
  *     <li>okta:login</li>
  *     <li>okta:spring-boot</li>
  *     <li>okta:jhipster</li>
+ *     <li>okta:web-app</li>
  * </ul>
  * <b>NOTE:</b> TO use the previous version of the plugin with this goal run {@code mvn com.okta:okta-maven-plugin:0.2.0:setup}
- * @deprecated Use okta:register, okta:spring-boot, and okta:jhipster instead
+ * @deprecated Use okta:register, okta:spring-boot, okta:web-app, and okta:jhipster instead.
  */
 @Mojo(name = "setup", defaultPhase = LifecyclePhase.NONE, threadSafe = false, aggregator = true, requiresProject=false)
 @Deprecated
@@ -38,6 +39,6 @@ public class SetupMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        throw new MojoFailureException("This mojo has been removed and split up into `okta:register`, `okta:login`, `okta:spring-boot`, and `okta:jhipster`");
+        throw new MojoFailureException("This mojo has been removed and split up into `okta:register`, `okta:login`, `okta:spring-boot`, `okta:web-app`, and `okta:jhipster`");
     }
 }

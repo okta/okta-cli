@@ -32,6 +32,7 @@ class SetupMojoTest {
                                                 containsString("This mojo has been removed"),
                                                 containsString("okta:register"),
                                                 containsString("okta:spring-boot"),
+                                                containsString("okta:web-app"),
                                                 containsString("okta:jhipster")))
     }
 }
