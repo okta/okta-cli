@@ -79,7 +79,7 @@ class SpringBootMojoTest {
 
         mojo.execute()
 
-        verify(mojo).createSetupService("okta")
+        verify(mojo).createSetupService(null)
         verify(setupService).createOidcApplication(propertySource, "test-app-name", "https://test.example.com", null, null, "default", true, OpenIdConnectApplicationType.WEB, "http://localhost:8080/login/oauth2/code/okta")
         verify(mojo.dependencyAddService).addDependencyToPom("com.okta.spring", "okta-spring-boot-starter", "1.2.3", mojo.project)
     }

@@ -86,7 +86,7 @@ public class SpringBootMojo extends BaseAppMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        createWebApplication("okta", groupClaimName, redirectUri);
+        createWebApplication(null, groupClaimName, redirectUri);
 
         // add okta-spring-boot-starter to the pom.xml
         if (project != null && project.getFile() != null) {
