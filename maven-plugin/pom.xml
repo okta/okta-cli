@@ -144,6 +144,14 @@
                     <configuration>
                         <goalPrefix>otka</goalPrefix>
                     </configuration>
+                    <executions>
+                        <execution>
+                            <id>generated-helpmojo</id>
+                            <goals>
+                                <goal>helpmojo</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -151,6 +159,13 @@
                     <version>3.8.2</version>
                     <configuration>
                         <outputDirectory>target/gh-pages</outputDirectory>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-pmd-plugin</artifactId>
+                    <configuration>
+                        <excludeRoots>${build.directory}/generated-sources/plugin</excludeRoots>
                     </configuration>
                 </plugin>
             </plugins>
