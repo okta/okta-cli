@@ -27,6 +27,9 @@ import org.codehaus.plexus.components.interactivity.Prompter;
 
 import java.io.File;
 
+/**
+ * Signs up for a free Okta Developer Account.  Prompts for basic user info, accounts will be activated via email.
+ */
 @Mojo(name = "register", defaultPhase = LifecyclePhase.NONE, threadSafe = false, aggregator = true, requiresProject=false)
 public class RegisterMojo extends AbstractMojo {
 

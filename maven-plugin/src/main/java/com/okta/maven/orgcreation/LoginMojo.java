@@ -37,6 +37,9 @@ import java.io.PrintStream;
 
 import static com.okta.maven.orgcreation.support.PromptUtil.promptIfNull;
 
+/**
+ * Authenticates the Okta CLI and Okta Maven Plugin with an exiting Okta Organization.  To sign up for a new or use {@code okta:register}.
+ */
 @Mojo(name = "login", defaultPhase = LifecyclePhase.NONE, threadSafe = false, aggregator = true, requiresProject = false)
 public class LoginMojo extends AbstractMojo {
 
