@@ -35,11 +35,4 @@ public enum SpaAppTemplate {
     public String getDefaultRedirectUri() {
         return defaultRedirectUri;
     }
-
-    static SpaAppTemplate fromName(String name) {
-        return Arrays.stream(values())
-                .filter(it -> it.friendlyName.equals(name))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("template must be empty or one of: " + names));
-    }
 }

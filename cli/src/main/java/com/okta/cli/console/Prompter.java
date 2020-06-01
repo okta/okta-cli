@@ -18,7 +18,6 @@ package com.okta.cli.console;
 import com.okta.commons.lang.Strings;
 
 import java.util.List;
-import java.util.Map;
 
 public interface Prompter {
 
@@ -73,8 +72,4 @@ public interface Prompter {
         }
         return prompt(message, options, defaultChoice);
     }
-
-    String prompt(String message, Map<String, String> choices, String defaultChoice);
-
-    String prompt(String message, List<String> choices, Integer defaultChoiceIndex);
 }

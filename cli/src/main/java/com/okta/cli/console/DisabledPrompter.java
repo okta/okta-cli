@@ -16,7 +16,6 @@
 package com.okta.cli.console;
 
 import java.util.List;
-import java.util.Map;
 
 public class DisabledPrompter implements Prompter {
     @Override
@@ -26,16 +25,6 @@ public class DisabledPrompter implements Prompter {
 
     @Override
     public <T> T prompt(String message, List<PromptOption<T>> promptOptions, PromptOption<T> defaultChoice) {
-        throw fail(message);
-    }
-
-    @Override
-    public String prompt(String message, Map<String, String> choices, String defaultChoice) {
-        throw fail(message);
-    }
-
-    @Override
-    public String prompt(String message, List<String> choices, Integer defaultChoiceIndex) {
         throw fail(message);
     }
 

@@ -60,15 +60,6 @@ public enum WebAppTemplate implements PromptOption<WebAppTemplate> {
         return groupsClaim;
     }
 
-    static WebAppTemplate fromName(String name) {
-
-        WebAppTemplate result = nameToTemplateMap.get(name);
-        if (result == null) {
-            throw new IllegalArgumentException("template must be empty or one of: " + nameToTemplateMap.keySet());
-        }
-        return result;
-    }
-
     @Override
     public String displayName() {
         return friendlyName;

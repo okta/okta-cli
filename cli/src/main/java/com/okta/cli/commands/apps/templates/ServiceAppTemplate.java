@@ -48,15 +48,6 @@ public enum ServiceAppTemplate implements PromptOption<ServiceAppTemplate> {
         return defaultConfigFileName;
     }
 
-    static ServiceAppTemplate fromName(String name) {
-
-        ServiceAppTemplate result = nameToTemplateMap.get(name);
-        if (result == null) {
-            throw new IllegalArgumentException("template must be empty or one of: " + nameToTemplateMap.keySet());
-        }
-        return result;
-    }
-
     @Override
     public String displayName() {
         return friendlyName;

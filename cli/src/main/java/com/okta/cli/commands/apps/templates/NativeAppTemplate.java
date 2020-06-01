@@ -30,11 +30,4 @@ public enum NativeAppTemplate {
     NativeAppTemplate(String friendlyName) {
         this.friendlyName = friendlyName;
     }
-
-    static NativeAppTemplate fromName(String name) {
-        return Arrays.stream(values())
-                .filter(it -> it.friendlyName.equals(name))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("template must be empty or one of: " + names));
-    }
 }
