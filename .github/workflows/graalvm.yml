@@ -38,7 +38,7 @@ jobs:
       - name: Set up GraalVM (Java 11)
         uses: DeLaGuardo/setup-graalvm@3
         with:
-          graalvm-version: '20.1.0.java11'
+          graalvm-version: '20.0.0.java11'
 
       - name: Install native-image
         run: gu install native-image
@@ -70,7 +70,7 @@ jobs:
       - name: Set up GraalVM (Java 11)
         uses: DeLaGuardo/setup-graalvm@3
         with:
-          graalvm-version: '20.1.0.java11'
+          graalvm-version: '20.0.0.java11'
 
       - name: Install native-image
         run: gu install native-image
