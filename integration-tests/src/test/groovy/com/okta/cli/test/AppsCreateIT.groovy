@@ -48,9 +48,9 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             responses.forEach { mockWebServer.enqueue(it) }
 
             List<String> input = [
-                "2", // type of app choice "spa"
-                "",  // default of "test-project"
-                "",  // default callback "http://localhost:8080/callback"
+                    "",  // default of "test-project"
+                    "2", // type of app choice "spa"
+                    "",  // default callback "http://localhost:8080/callback"
             ]
 
             def result = new CommandRunner()
@@ -92,8 +92,8 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             responses.forEach { mockWebServer.enqueue(it) }
 
             List<String> input = [
-                    "3", //  "native" type of app choice
                     "",  // default of "test-project"
+                    "3", //  "native" type of app choice
                     "",  // default callback "localhost:/callback"
             ]
 
@@ -136,8 +136,8 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             responses.forEach { mockWebServer.enqueue(it) }
 
             List<String> input = [
-                    "", //  default "web" type of app choice
                     "", // generic OIDC app
+                    "", //  default "web" type of app choice
                     "", // default of "test-project"
                     "", // default callback "http://localhost:8080/callback"
             ]
@@ -179,8 +179,8 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             responses.forEach { mockWebServer.enqueue(it) }
 
             List<String> input = [
-                    "4", //  "native" type of app choice
                     "",  // default of "test-project"
+                    "4", //  "native" type of app choice
                     "",  // default callback "localhost:/callback"
             ]
 
@@ -217,8 +217,8 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             responses.forEach { mockWebServer.enqueue(it) }
 
             List<String> input = [
-                    "", //  default "web" type of app choice
                     "", // generic OIDC app
+                    "", //  default "web" type of app choice
                     "", // default of "test-project"
                     "", // default callback "http://localhost:8080/login/oauth2/code/okta"
             ]

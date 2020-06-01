@@ -68,6 +68,9 @@ public class AppsCreate implements Callable<Integer> {
 
         Prompter prompter = standardOptions.getEnvironment().prompter();
 
+        // prompt (if needed) for the applicaiton name first
+        String appName = getAppName();
+
         AppType appType;
         Object appTemplate = null;
         if (quickTemplate == null) {
@@ -79,23 +82,22 @@ public class AppsCreate implements Callable<Integer> {
 
         switch(appType) {
             case WEB:
-                return createWebApp((WebAppTemplate) appTemplate);
+                return createWebApp(appName, (WebAppTemplate) appTemplate);
             case SPA:
-                return createSpaApp();
+                return createSpaApp(appName);
             case NATIVE:
-                return createNativeApp();
+                return createNativeApp(appName);
             case SERVICE:
-                return createServiceApp((ServiceAppTemplate) appTemplate);
+                return createServiceApp(appName,(ServiceAppTemplate) appTemplate);
             default:
                 throw new IllegalStateException("Unsupported AppType: "+ appType);
         }
     }
 
-    private int createWebApp(WebAppTemplate webAppTemplate) throws IOException {
+    private int createWebApp(String appName, WebAppTemplate webAppTemplate) throws IOException {
 
         ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
         Prompter prompter = standardOptions.getEnvironment().prompter();
-        String appName = getAppName();
 
         WebAppTemplate appTemplate = prompter.promptIfEmpty(webAppTemplate, "Type of Application", Arrays.asList(WebAppTemplate.values()), WebAppTemplate.GENERIC);
 
@@ -116,11 +118,9 @@ public class AppsCreate implements Callable<Integer> {
         return 0;
     }
 
-    private Integer createNativeApp() throws IOException {
+    private Integer createNativeApp(String appName) throws IOException {
 
         ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
-
-        String appName = getAppName();
         String baseUrl = getBaseUrl();
 
         String[] parts = URI.create(baseUrl).getHost().split("\\.");
@@ -146,14 +146,13 @@ public class AppsCreate implements Callable<Integer> {
         return 0;
     }
 
-    private Integer createServiceApp(ServiceAppTemplate appTemplate) throws IOException {
+    private Integer createServiceApp(String appName, ServiceAppTemplate appTemplate) throws IOException {
 
         ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
         Prompter prompter = standardOptions.getEnvironment().prompter();
 
         appTemplate = prompter.promptIfEmpty(appTemplate, "Framework of Application", Arrays.asList(ServiceAppTemplate.values()), ServiceAppTemplate.GENERIC);
 
-        String appName = getAppName();
         String baseUrl = getBaseUrl();
         Client client = Clients.builder().build();
         AuthorizationServer issuer = getIssuer(client);
@@ -166,11 +165,10 @@ public class AppsCreate implements Callable<Integer> {
         return 0;
     }
 
-    private Integer createSpaApp() throws IOException {
+    private Integer createSpaApp(String appName) throws IOException {
 
         ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
 
-        String appName = getAppName();
         String baseUrl = getBaseUrl();
         String redirectUri = getRedirectUri(Map.of("/callback", "http://localhost:8080/callback"), SpaAppTemplate.GENERIC.getDefaultRedirectUri());
         Client client = Clients.builder().build();
