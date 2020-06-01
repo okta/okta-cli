@@ -9,7 +9,7 @@ Okta's Maven Plugin will help you get started with Okta without ever leaving you
 
 ## Prerequisite
 
-- Java 8
+- Java 8+
 
 ## Release status
 
@@ -42,7 +42,7 @@ cd okta-spring-security-example-app
 
 Run the Okta Maven Plugin to Register a new account and configure your new Spring OIDC application
 ```bash
-./mvnw com.okta:okta-maven-plugin:setup
+./mvnw com.okta:okta-maven-plugin:spring-boot
 ```
 
 Add a simple REST controller, for example replace your `src/main/java/com/example/demo/DemoApplication.java` with:

@@ -16,9 +16,7 @@ Linux and Mac users:
 curl https://raw.githubusercontent.com/oktadeveloper/okta-maven-plugin/cli/cli/src/main/scripts/install.sh | sh
 ```
 
-Windows users will need to install the `okta.exe` file manually and place it on your path:
-
-https://raw.githubusercontent.com/oktadeveloper/okta-maven-plugin/cli-test-dist/okta-cli-windows-latest-x86_64.exe.zip
+Windows users will need to install the `okta.exe` file [manually](https://raw.githubusercontent.com/oktadeveloper/okta-maven-plugin/cli-test-dist/okta-cli-windows-latest-x86_64.exe.zip) and place it on your path.
 
 ## Usage
 
