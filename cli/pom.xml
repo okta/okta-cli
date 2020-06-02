@@ -219,6 +219,9 @@
                                     <classifier>${binary.classifier}</classifier>
                                 </artifact>
                             </artifacts>
+                            <!-- TODO: it's difficult to attach artifacts from a multi platform build
+                                 For now we will just upload the binaries to github releases -->
+                            <skipAttach>true</skipAttach>
                         </configuration>
                     </execution>
                 </executions>
