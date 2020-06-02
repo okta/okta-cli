@@ -15,72 +15,83 @@
 # limitations under the License.
 #
 
-{
-    set -e
-    SUDO=''
-    if [ "$(id -u)" != "0" ]; then
-      SUDO='sudo'
-      echo "This script requires superuser access."
-      echo "You will be prompted for your password by sudo."
-      # clear any previous sudo permission
-      sudo -k
-    fi
+set -e
 
+LINUX_DIST="https://raw.githubusercontent.com/oktadeveloper/okta-maven-plugin/cli-test-dist/okta-cli-ubuntu-latest-x86_64.zip"
+DARWIN_DIST="https://raw.githubusercontent.com/oktadeveloper/okta-maven-plugin/cli-test-dist/okta-cli-macos-latest-x86_64.zip"
 
-    # run inside sudo
-    $SUDO bash <<SCRIPT
-  set -e
+function echoerr { echo "$@" 1>&2; }
 
-  LINUX_DIST="https://raw.githubusercontent.com/oktadeveloper/okta-maven-plugin/cli-test-dist/okta-cli-ubuntu-latest-x86_64.zip"
-  DARWIN_DIST="https://raw.githubusercontent.com/oktadeveloper/okta-maven-plugin/cli-test-dist/okta-cli-macos-latest-x86_64.zip"
+function download {
 
-  echoerr() { echo "\$@" 1>&2; }
-
-  if [[ ! ":\$PATH:" == *":/usr/local/bin:"* ]]; then
+  if [[ ! ":$PATH:" == *":/usr/local/bin:"* ]]; then
     echoerr "Your path is missing /usr/local/bin, you need to add this to use this installer."
     exit 1
   fi
 
-  if [ "\$(uname)" == "Darwin" ]; then
+  if [ "$(uname)" == "Darwin" ]; then
     OS=darwin
-    URL=\$DARWIN_DIST
-  elif [ "\$(expr substr \$(uname -s) 1 5)" == "Linux" ]; then
+    URL=$DARWIN_DIST
+  elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     OS=linux
-    URL=\$LINUX_DIST
+    URL=$LINUX_DIST
   else
     echoerr "This installer is only supported on Linux and MacOS"
     exit 1
   fi
 
-  ARCH="\$(uname -m)"
-  if [ "\$ARCH" == "x86_64" ]; then
+  ARCH="$(uname -m)"
+  if [ "$ARCH" == "x86_64" ]; then
     ARCH=x64
   else
-    echoerr "unsupported arch: \$ARCH"
+    echoerr "unsupported arch: $ARCH"
     exit 1
   fi
 
-  mkdir -p /usr/local/lib/okta/bin
-  cd /usr/local/lib/okta/bin
-  rm -rf okta
-
-  echo "Installing CLI from \$URL"
-  if [ \$(command -v curl) ]; then
-    curl "\$URL" | funzip > okta
+  INSTALL_DIR=$(mktemp -d "${TMPDIR:-/tmp}/okta.XXXXXXXXX")
+  if [ $(command -v curl) ]; then
+    curl "$URL" | funzip > $INSTALL_DIR/okta
   else
-    wget -O- "\$URL" | funzip > okta
+    wget -O- "$URL" | funzip > $INSTALL_DIR/okta
   fi
 
-  chmod 755 okta
-
-  # delete old heroku bin if exists
-  rm -f \$(command -v okta) || true
-  rm -f /usr/local/bin/okta
-  ln -s /usr/local/lib/okta/bin/okta /usr/local/bin/okta
-
-SCRIPT
-  # test the CLI
-  LOCATION=$(command -v okta)
-  echo "okta installed to $LOCATION"
-  okta --version
+  echo $INSTALL_DIR/okta
 }
+
+function install {
+
+  DOWNLOAD_LOCATION=$1
+
+  { # try
+    mkdir -p /usr/local/lib/okta/bin &&
+    mv -f $DOWNLOAD_LOCATION /usr/local/lib/okta/bin/ &&
+    chmod 755 /usr/local/lib/okta/bin/okta
+  } || { # catch
+     echoerr
+     echoerr "Failed install the okta cli, run the following commands manually:"
+     echoerr "  sudo mkdir -p /usr/local/lib/okta/bin"
+     echoerr "  sudo mv $DOWNLOAD_LOCATION /usr/local/lib/okta/bin/"
+     echoerr "  sudo chmod 755 /usr/local/lib/okta/bin/okta"
+     echoerr "  sudo ln -sf /usr/local/lib/okta/bin/okta /usr/local/bin/okta"
+     exit 1
+  }
+
+  { # try
+    # delete old okta bin if exists
+    # rm -f $(command -v okta) || true
+    ln -sf /usr/local/lib/okta/bin/okta /usr/local/bin/okta
+  } || { # catch
+    echoerr
+    echoerr "Failed link the okta cli, run the following command manually:"
+    echoerr "  sudo ln -sf /usr/local/lib/okta/bin/okta /usr/local/bin/okta"
+    exit 1
+  }
+}
+
+DOWNLOAD_LOCATION=$(download)
+install $DOWNLOAD_LOCATION
+
+# test the CLI
+LOCATION=$(command -v okta)
+echo "Okta CLI installed to $LOCATION"
+okta --version
