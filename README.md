@@ -22,15 +22,15 @@ Windows users will need to install the `okta.exe` file [manually](https://raw.gi
 
 Run `okta --help` or `okta help <command>` for more details.
 
-### Sign Up For a Free Okta Developer Account
+## Sign Up For a Free Okta Developer Account
 
 Run `okta register` to sign up for a new account.  You will be prompted for your name and email address.  Account activation information will be emailed to you.
 
-### Log Into an Existing Account
+## Log Into an Existing Account
 
 Configure the Okta CLI tool with an existing Okta account use `okta login` and follow the prompts.  
 
-### Create an Okta Application (OAuth 2.0 / OIDC)
+## Create an Okta Application (OAuth 2.0 / OIDC)
 
 The Okta CLI tool can create Okta OAuth 2.0 / OIDC Applications for you with a few prompts. The following application types are supported:
 - Web - Backend applications, Java, .Net, PHP, etc
@@ -40,7 +40,7 @@ The Okta CLI tool can create Okta OAuth 2.0 / OIDC Applications for you with a f
 
 Run `okta apps create` and you will be prompted for the required information.
 
-### Bash / Zsh Completion
+## Bash / Zsh Completion
 
 If you have "bash-completion" installed run one of the following commands:
 
