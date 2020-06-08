@@ -24,11 +24,6 @@ function echoerr { echo "$@" 1>&2; }
 
 function download {
 
-  if [[ ! ":$PATH:" == *":/usr/local/bin:"* ]]; then
-    echoerr "Your path is missing /usr/local/bin, you need to add this to use this installer."
-    exit 1
-  fi
-
   if [ "$(uname)" == "Darwin" ]; then
     OS=darwin
     URL=$DARWIN_DIST
@@ -55,6 +50,7 @@ function download {
     wget -O- "$URL" | funzip > $INSTALL_DIR/okta
   fi
 
+  chmod 755 $INSTALL_DIR/okta
   echo $INSTALL_DIR/okta
 }
 
@@ -63,35 +59,56 @@ function install {
   DOWNLOAD_LOCATION=$1
 
   { # try
-    mkdir -p /usr/local/lib/okta/bin &&
-    mv -f $DOWNLOAD_LOCATION /usr/local/lib/okta/bin/ &&
-    chmod 755 /usr/local/lib/okta/bin/okta
+    mkdir -p $HOME/bin &&
+    mv -f $DOWNLOAD_LOCATION $HOME/bin
+
   } || { # catch
      echoerr
-     echoerr "Failed install the okta cli, run the following commands manually:"
-     echoerr "  sudo mkdir -p /usr/local/lib/okta/bin"
-     echoerr "  sudo mv $DOWNLOAD_LOCATION /usr/local/lib/okta/bin/"
-     echoerr "  sudo chmod 755 /usr/local/lib/okta/bin/okta"
-     echoerr "  sudo ln -sf /usr/local/lib/okta/bin/okta /usr/local/bin/okta"
+     echoerr "Failed install the okta cli, run the following command manually:"
+     echoerr "  mv -f $DOWNLOAD_LOCATION $HOME/bin"
      exit 1
   }
 
+  # check if okta is on the path
+  LOCATION=$(command -v okta)
+
+  PATH_UPDATED=false
+  if [[ ! "$LOCATION" == *"$HOME/bin/okta:"* ]]; then
+    [ -f $HOME/.bashrc ] && updateBashPath && PATH_UPDATED=true
+    [ -f $HOME/.zshrc ] && updateZshPath && PATH_UPDATED=true
+
+    if [[ ! "$PATH_UPDATED" == "true" ]]; then
+      echoerr "Failed to add \$HOME/bin/okta to your path"
+      exit 1
+    fi
+  fi
+}
+
+function updateBashPath {
   { # try
-    # delete old okta bin if exists
-    # rm -f $(command -v okta) || true
-    ln -sf /usr/local/lib/okta/bin/okta /usr/local/bin/okta
+    grep -q 'export PATH=$HOME/bin:$PATH' ~/.bashrc || echo -e '\nexport PATH=$HOME/bin:$PATH' >> ~/.bashrc
   } || { # catch
     echoerr
-    echoerr "Failed link the okta cli, run the following command manually:"
-    echoerr "  sudo ln -sf /usr/local/lib/okta/bin/okta /usr/local/bin/okta"
-    exit 1
+    echoerr 'Failed add $HOME/bin to PATH.  Update your ~/.bashrc will by running the following command:'
+    echoerr '  export PATH=$HOME/bin:$PATH >> ~/.bashrc'
+  }
+}
+
+function updateZshPath {
+  { # try
+    grep -q 'export PATH=$HOME/bin:$PATH' ~/.zshrc || echo -e '\nexport PATH=$HOME/bin:$PATH' >> ~/.zshrc
+  } || { # catch
+    echoerr
+    echoerr 'Failed add $HOME/bin to PATH.  Update your ~/.zshrc will by running the following command:'
+    echoerr '  export PATH=$HOME/bin:$PATH >> ~/.zshrc'
   }
 }
 
 DOWNLOAD_LOCATION=$(download)
 install $DOWNLOAD_LOCATION
+export PATH=$HOME/bin:$PATH
 
 # test the CLI
 LOCATION=$(command -v okta)
-echo "Okta CLI installed to $LOCATION"
+echo "Okta CLI installed to $LOCATION, open a new terminal to use it!"
 okta --version
