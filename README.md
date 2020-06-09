@@ -13,7 +13,7 @@ If you are a Java developer using Apache Maven, also checkout the [Okta Maven Pl
 Linux and Mac users:
 
 ```bash
-curl https://raw.githubusercontent.com/oktadeveloper/okta-maven-plugin/cli/cli/src/main/scripts/install.sh | sh
+curl https://raw.githubusercontent.com/oktadeveloper/okta-cli/master/cli/src/main/scripts/install.sh | sh
 ```
 
 Windows users will need to install the `okta.exe` file [manually](https://raw.githubusercontent.com/oktadeveloper/okta-maven-plugin/cli-test-dist/okta-cli-windows-latest-x86_64.exe.zip) and place it on your path.
