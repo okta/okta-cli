@@ -1,0 +1,110 @@
+#
+# Copyright 2020-Present Okta, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+name: Java GraalVM CI
+
+on:
+  push:
+    branches: # build any changes to master
+      - master
+    tags: # all tags
+  pull_request: # build all PRs
+
+jobs:
+  build:
+    name: GraalVM - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    env:
+      REPO_SLUG: ${{ github.repository }}
+      BRANCH: ${{ github.head_ref }}
+      RUN_IT: true
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up GraalVM (Java 11)
+        uses: DeLaGuardo/setup-graalvm@3
+        with:
+          graalvm-version: '20.0.0.java11'
+
+      - name: Install native-image
+        run: gu install native-image
+
+      - name: Build and Test
+        run: ./src/ci/gh-build.sh
+
+      - name: Archive Binary
+        uses: actions/upload-artifact@v1
+        with:
+          name: okta-cli-${{ matrix.os }}-x86_64
+          path: cli/target/okta
+
+  build-windows:
+    name: GraalVM - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+    env:
+      REPO_SLUG: ${{ github.repository }}
+      BRANCH: ${{ github.head_ref }}
+      RUN_IT: true
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up GraalVM (Java 11)
+        uses: DeLaGuardo/setup-graalvm@3
+        with:
+          graalvm-version: '20.0.0.java11'
+
+      - name: Install native-image
+        run: gu install native-image
+        shell: cmd
+
+      - name: Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools
+        run: |
+          choco install visualstudio2017-workload-vctools
+
+      - name: Configure Pagefile
+        uses: al-cheb/configure-pagefile-action@v1.2
+
+      - name:
+        run: |
+          (Get-CimInstance Win32_PageFileUsage).AllocatedBaseSize
+
+      - name: mvnw --version
+        run: mvnw --version
+        shell: cmd
+
+      - name: Maven Resolve
+        run: |
+          mvnw -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -V -Pci dependency:resolve-plugins
+        shell: cmd
+
+      - name: Build and Test
+        run: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+          mvnw -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -V install -Pci -DskipTests -DskipITs -e
+        shell: cmd
+
+      - name: Archive Binary
+        uses: actions/upload-artifact@v1
+        with:
+          name: okta-cli-${{ matrix.os }}-x86_64.exe
+          path: cli/target/okta.exe
