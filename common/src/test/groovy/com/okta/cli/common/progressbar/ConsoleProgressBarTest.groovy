@@ -34,10 +34,9 @@ class ConsoleProgressBarTest {
         ConsoleProgressBar progressBar =  spy(new ConsoleProgressBar(stream, Duration.ofMillis(1)).start("test-start"))
 
         progressBar.withCloseable {
-
-            sleep(10) // this should allow for each wit char to be used
+            sleep(100) // this should allow for each char to be used
             it.info("test-message")
-            sleep(10) // this should allow for each wit char to be used
+            sleep(100) // this should allow for each char to be used
         }
 
         verify(progressBar).close()
@@ -60,6 +59,5 @@ class ConsoleProgressBarTest {
         MatcherAssert.assertThat charValues, hasItem('|' as char)
 
         MatcherAssert.assertThat outputString.getAllValues(), is(["test-start"])
-
     }
 }
