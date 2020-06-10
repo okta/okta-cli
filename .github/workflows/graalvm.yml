@@ -20,6 +20,7 @@ on:
     branches: # build any changes to master
       - master
     tags: # all tags
+      - '*'
   pull_request: # build all PRs
 
 jobs:
