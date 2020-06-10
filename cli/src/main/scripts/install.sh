@@ -16,9 +16,9 @@
 #
 
 set -e
-
-LINUX_DIST="https://raw.githubusercontent.com/oktadeveloper/okta-maven-plugin/cli-test-dist/okta-cli-ubuntu-latest-x86_64.zip"
-DARWIN_DIST="https://raw.githubusercontent.com/oktadeveloper/okta-maven-plugin/cli-test-dist/okta-cli-macos-latest-x86_64.zip"
+VERSION="0.3.1"
+LINUX_DIST="https://github.com/oktadeveloper/okta-cli/releases/download/okta-cli-tools-${VERSION}/okta-cli-linux-${VERSION}-x86_64.zip"
+DARWIN_DIST="https://github.com/oktadeveloper/okta-cli/releases/download/okta-cli-tools-${VERSION}/okta-cli-macos-${VERSION}-x86_64.zip"
 
 function echoerr { echo "$@" 1>&2; }
 
@@ -45,7 +45,7 @@ function download {
 
   INSTALL_DIR=$(mktemp -d "${TMPDIR:-/tmp}/okta.XXXXXXXXX")
   if [ $(command -v curl) ]; then
-    curl "$URL" | funzip > $INSTALL_DIR/okta
+    curl -L "$URL" | funzip > $INSTALL_DIR/okta
   else
     wget -O- "$URL" | funzip > $INSTALL_DIR/okta
   fi
