@@ -42,12 +42,12 @@ git tag "${TAG_NAME}" -f -s -m "${TAG_NAME}" "${TAG_NAME}"
 # switch to the release dir/tag and publish the javadoc
 pushd target/checkout
 
-git clone -b gh-pages "git@github.com:${REPO_SLUG}.git" target/gh-pages
+git clone -b gh-pages "git@github.com:${REPO_SLUG}.git" maven-plugin/target/gh-pages
 
 # publish site doc
 ${MVN_CMD} site
 
-cd target/gh-pages
+cd maven-plugin/target/gh-pages
 git add .
 git commit -m "deploying javadocs for v${NEW_VERSION}"
 git push origin gh-pages
