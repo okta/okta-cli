@@ -9,15 +9,21 @@ The Okta CLI is the easiest way to get started with Okta!
 
 If you are a Java developer using Apache Maven, also checkout the [Okta Maven Plugin](maven-plugin/README.md). 
 
-## Installation 
+## Installation
 
-Linux and Mac users:
+macOS (via [Homebrew](https://brew.sh/)):
+
+```bash
+brew cask install oktadeveloper/tap/okta
+```
+
+Linux and macOS users:
 
 ```bash
 curl https://raw.githubusercontent.com/oktadeveloper/okta-cli/master/cli/src/main/scripts/install.sh | sh
 ```
 
-Windows users will need to install the `okta.exe` file [manually](https://raw.githubusercontent.com/oktadeveloper/okta-maven-plugin/cli-test-dist/okta-cli-windows-latest-x86_64.exe.zip) and place it on your path.
+Windows users will need to install the `okta.exe` file [manually](https://github.com/oktadeveloper/okta-cli/releases/download/okta-cli-tools-0.3.1/okta-cli-windows-0.3.1-x86_64.exe.zip) and place it on your path.
 
 ## Usage
 
