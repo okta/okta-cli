@@ -11,13 +11,13 @@ If you are a Java developer using Apache Maven, also checkout the [Okta Maven Pl
 
 ## Installation
 
-macOS (via [Homebrew](https://brew.sh/)):
+**macOS (via [Homebrew](https://brew.sh/)):**
 
 ```bash
 brew cask install oktadeveloper/tap/okta
 ```
 
-Linux and macOS users:
+**Linux and macOS:**
 
 ```bash
 curl https://raw.githubusercontent.com/oktadeveloper/okta-cli/master/cli/src/main/scripts/install.sh | sh
