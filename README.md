@@ -23,7 +23,15 @@ brew cask install oktadeveloper/tap/okta
 curl https://raw.githubusercontent.com/oktadeveloper/okta-cli/master/cli/src/main/scripts/install.sh | sh
 ```
 
-Windows users will need to install the `okta.exe` file [manually](https://github.com/oktadeveloper/okta-cli/releases/download/okta-cli-tools-0.3.1/okta-cli-windows-0.3.1-x86_64.exe.zip) and place it on your path.
+**Windows (via Chocolatey)**
+
+```bash
+choco install okta
+```
+
+**Manual Installs**
+
+Download the binary for your OS from the [releases](https://github.com/oktadeveloper/okta-cli/releases) page. Manually install it to a directory on your PATH. 
 
 ## Usage
 
