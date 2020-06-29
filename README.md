@@ -17,6 +17,19 @@ If you are a Java developer using Apache Maven, also checkout the [Okta Maven Pl
 brew cask install oktadeveloper/tap/okta
 ```
 
+**Linux (via Flatpak)**
+
+```bash
+# Add Flathub repo
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+# install the package
+flatpak install com.okta.developer.CLI
+
+# add this to your appropriate dot file
+alias okta="flatpak run com.okta.developer.CLI"
+```
+
 **Linux and macOS:**
 
 ```bash
