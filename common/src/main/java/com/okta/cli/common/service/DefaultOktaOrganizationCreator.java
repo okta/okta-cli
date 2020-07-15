@@ -46,13 +46,14 @@ public class DefaultOktaOrganizationCreator implements OktaOrganizationCreator {
             .map(e -> e.getKey() + "/" + e.getValue())
             .collect(Collectors.joining(" "));
 
+    ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
     public OrganizationResponse createNewOrg(String apiBaseUrl, OrganizationRequest orgRequest) throws IOException {
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost post = new HttpPost(apiBaseUrl + "/create");
 
-            ObjectMapper objectMapper = new ObjectMapper();
             String postBody = objectMapper.writeValueAsString(orgRequest);
 
             post.setEntity(new StringEntity(postBody, StandardCharsets.UTF_8));
@@ -70,6 +71,34 @@ public class DefaultOktaOrganizationCreator implements OktaOrganizationCreator {
             InputStream content = response.getEntity().getContent();
             String body = CharStreams.toString(new InputStreamReader(content, StandardCharsets.UTF_8)); // use input stream directly
             return objectMapper.reader().readValue(new JsonFactory().createParser(body), OrganizationResponse.class);
+        }
+    }
+
+    @Override
+    public OrganizationResponse verifyNewOrg(String apiBaseUrl, String identifier, String code) throws IOException {
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpPost post = new HttpPost(apiBaseUrl + "/verify/" + identifier);
+
+            String postBody = "{\"code\":\"" + code + "\"}";
+
+            post.setEntity(new StringEntity(postBody, StandardCharsets.UTF_8));
+            post.setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
+            post.setHeader(HttpHeaders.ACCEPT, APPLICATION_JSON);
+            post.setHeader(HttpHeaders.USER_AGENT, USER_AGENT_STRING);
+
+            HttpResponse response = httpClient.execute(post);
+
+            Header contentTypeHeader = response.getFirstHeader(HttpHeaders.CONTENT_TYPE);
+            if (contentTypeHeader == null || !contentTypeHeader.getValue().contains(APPLICATION_JSON)) {
+                LOG.warn("Content-Type header was NOT set to {}, parsing the response may fail", APPLICATION_JSON);
+            }
+
+            InputStream content = response.getEntity().getContent();
+            String body = CharStreams.toString(new InputStreamReader(content, StandardCharsets.UTF_8)); // use input stream directly
+            return objectMapper.reader().readValue(new JsonFactory().createParser(body), OrganizationResponse.class);
+
+            // TODO handle errors and throw typed exceptions to the user can retry
         }
     }
 }

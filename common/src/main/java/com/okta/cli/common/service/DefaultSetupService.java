@@ -86,15 +86,15 @@ public class DefaultSetupService implements SetupService {
             String... redirectUris) throws IOException, ClientConfigurationException {
 
             // get current or sign up for new org
-            String orgUrl = createOktaOrg(organizationRequestSupplier, oktaPropsFile, demo, interactive);
+            OrganizationResponse response = createOktaOrg(organizationRequestSupplier, oktaPropsFile, demo, interactive);
 
             // Create new Application
-            createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, issuerUri, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB, redirectUris);
+            createOidcApplication(propertySource, oidcAppName, response.getOrgUrl(), groupClaimName, issuerUri, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB, redirectUris);
 
     }
 
     @Override
-    public String createOktaOrg(Supplier<OrganizationRequest> organizationRequestSupplier,
+    public OrganizationResponse createOktaOrg(Supplier<OrganizationRequest> organizationRequestSupplier,
                                 File oktaPropsFile,
                                 boolean demo,
                                 boolean interactive) throws IOException, ClientConfigurationException {
@@ -115,21 +115,46 @@ public class DefaultSetupService implements SetupService {
                 orgUrl = newOrg.getOrgUrl();
 
                 progressBar.info("OrgUrl: " + orgUrl);
-                progressBar.info("Check your email address to verify your account.\n");
+//                progressBar.info("Check your email address to verify your account.\n");
+                progressBar.info("An email has been sent to you with a verification code.");
 
                 // write ~/.okta/okta.yaml
-                sdkConfigurationService.writeOktaYaml(orgUrl, newOrg.getApiToken(), oktaPropsFile);
+//                sdkConfigurationService.writeOktaYaml(orgUrl, newOrg.getApiToken(), oktaPropsFile);
+                return newOrg;
             } else {
                 if (demo) { // always prompt for user info in "demo mode", this info will not be used but it makes for a more realistic demo
                     organizationRequestSupplier.get();
                 }
 
-                orgUrl = clientConfiguration.getBaseUrl();
-                progressBar.info("Current OrgUrl: " + clientConfiguration.getBaseUrl());
+//                orgUrl = clientConfiguration.getBaseUrl();
+//                progressBar.info("Current OrgUrl: " + clientConfiguration.getBaseUrl());
 
+                // TODO rewrite
             }
         }
-        return orgUrl;
+        return null;
+    }
+
+    @Override
+    public void verifyOktaOrg(String identifier, Supplier<String> verificationCode, File oktaPropsFile) throws IOException, ClientConfigurationException {
+
+        try (ProgressBar progressBar = ProgressBar.create(true)) {
+
+            progressBar.info("Check your email");
+
+            // prompt for code
+            String code = verificationCode.get();
+            OrganizationResponse response = organizationCreator.verifyNewOrg(getApiBaseUrl(), identifier, code); // TODO handle exceptions and allow user to reenter the code
+            // TODO handle polling in case the org is not ready
+
+            sdkConfigurationService.writeOktaYaml(response.getOrgUrl(), response.getApiToken(), oktaPropsFile);
+
+            progressBar.info("New Okta Account created!");
+            progressBar.info("Your Okta Domain: "+ response.getOrgUrl());
+            progressBar.info("To set your password open this link:\n" + response.getPasswordResetUrl());
+
+            // TODO demo mode?
+        }
     }
 
     @Override

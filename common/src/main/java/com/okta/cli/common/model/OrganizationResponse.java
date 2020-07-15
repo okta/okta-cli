@@ -22,6 +22,8 @@ public class OrganizationResponse {
     private String orgUrl;
     private String email;
     private String apiToken;
+    private String verifyUuid;
+    private String passwordResetUrl;
 
     public String getOrgUrl() {
         return orgUrl;
@@ -50,6 +52,22 @@ public class OrganizationResponse {
         return this;
     }
 
+    public String getVerifyUuid() {
+        return verifyUuid;
+    }
+
+    public void setVerifyUuid(String verifyUuid) {
+        this.verifyUuid = verifyUuid;
+    }
+
+    public String getPasswordResetUrl() {
+        return passwordResetUrl;
+    }
+
+    public void setPasswordResetUrl(String passwordResetUrl) {
+        this.passwordResetUrl = passwordResetUrl;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -57,11 +75,13 @@ public class OrganizationResponse {
         OrganizationResponse that = (OrganizationResponse) o;
         return Objects.equals(orgUrl, that.orgUrl) &&
                Objects.equals(email, that.email) &&
-               Objects.equals(apiToken, that.apiToken);
+               Objects.equals(apiToken, that.apiToken) &&
+               Objects.equals(verifyUuid, that.verifyUuid) &&
+               Objects.equals(passwordResetUrl, that.passwordResetUrl);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(orgUrl, email, apiToken);
+        return Objects.hash(orgUrl, email, apiToken, verifyUuid, passwordResetUrl);
     }
 }

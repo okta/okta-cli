@@ -17,6 +17,7 @@ package com.okta.cli.commands;
 
 import com.okta.cli.OktaCli;
 import com.okta.cli.common.model.OrganizationRequest;
+import com.okta.cli.common.model.OrganizationResponse;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.common.service.SetupService;
 import com.okta.cli.console.Prompter;
@@ -55,11 +56,19 @@ public class Register implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
+        Prompter prompter = standardOptions.getEnvironment().prompter();
         SetupService setupService = new DefaultSetupService(null);
-        setupService.createOktaOrg(this::organizationRequest,
+        OrganizationResponse orgResponse = setupService.createOktaOrg(this::organizationRequest,
                                    standardOptions.getEnvironment().getOktaPropsFile(),
                                    standardOptions.getEnvironment().isDemo(),
                                    standardOptions.getEnvironment().isInteractive());
+
+        // TODO this logic (specifically because of older, no replaced, maven code needs to be restructured
+        String identifier = orgResponse.getVerifyUuid();
+        setupService.verifyOktaOrg(identifier,
+                () -> prompter.prompt("Verification code"),
+                standardOptions.getEnvironment().getOktaPropsFile());
+
         return 0;
     }
 }

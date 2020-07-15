@@ -23,4 +23,6 @@ import java.io.IOException;
 public interface OktaOrganizationCreator {
 
     OrganizationResponse createNewOrg(String apiBaseUrl, OrganizationRequest orgRequest) throws IOException;
+
+    OrganizationResponse verifyNewOrg(String apiBaseUrl, String identifier, String code) throws IOException;
 }

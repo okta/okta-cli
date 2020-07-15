@@ -17,6 +17,7 @@ package com.okta.cli.common.service;
 
 import com.okta.cli.common.config.MutablePropertySource;
 import com.okta.cli.common.model.OrganizationRequest;
+import com.okta.cli.common.model.OrganizationResponse;
 import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
 
 import java.io.File;
@@ -37,10 +38,13 @@ public interface SetupService {
             boolean interactive,
             String... redirectUris) throws IOException, ClientConfigurationException;
 
-    String createOktaOrg(Supplier<OrganizationRequest> organizationRequestSupplier,
-                         File oktaPropsFile,
-                         boolean demo,
-                         boolean interactive) throws IOException, ClientConfigurationException;
+    OrganizationResponse createOktaOrg(Supplier<OrganizationRequest> organizationRequestSupplier,
+                                       File oktaPropsFile,
+                                       boolean demo,
+                                       boolean interactive) throws IOException, ClientConfigurationException;
+
+    void verifyOktaOrg(String identifier, Supplier<String> verificationCode,
+                       File oktaPropsFile) throws IOException, ClientConfigurationException;
 
     void createOidcApplication(MutablePropertySource propertySource,
                                String oidcAppName,
