@@ -2,3 +2,4 @@ target/
 velocity.log
 .idea
 *.iml
+.DS_Store
