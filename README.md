@@ -96,3 +96,12 @@ sdk install java $(cat .java-version) && sdk use java $(cat .java-version)
 gu install native-image
 ```
 
+If you want to test against a locally running service, you'll need to run the cli with the following environment
+variable:
+
+```
+OKTA_CLI_BASE_URL=http://localhost:8080/
+```
+
+**NOTE**: The backend service code is currently in a private repo.
+
