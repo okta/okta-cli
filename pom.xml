@@ -44,8 +44,8 @@
     <url>https://github.com/oktadeveloper/okta-cli-tools</url>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -54,11 +54,10 @@
 
     <modules>
         <module>common</module>
-        <module>maven-plugin</module>
         <!-- see below for enabling the CLI module when building with Graalvm -->
-        <!-- <module>cli</module>-->
-        <!-- <module>integration-tests</module> -->
-        <!-- <module>coverage</module> -->
+         <module>cli</module>
+         <module>integration-tests</module>
+         <module>coverage</module>
     </modules>
 
     <dependencyManagement>
@@ -90,11 +89,6 @@
                 <version>0.3.2-SNAPSHOT</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.okta</groupId>
-                <artifactId>okta-maven-plugin</artifactId>
-                <version>0.3.2-SNAPSHOT</version>
-            </dependency>
 
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -217,32 +211,6 @@
     </build>
 
     <profiles>
-        <profile>
-            <id>graalvm</id>
-            <activation>
-                <!-- There is no _easy_ way to detect if running with a GraalVM, so just assume Java 11 is GraalVM -->
-                <jdk>11</jdk>
-            </activation>
-            <modules>
-                <module>cli</module>
-                <module>integration-tests</module>
-                <module>coverage</module>
-            </modules>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.github.spotbugs</groupId>
-                        <artifactId>spotbugs-maven-plugin</artifactId>
-                        <configuration>
-                            <!-- work around a SpotBugs Java 11 bug -->
-                            <excludeFilterFile>${root.dir}/src/findbugs/findbugs-exclude.xml,${root.dir}/src/findbugs/findbugs-exclude-jdk11.xml</excludeFilterFile>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
         <profile>
             <id>ci</id>
             <build>
