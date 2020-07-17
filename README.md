@@ -84,3 +84,15 @@ echo `. ~/okta.bash` >> ~/.bash_profile
 ```
 
 For more details on using bash completion see the [Picocli documentation](https://picocli.info/autocomplete.html#_installing_completion_scripts_permanently_in_bashzsh).
+
+## Building / Contributing
+
+You'll need to use the [GraalVM]() to build this project. That's what supports the native build.
+
+If you use [sdkman]() on Mac, it's pretty easy to get the right version installed:
+
+```
+sdk install java $(cat .java-version) && sdk use java $(cat .java-version)
+gu install native-image
+```
+
