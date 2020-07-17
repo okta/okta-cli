@@ -156,7 +156,7 @@
 <!--                    <skip>false</skip>-->
 <!--                    <imageName>okta-cli</imageName>-->
 
-<!--                    <buildArgs>&#45;&#45;no-fallback &#45;&#45;enable-url-protocols=http,https -H:ResourceConfigurationFiles=../src/main/graalvm/resource-config.json -H:ReflectionConfigurationFiles=../src/main/graalvm/reflect-config.json,../src/main/graalvm/otka-sdk-reflect-config.json -H:+TraceClassInitialization -H:+ReportExceptionStackTraces </buildArgs>-->
+<!--                    <buildArgs>&#45;&#45;no-fallback &#45;&#45;enable-url-protocols=http,https -H:ResourceConfigurationFiles=../src/main/graalvm/resource-config.json -H:ReflectionConfigurationFiles=../src/main/graalvm/reflect-config.json,../src/main/graalvm/okta-sdk-reflect-config.json -H:+TraceClassInitialization -H:+ReportExceptionStackTraces </buildArgs>-->
 <!--                </configuration>-->
 <!--                <executions>-->
 <!--                    <execution>-->
@@ -187,7 +187,7 @@
                         <argument>--no-fallback</argument>
                         <argument>--enable-url-protocols=http,https</argument>
                         <argument>-H:ResourceConfigurationFiles=src/main/graalvm/resource-config.json</argument>
-                        <argument>-H:ReflectionConfigurationFiles=src/main/graalvm/reflect-config.json,src/main/graalvm/otka-sdk-reflect-config.json</argument>
+                        <argument>-H:ReflectionConfigurationFiles=src/main/graalvm/reflect-config.json,src/main/graalvm/okta-sdk-reflect-config.json</argument>
                         <argument>-H:+TraceClassInitialization</argument>
                         <argument>-H:+ReportExceptionStackTraces</argument>
                         <argument>-H:Class=com.okta.cli.OktaCli</argument>

@@ -41,7 +41,7 @@
         <url>https://developer.okta.com</url>
     </organization>
 
-    <url>https://github.com/otkadeveloper/okta-cli-tools</url>
+    <url>https://github.com/oktadeveloper/okta-cli-tools</url>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>

@@ -142,7 +142,7 @@
                     <artifactId>maven-plugin-plugin</artifactId>
                     <version>3.6.0</version>
                     <configuration>
-                        <goalPrefix>otka</goalPrefix>
+                        <goalPrefix>okta</goalPrefix>
                     </configuration>
                     <executions>
                         <execution>
