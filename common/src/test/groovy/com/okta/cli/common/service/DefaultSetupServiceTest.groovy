@@ -51,6 +51,7 @@ class DefaultSetupServiceTest {
 
         Supplier<OrganizationRequest> organizationRequestSupplier = mock(Supplier)
         OrganizationRequest request = mock(OrganizationRequest)
+        OrganizationResponse response = mock(OrganizationResponse)
         File oktaPropsFile = mock(File)
         MutablePropertySource propertySource = mock(MutablePropertySource)
         String oidcAppName = "test-app-name"
@@ -69,9 +70,11 @@ class DefaultSetupServiceTest {
         when(originalSetupService.sdkConfigurationService.loadUnvalidatedConfiguration()).thenReturn(clientConfiguration)
         when(clientConfiguration.getBaseUrl()).thenReturn(orgUrl)
         when(organizationRequestSupplier.get()).thenReturn(request)
+        when(response.getOrgUrl()).thenReturn(orgUrl)
 
         // these methods are tested elsewhere in this class
         doNothing().when(setupService).createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
+        doReturn(response).when(setupService).createOktaOrg(organizationRequestSupplier, oktaPropsFile, demo, interactive)
 
         setupService.configureEnvironment(organizationRequestSupplier,
                                           oktaPropsFile,
@@ -91,6 +94,7 @@ class DefaultSetupServiceTest {
 
         Supplier<OrganizationRequest> organizationRequestSupplier = mock(Supplier)
         OrganizationRequest request = mock(OrganizationRequest)
+        OrganizationResponse response = mock(OrganizationResponse)
         File oktaPropsFile = mock(File)
         MutablePropertySource propertySource = mock(MutablePropertySource)
         String oidcAppName = "test-app-name"
@@ -103,16 +107,16 @@ class DefaultSetupServiceTest {
         def originalSetupService = setupService()
         def setupService = spy(originalSetupService)
 
-
         ClientConfiguration clientConfiguration = mock(ClientConfiguration)
 
         when(originalSetupService.sdkConfigurationService.loadUnvalidatedConfiguration()).thenReturn(clientConfiguration)
         when(clientConfiguration.getBaseUrl()).thenReturn(null)
         when(organizationRequestSupplier.get()).thenReturn(request)
+        when(response.getOrgUrl()).thenReturn(orgUrl)
 
         // these methods are tested elsewhere in this class
         doNothing().when(setupService).createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
-        doReturn(orgUrl).when(setupService).createOktaOrg(organizationRequestSupplier, oktaPropsFile, demo, interactive)
+        doReturn(response).when(setupService).createOktaOrg(organizationRequestSupplier, oktaPropsFile, demo, interactive)
 
         setupService.configureEnvironment(organizationRequestSupplier,
                 oktaPropsFile,
@@ -146,9 +150,13 @@ class DefaultSetupServiceTest {
 
         setupService.createOktaOrg(organizationRequestSupplier, oktaPropsFile, false, false)
 
-        verify(setupService.sdkConfigurationService).writeOktaYaml(newOrgUrl, newOrgToken, oktaPropsFile)
+        verify(setupService.organizationCreator).createNewOrg("https://start.okta.dev/", orgRequest);
     }
 
+    @Test
+    void verifyOktaOrg() {
+        // TODO
+    }
 
     @Test
     void createOidcApplicationExistingClient() {
