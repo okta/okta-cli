@@ -15,7 +15,6 @@
  */
 package com.okta.cli.test
 
-
 import groovy.json.JsonSlurper
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -33,9 +32,10 @@ class RegisterIT implements MockWebSupport {
     @Test
     void happyPath() {
 
-        List<MockResponse> responses = [new MockResponse()
-                                            .setBody('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "apiToken": "fake-test-token" }')
-                                            .setHeader("Content-Type", "application/json")]
+        List<MockResponse> responses = [
+                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "identifier": "test-id" }'),
+                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "apiToken": "fake-test-token" }')
+        ]
 
         MockWebServer mockWebServer = createMockServer()
         mockWebServer.with {
@@ -45,11 +45,12 @@ class RegisterIT implements MockWebSupport {
                     "test-first",
                     "test-last",
                     "test-email@example.com",
-                    "test co"
+                    "test co",
+                    "123456"
             ]
 
             def result = new CommandRunner(mockWebServer.url("/").toString()).runCommandWithInput(input, "register")
-            assertThat result, resultMatches(0, allOf(containsString("Check your email address to verify your account"), containsString("OrgUrl: https://result.example.com")), emptyString())
+            assertThat result, resultMatches(0, allOf(containsString("An email has been sent to you with a verification code."), containsString("Verification code")), emptyString())
 
 
             RecordedRequest request = mockWebServer.takeRequest()

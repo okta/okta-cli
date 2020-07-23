@@ -22,7 +22,7 @@ public class OrganizationResponse {
     private String orgUrl;
     private String email;
     private String apiToken;
-    private String verifyUuid;
+    private String identifier;
     private String passwordResetUrl;
 
     public String getOrgUrl() {
@@ -52,12 +52,12 @@ public class OrganizationResponse {
         return this;
     }
 
-    public String getVerifyUuid() {
-        return verifyUuid;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setVerifyUuid(String verifyUuid) {
-        this.verifyUuid = verifyUuid;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     public String getPasswordResetUrl() {
@@ -76,12 +76,12 @@ public class OrganizationResponse {
         return Objects.equals(orgUrl, that.orgUrl) &&
                Objects.equals(email, that.email) &&
                Objects.equals(apiToken, that.apiToken) &&
-               Objects.equals(verifyUuid, that.verifyUuid) &&
+               Objects.equals(identifier, that.identifier) &&
                Objects.equals(passwordResetUrl, that.passwordResetUrl);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(orgUrl, email, apiToken, verifyUuid, passwordResetUrl);
+        return Objects.hash(orgUrl, email, apiToken, identifier, passwordResetUrl);
     }
 }

@@ -64,9 +64,9 @@ public class Register implements Callable<Integer> {
                                    standardOptions.getEnvironment().isInteractive());
 
         // TODO this logic (specifically because of older, no replaced, maven code needs to be restructured
-        String identifier = orgResponse.getVerifyUuid();
+        String identifier = orgResponse.getIdentifier();
         setupService.verifyOktaOrg(identifier,
-                () -> prompter.prompt("Verification code"),
+                () -> prompter.promptUntilValue("Verification code"),
                 standardOptions.getEnvironment().getOktaPropsFile());
 
         return 0;

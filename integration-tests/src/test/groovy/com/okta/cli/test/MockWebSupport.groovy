@@ -37,4 +37,10 @@ trait MockWebSupport {
         }
     }
 
+    MockResponse jsonRequest(String json) {
+        return new MockResponse()
+                .setBody(json)
+                .setHeader("Content-Type", "application/json")
+    }
+
 }
