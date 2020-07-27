@@ -26,5 +26,5 @@ public class OrganizationResponse {
     private String email;
     private String apiToken;
     private String identifier;
-    private String passwordResetUrl;
+    private String updatePasswordUrl;
 }

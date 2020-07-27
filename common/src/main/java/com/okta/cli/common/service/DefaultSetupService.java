@@ -151,7 +151,7 @@ public class DefaultSetupService implements SetupService {
 
             progressBar.info("New Okta Account created!");
             progressBar.info("Your Okta Domain: "+ response.getOrgUrl());
-            progressBar.info("To set your password open this link:\n" + response.getPasswordResetUrl());
+            progressBar.info("To set your password open this link:\n" + response.getUpdatePasswordUrl());
 
             // TODO demo mode?
         }

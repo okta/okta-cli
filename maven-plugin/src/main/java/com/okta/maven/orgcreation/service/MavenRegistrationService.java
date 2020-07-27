@@ -15,9 +15,12 @@
  */
 package com.okta.maven.orgcreation.service;
 
+import com.okta.cli.common.model.OrganizationResponse;
 import org.apache.maven.plugin.MojoExecutionException;
 
 public interface MavenRegistrationService {
 
-    void register(String firstName, String lastName, String email, String company) throws MojoExecutionException;
+    OrganizationResponse register(String firstName, String lastName, String email, String company) throws MojoExecutionException;
+
+    void verify(String identifier, String code) throws MojoExecutionException;
 }

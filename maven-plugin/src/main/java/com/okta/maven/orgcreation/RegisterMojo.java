@@ -15,6 +15,7 @@
  */
 package com.okta.maven.orgcreation;
 
+import com.okta.cli.common.model.OrganizationResponse;
 import com.okta.maven.orgcreation.service.DefaultMavenRegistrationService;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -76,7 +77,8 @@ public class RegisterMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        new DefaultMavenRegistrationService(prompter, oktaPropsFile, demo, interactiveMode)
-                .register(firstName, lastName, email, company);
+        DefaultMavenRegistrationService registrationService = new DefaultMavenRegistrationService(prompter, oktaPropsFile, demo, interactiveMode);
+        OrganizationResponse response = registrationService.register(firstName, lastName, email, company);
+        registrationService.verify(response.getIdentifier(), null);
     }
 }

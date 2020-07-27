@@ -16,6 +16,7 @@
 package com.okta.maven.orgcreation.service;
 
 import com.okta.cli.common.model.OrganizationRequest;
+import com.okta.cli.common.model.OrganizationResponse;
 import com.okta.cli.common.service.ClientConfigurationException;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.common.service.SetupService;
@@ -42,13 +43,23 @@ public class DefaultMavenRegistrationService implements MavenRegistrationService
     }
 
     @Override
-    public void register(String firstName, String lastName, String email, String company) throws MojoExecutionException {
+    public OrganizationResponse register(String firstName, String lastName, String email, String company) throws MojoExecutionException {
         try {
             SetupService setupService = new DefaultSetupService(null);
-            setupService.createOktaOrg(() -> organizationRequest(firstName, lastName, email, company),
+            return setupService.createOktaOrg(() -> organizationRequest(firstName, lastName, email, company),
                     oktaPropsFile,
                     demo,
                     interactive);
+        } catch (IOException | ClientConfigurationException e) {
+            throw new MojoExecutionException("Failed to register account: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void verify(String identifier, String code) throws MojoExecutionException {
+        try {
+            SetupService setupService = new DefaultSetupService(null);
+            setupService.verifyOktaOrg(identifier, () -> codePrompt(code), oktaPropsFile);
         } catch (IOException | ClientConfigurationException e) {
             throw new MojoExecutionException("Failed to register account: " + e.getMessage(), e);
         }
@@ -60,5 +71,9 @@ public class DefaultMavenRegistrationService implements MavenRegistrationService
                 .setLastName(promptIfNull(prompter, interactive, lastName, "lastName", "Last name"))
                 .setEmail(promptIfNull(prompter, interactive, email, "email", "Email address"))
                 .setOrganization(promptIfNull(prompter, interactive, company, "company", "Company"));
+    }
+
+    private String codePrompt(String code) {
+        return promptIfNull(prompter, interactive, code, "code", "Verification Code");
     }
 }
