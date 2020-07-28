@@ -29,9 +29,13 @@ import com.okta.sdk.resource.application.OpenIdConnectApplicationSettings;
 import com.okta.sdk.resource.application.OpenIdConnectApplicationSettingsClient;
 import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
 
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class DefaultOidcAppCreator implements OidcAppCreator {
 
@@ -43,13 +47,27 @@ public class DefaultOidcAppCreator implements OidcAppCreator {
         // create a new OIDC app if one does NOT exist
         Application oidcApplication = existingApp.orElseGet(() -> {
 
+            OpenIdConnectApplicationSettingsClient oauthClient = client.instantiate(OpenIdConnectApplicationSettingsClient.class)
+                    .setRedirectUris(Arrays.asList(redirectUris))
+                    .setResponseTypes(Collections.singletonList(OAuthResponseType.CODE))
+                    .setGrantTypes(Collections.singletonList(OAuthGrantType.AUTHORIZATION_CODE))
+                    .setApplicationType(OpenIdConnectApplicationType.WEB);
+
+            // TODO expose this setting to the user
+            // TODO the post redirect URI should be exposed in v2 of the SDK
+            Set<String> postLogoutRedirect = Arrays.stream(redirectUris)
+                    .map(redirectUri -> {
+                        URI uri = URI.create(redirectUri).resolve("/");
+                        return uri.toString();
+                    })
+                    .collect(Collectors.toSet());
+            if (!postLogoutRedirect.isEmpty()) {
+                oauthClient.put("post_logout_redirect_uris", new ArrayList<>(postLogoutRedirect));
+            }
+
             Application app = client.instantiate(OpenIdConnectApplication.class)
                 .setSettings(client.instantiate(OpenIdConnectApplicationSettings.class)
-                    .setOAuthClient(client.instantiate(OpenIdConnectApplicationSettingsClient.class)
-                        .setRedirectUris(Arrays.asList(redirectUris))
-                        .setResponseTypes(Collections.singletonList(OAuthResponseType.CODE))
-                        .setGrantTypes(Collections.singletonList(OAuthGrantType.AUTHORIZATION_CODE))
-                        .setApplicationType(OpenIdConnectApplicationType.WEB)))
+                    .setOAuthClient(oauthClient))
                 .setLabel(oidcAppName);
             app = client.createApplication(app);
             assignAppToEveryoneGroup(client, app);
@@ -69,19 +87,22 @@ public class DefaultOidcAppCreator implements OidcAppCreator {
         // create a new OIDC app if one does NOT exist
         Application oidcApplication = existingApp.orElseGet(() -> {
 
+            OpenIdConnectApplicationSettingsClient oauthClient = client.instantiate(OpenIdConnectApplicationSettingsClient.class)
+                    .setRedirectUris(Arrays.asList(redirectUris))
+                    .setResponseTypes(Collections.singletonList(OAuthResponseType.CODE))
+                    .setGrantTypes(Collections.singletonList(OAuthGrantType.AUTHORIZATION_CODE))
+                    .setApplicationType(OpenIdConnectApplicationType.NATIVE);
+
             Application app = client.instantiate(OpenIdConnectApplication.class)
                     .setSettings(client.instantiate(OpenIdConnectApplicationSettings.class)
-                            .setOAuthClient(client.instantiate(OpenIdConnectApplicationSettingsClient.class)
-                                    .setRedirectUris(Arrays.asList(redirectUris))
-                                    .setResponseTypes(Collections.singletonList(OAuthResponseType.CODE))
-                                    .setGrantTypes(Collections.singletonList(OAuthGrantType.AUTHORIZATION_CODE))
-                                    .setApplicationType(OpenIdConnectApplicationType.NATIVE)))
+                            .setOAuthClient(oauthClient))
                     .setLabel(oidcAppName)
                     .setCredentials(client.instantiate(OAuthApplicationCredentials.class)
                             .setOAuthClient(client.instantiate(ApplicationCredentialsOAuthClient.class)
                             .setTokenEndpointAuthMethod(OAuthEndpointAuthenticationMethod.NONE)));
 
-            // TODO post_logout_redirect_uris
+            // TODO expose post_logout_redirect_uris setting to the user
+            // for mobile apps this is likely to be something like protocol://logout
 
             app = client.createApplication(app);
             assignAppToEveryoneGroup(client, app);
@@ -101,19 +122,31 @@ public class DefaultOidcAppCreator implements OidcAppCreator {
         // create a new OIDC app if one does NOT exist
         Application oidcApplication = existingApp.orElseGet(() -> {
 
+            OpenIdConnectApplicationSettingsClient oauthClient = client.instantiate(OpenIdConnectApplicationSettingsClient.class)
+                    .setRedirectUris(Arrays.asList(redirectUris))
+                    .setResponseTypes(Collections.singletonList(OAuthResponseType.CODE))
+                    .setGrantTypes(Collections.singletonList(OAuthGrantType.AUTHORIZATION_CODE))
+                    .setApplicationType(OpenIdConnectApplicationType.BROWSER);
+
+            // TODO expose this setting to the user
+            // TODO the post redirect URI should be exposed in v2 of the SDK
+            Set<String> postLogoutRedirect = Arrays.stream(redirectUris)
+                    .map(redirectUri -> {
+                        URI uri = URI.create(redirectUri).resolve("/");
+                        return uri.toString();
+                    })
+                    .collect(Collectors.toSet());
+            if (!postLogoutRedirect.isEmpty()) {
+                oauthClient.put("post_logout_redirect_uris", new ArrayList<>(postLogoutRedirect));
+            }
+
             Application app = client.instantiate(OpenIdConnectApplication.class)
                     .setSettings(client.instantiate(OpenIdConnectApplicationSettings.class)
-                            .setOAuthClient(client.instantiate(OpenIdConnectApplicationSettingsClient.class)
-                                    .setRedirectUris(Arrays.asList(redirectUris))
-                                    .setResponseTypes(Collections.singletonList(OAuthResponseType.CODE))
-                                    .setGrantTypes(Collections.singletonList(OAuthGrantType.AUTHORIZATION_CODE))
-                                    .setApplicationType(OpenIdConnectApplicationType.BROWSER)))
+                            .setOAuthClient(oauthClient))
                     .setLabel(oidcAppName)
                     .setCredentials(client.instantiate(OAuthApplicationCredentials.class)
                             .setOAuthClient(client.instantiate(ApplicationCredentialsOAuthClient.class)
                                     .setTokenEndpointAuthMethod(OAuthEndpointAuthenticationMethod.NONE)));
-
-            // TODO post_logout_redirect_uris
 
             app = client.createApplication(app);
             assignAppToEveryoneGroup(client, app);
@@ -141,8 +174,6 @@ public class DefaultOidcAppCreator implements OidcAppCreator {
                                     .setGrantTypes(Collections.singletonList(OAuthGrantType.CLIENT_CREDENTIALS))
                                     .setApplicationType(OpenIdConnectApplicationType.SERVICE)))
                     .setLabel(oidcAppName);
-
-            // TODO post_logout_redirect_uris
 
             app = client.createApplication(app);
             assignAppToEveryoneGroup(client, app);
