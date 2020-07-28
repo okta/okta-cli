@@ -18,6 +18,8 @@ package com.okta.cli.common.service;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.CharStreams;
+import com.okta.cli.common.FactorVerificationException;
+import com.okta.cli.common.model.ErrorResponse;
 import com.okta.cli.common.model.OrganizationRequest;
 import com.okta.cli.common.model.OrganizationResponse;
 import com.okta.commons.lang.ApplicationInfo;
@@ -75,7 +77,7 @@ public class DefaultOktaOrganizationCreator implements OktaOrganizationCreator {
     }
 
     @Override
-    public OrganizationResponse verifyNewOrg(String apiBaseUrl, String identifier, String code) throws IOException {
+    public OrganizationResponse verifyNewOrg(String apiBaseUrl, String identifier, String code) throws FactorVerificationException, IOException {
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost post = new HttpPost(apiBaseUrl + "/verify/" + identifier);
@@ -95,10 +97,15 @@ public class DefaultOktaOrganizationCreator implements OktaOrganizationCreator {
             }
 
             InputStream content = response.getEntity().getContent();
-            String body = CharStreams.toString(new InputStreamReader(content, StandardCharsets.UTF_8)); // use input stream directly
-            return objectMapper.reader().readValue(new JsonFactory().createParser(body), OrganizationResponse.class);
 
-            // TODO handle errors and throw typed exceptions to the user can retry
+            // check for error
+            if (response.getStatusLine().getStatusCode() == 200) {
+                return objectMapper.reader().readValue(content, OrganizationResponse.class);
+            } else {
+                // assume error
+                ErrorResponse error = objectMapper.reader().readValue(content, ErrorResponse.class);
+                throw new FactorVerificationException(error);
+            }
         }
     }
 }

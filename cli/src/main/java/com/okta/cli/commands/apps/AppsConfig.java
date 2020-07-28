@@ -19,10 +19,12 @@ import com.okta.cli.OktaCli;
 import com.okta.cli.common.model.AuthorizationServer;
 import com.okta.cli.common.model.ClientCredentials;
 import com.okta.cli.console.ConsoleOutput;
+import com.okta.commons.lang.Assert;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
 import com.okta.sdk.resource.ExtensibleResource;
 import com.okta.sdk.resource.application.Application;
+import com.okta.sdk.resource.application.OpenIdConnectApplication;
 import picocli.CommandLine;
 
 import java.util.concurrent.Callable;
@@ -43,8 +45,9 @@ public class AppsConfig implements Callable<Integer> {
         Application app = client.getApplication(appName);
 
         ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
-        
-        // TODO verify this is an OIDC app
+
+        Assert.isInstanceOf(OpenIdConnectApplication.class, app, "Existing application found with name '" +
+                appName +"' but it is NOT an OIDC application. Only OIDC applications work with the Okta CLI.");
 
         ClientCredentials clientCreds = new ClientCredentials(client.http()
                 .get("/api/v1/internal/apps/" + app.getId() + "/settings/clientcreds", ExtensibleResource.class));

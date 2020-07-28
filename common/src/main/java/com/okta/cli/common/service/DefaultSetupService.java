@@ -15,6 +15,7 @@
  */
 package com.okta.cli.common.service;
 
+import com.okta.cli.common.FactorVerificationException;
 import com.okta.cli.common.config.MutablePropertySource;
 import com.okta.cli.common.model.OrganizationRequest;
 import com.okta.cli.common.model.OrganizationResponse;
@@ -142,9 +143,16 @@ public class DefaultSetupService implements SetupService {
 
             progressBar.info("Check your email");
 
-            // prompt for code
-            String code = verificationCode.get();
-            OrganizationResponse response = organizationCreator.verifyNewOrg(getApiBaseUrl(), identifier, code); // TODO handle exceptions and allow user to reenter the code
+            OrganizationResponse response = null;
+            while(response == null) {
+                try {
+                    // prompt for code
+                    String code = verificationCode.get();
+                    response = organizationCreator.verifyNewOrg(getApiBaseUrl(), identifier, code);
+                } catch (FactorVerificationException e) {
+                    progressBar.info("Invalid Passcode, try again.");
+                }
+            }
             // TODO handle polling in case the org is not ready
 
             sdkConfigurationService.writeOktaYaml(response.getOrgUrl(), response.getApiToken(), oktaPropsFile);

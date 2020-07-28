@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-Present Okta, Inc.
+ * Copyright 2020-Present Okta, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.cli.common.service;
+package com.okta.cli.common;
 
-import com.okta.cli.common.FactorVerificationException;
-import com.okta.cli.common.model.OrganizationRequest;
-import com.okta.cli.common.model.OrganizationResponse;
+import com.okta.cli.common.model.ErrorResponse;
 
-import java.io.IOException;
+public class FactorVerificationException extends RestException {
 
-public interface OktaOrganizationCreator {
+    public FactorVerificationException(ErrorResponse errorResponse, Throwable t) {
+        super(errorResponse, t);
+    }
 
-    OrganizationResponse createNewOrg(String apiBaseUrl, OrganizationRequest orgRequest) throws IOException;
-
-    OrganizationResponse verifyNewOrg(String apiBaseUrl, String identifier, String code) throws FactorVerificationException, IOException;
+    public FactorVerificationException(ErrorResponse errorResponse) {
+        super(errorResponse);
+    }
 }

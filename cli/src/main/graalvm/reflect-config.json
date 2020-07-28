@@ -43,6 +43,19 @@
     ]
   },
   {
+    "name": "com.okta.cli.common.model.ErrorResponse",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allPublicFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
     "name": "org.yaml.snakeyaml.Yaml",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,

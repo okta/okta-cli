@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-Present Okta, Inc.
+ * Copyright 2020-Present Okta, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.cli.common.service;
+package com.okta.cli.common.model;
 
-import com.okta.cli.common.FactorVerificationException;
-import com.okta.cli.common.model.OrganizationRequest;
-import com.okta.cli.common.model.OrganizationResponse;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
-import java.io.IOException;
+import java.io.Serializable;
+import java.util.List;
 
-public interface OktaOrganizationCreator {
+@Data
+@Accessors(chain = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ErrorResponse implements Serializable {
 
-    OrganizationResponse createNewOrg(String apiBaseUrl, OrganizationRequest orgRequest) throws IOException;
+    private static final long serialVersionUID = 7803104338172953590L;
 
-    OrganizationResponse verifyNewOrg(String apiBaseUrl, String identifier, String code) throws FactorVerificationException, IOException;
+    private String error;
+    private String message;
+    private List<String> causes;
+    private int status;
 }
