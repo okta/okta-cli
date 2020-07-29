@@ -16,6 +16,7 @@
 package com.okta.cli.common.service;
 
 import com.okta.cli.common.FactorVerificationException;
+import com.okta.cli.common.RestException;
 import com.okta.cli.common.config.MutablePropertySource;
 import com.okta.cli.common.model.OrganizationRequest;
 import com.okta.cli.common.model.OrganizationResponse;
@@ -112,16 +113,17 @@ public class DefaultSetupService implements SetupService {
                 OrganizationRequest organizationRequest = organizationRequestSupplier.get();
                 progressBar.start("Creating new Okta Organization, this may take a minute:");
 
-                OrganizationResponse newOrg = organizationCreator.createNewOrg(getApiBaseUrl(), organizationRequest);
-                orgUrl = newOrg.getOrgUrl();
+                try {
+                    OrganizationResponse newOrg = organizationCreator.createNewOrg(getApiBaseUrl(), organizationRequest);
+                    orgUrl = newOrg.getOrgUrl();
 
-                progressBar.info("OrgUrl: " + orgUrl);
-//                progressBar.info("Check your email address to verify your account.\n");
-                progressBar.info("An email has been sent to you with a verification code.");
-
-                // write ~/.okta/okta.yaml
-//                sdkConfigurationService.writeOktaYaml(orgUrl, newOrg.getApiToken(), oktaPropsFile);
-                return newOrg;
+                    progressBar.info("OrgUrl: " + orgUrl);
+                    progressBar.info("An email has been sent to you with a verification code.");
+                    return newOrg;
+                } catch (RestException e) {
+                    throw new ClientConfigurationException("Failed to create Okta Organization. You can register " +
+                                                           "manually by going to https://developer.okta.com/signup");
+                }
             } else {
                 if (demo) { // always prompt for user info in "demo mode", this info will not be used but it makes for a more realistic demo
                     organizationRequestSupplier.get();

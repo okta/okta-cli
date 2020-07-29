@@ -16,6 +16,7 @@
 package com.okta.cli.common.service;
 
 import com.okta.cli.common.FactorVerificationException;
+import com.okta.cli.common.RestException;
 import com.okta.cli.common.model.OrganizationRequest;
 import com.okta.cli.common.model.OrganizationResponse;
 
@@ -23,7 +24,7 @@ import java.io.IOException;
 
 public interface OktaOrganizationCreator {
 
-    OrganizationResponse createNewOrg(String apiBaseUrl, OrganizationRequest orgRequest) throws IOException;
+    OrganizationResponse createNewOrg(String apiBaseUrl, OrganizationRequest orgRequest) throws IOException, RestException;
 
     OrganizationResponse verifyNewOrg(String apiBaseUrl, String identifier, String code) throws FactorVerificationException, IOException;
 }
