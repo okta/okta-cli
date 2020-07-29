@@ -52,7 +52,7 @@ class RegisterMojoTest {
         def orgResponse = new OrganizationResponse()
                 .setEmail(email)
                 .setOrgUrl("https://org.example.com")
-                .setIdentifier("test-id")
+                .setId("test-id")
 
         PowerMockito.whenNew(DefaultMavenRegistrationService).withArguments(prompter, oktaPropsFile, demo, interactive).thenReturn(mavenRegistrationService)
         when(mavenRegistrationService.register(firstName, lastName, email, company)).thenReturn(orgResponse)

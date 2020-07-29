@@ -35,7 +35,7 @@ class RegisterIT implements MockWebSupport {
     void happyPath() {
 
         List<MockResponse> responses = [
-                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "identifier": "test-id" }'),
+                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "id": "test-id" }'),
                 jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "apiToken": "fake-test-token" }')
         ]
 
@@ -74,7 +74,7 @@ class RegisterIT implements MockWebSupport {
     @Test
     void invalidCodeTest() {
         List<MockResponse> responses = [
-                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "identifier": "test-id" }'),
+                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "id": "test-id" }'),
                 jsonRequest(new ErrorResponse()
                         .setError("Invalid passcode")
                         .setMessage("Test message")

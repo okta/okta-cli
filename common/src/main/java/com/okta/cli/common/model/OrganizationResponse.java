@@ -22,9 +22,11 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class OrganizationResponse {
 
+    private String id;
     private String orgUrl;
     private String email;
     private String apiToken;
-    private String identifier;
+    private String factorId;
     private String updatePasswordUrl;
+
 }

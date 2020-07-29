@@ -79,6 +79,6 @@ public class RegisterMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         DefaultMavenRegistrationService registrationService = new DefaultMavenRegistrationService(prompter, oktaPropsFile, demo, interactiveMode);
         OrganizationResponse response = registrationService.register(firstName, lastName, email, company);
-        registrationService.verify(response.getIdentifier(), null);
+        registrationService.verify(response.getId(), null);
     }
 }
