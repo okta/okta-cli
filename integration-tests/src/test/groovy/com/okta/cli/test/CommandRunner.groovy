@@ -15,6 +15,7 @@
  */
 package com.okta.cli.test
 
+import com.okta.commons.lang.Classes
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.MatcherAssert
@@ -90,7 +91,7 @@ class CommandRunner {
     }
 
     static boolean isIde() {
-        return System.getProperty("java.class.path").contains("idea_rt.jar")
+        return System.getProperty("java.class.path").contains("idea_rt.jar") && Classes.isAvailable("com.okta.cli.OktaCli")
     }
 
     Result runProcess(String[] envVars, String[] args, List<String> input) {

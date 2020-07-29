@@ -23,7 +23,6 @@ import okhttp3.mockwebserver.RecordedRequest
 import org.testng.annotations.Test
 
 import java.nio.charset.StandardCharsets
-import java.time.Instant
 
 import static com.okta.cli.test.CommandRunner.resultMatches
 import static org.hamcrest.MatcherAssert.assertThat
@@ -69,6 +68,85 @@ class RegisterIT implements MockWebSupport {
             File oktaConfigFile = new File(result.homeDir, ".okta/okta.yaml")
             assertThat oktaConfigFile, new OktaConfigMatcher("https://result.example.com", "fake-test-token")
         }
+    }
+
+    @Test
+    void existingConfigFile_overwrite() {
+
+        List<MockResponse> responses = [
+                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "id": "test-id" }'),
+                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "apiToken": "fake-test-token" }')
+        ]
+
+        MockWebServer mockWebServer = createMockServer()
+        mockWebServer.with {
+            responses.forEach { mockWebServer.enqueue(it) }
+
+            List<String> input = [
+                    "1", // overwrite config
+                    "test-first",
+                    "test-last",
+                    "test-email@example.com",
+                    "test co",
+                    "123456"
+            ]
+
+            CommandRunner runner = new CommandRunner(mockWebServer.url("/").toString())
+                    .withHomeDirectory {
+                        File oktaYaml = new File(it, ".okta/okta.yaml")
+                        oktaYaml.getParentFile().mkdirs()
+                        oktaYaml.write("""
+okta:
+  client:
+    orgUrl: https://test.example.com
+    token: test-token
+""")
+                    }
+
+            def result = runner.runCommandWithInput(input, "register")
+            assertThat result, resultMatches(0, allOf(containsString("An email has been sent to you with a verification code."), containsString("Verification code")), emptyString())
+
+            RecordedRequest request = mockWebServer.takeRequest()
+            assertThat request.getRequestLine(), equalTo("POST /create HTTP/1.1")
+            assertThat request.getHeader("Content-Type"), is("application/json")
+            Map body = new JsonSlurper().parse(request.getBody().readByteArray(), StandardCharsets.UTF_8.toString())
+            assertThat body, equalTo([
+                    firstName: "test-first",
+                    lastName: "test-last",
+                    email: "test-email@example.com",
+                    organization: "test co"
+            ])
+
+            File oktaConfigFile = new File(result.homeDir, ".okta/okta.yaml")
+            assertThat oktaConfigFile, new OktaConfigMatcher("https://result.example.com", "fake-test-token")
+        }
+    }
+
+    @Test
+    void existingConfigFile_noOverwrite() {
+
+            List<String> input = [
+                    "2" // no overwrite
+            ]
+
+            CommandRunner runner = new CommandRunner()
+                    .withHomeDirectory {
+                        File oktaYaml = new File(it, ".okta/okta.yaml")
+                        oktaYaml.getParentFile().mkdirs()
+                        oktaYaml.write("""
+okta:
+  client:
+    orgUrl: https://test.example.com
+    token: test-token
+""")
+                    }
+
+        def result = runner.runCommandWithInput(input, "register")
+        assertThat result, resultMatches(1, containsString("Overwrite configuration file?"), containsString("User canceled"))
+
+        File oktaConfigFile = new File(result.homeDir, ".okta/okta.yaml")
+        assertThat oktaConfigFile, new OktaConfigMatcher("https://test.example.com", "test-token")
+
     }
 
     @Test

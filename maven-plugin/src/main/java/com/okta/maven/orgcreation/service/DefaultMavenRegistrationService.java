@@ -17,9 +17,12 @@ package com.okta.maven.orgcreation.service;
 
 import com.okta.cli.common.model.OrganizationRequest;
 import com.okta.cli.common.model.OrganizationResponse;
+import com.okta.cli.common.model.RegistrationQuestions;
 import com.okta.cli.common.service.ClientConfigurationException;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.common.service.SetupService;
+import lombok.Data;
+import lombok.experimental.Accessors;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.components.interactivity.Prompter;
 
@@ -27,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static com.okta.maven.orgcreation.support.PromptUtil.promptIfNull;
+import static com.okta.maven.orgcreation.support.PromptUtil.promptYesNo;
 
 public class DefaultMavenRegistrationService implements MavenRegistrationService {
 
@@ -46,10 +50,15 @@ public class DefaultMavenRegistrationService implements MavenRegistrationService
     public OrganizationResponse register(String firstName, String lastName, String email, String company) throws MojoExecutionException {
         try {
             SetupService setupService = new DefaultSetupService(null);
-            return setupService.createOktaOrg(() -> organizationRequest(firstName, lastName, email, company),
-                    oktaPropsFile,
-                    demo,
-                    interactive);
+            RegistrationQuestions registrationQuestions = new MavenPromptingRegistrationQuestions()
+                    .setFirstName(firstName)
+                    .setLastName(lastName)
+                    .setEmail(email)
+                    .setCompany(company);
+            return setupService.createOktaOrg(registrationQuestions,
+                                              oktaPropsFile,
+                                              demo,
+                                              interactive);
         } catch (IOException | ClientConfigurationException e) {
             throw new MojoExecutionException("Failed to register account: " + e.getMessage(), e);
         }
@@ -59,7 +68,9 @@ public class DefaultMavenRegistrationService implements MavenRegistrationService
     public void verify(String identifier, String code) throws MojoExecutionException {
         try {
             SetupService setupService = new DefaultSetupService(null);
-            setupService.verifyOktaOrg(identifier, () -> codePrompt(code), oktaPropsFile);
+            RegistrationQuestions registrationQuestions = new MavenPromptingRegistrationQuestions()
+                    .setCode(code);
+            setupService.verifyOktaOrg(identifier, registrationQuestions, oktaPropsFile);
         } catch (IOException | ClientConfigurationException e) {
             throw new MojoExecutionException("Failed to register account: " + e.getMessage(), e);
         }
@@ -75,5 +86,38 @@ public class DefaultMavenRegistrationService implements MavenRegistrationService
 
     private String codePrompt(String code) {
         return promptIfNull(prompter, interactive, code, "code", "Verification Code");
+    }
+
+    private boolean overwritePrompt(Boolean overwrite) {
+        return promptYesNo(prompter, interactive, overwrite, "overwriteConfig", "Overwrite configuration file?");
+    }
+
+    @Data
+    @Accessors(chain = true)
+    private class MavenPromptingRegistrationQuestions implements RegistrationQuestions {
+
+        private String firstName;
+        private String lastName;
+        private String email;
+        private String company;
+
+        private String code;
+
+        private Boolean overwriteConfig;
+
+        @Override
+        public boolean isOverwriteConfig() {
+            return overwritePrompt(overwriteConfig);
+        }
+
+        @Override
+        public OrganizationRequest getOrganizationRequest() {
+            return organizationRequest(firstName, lastName, email, company);
+        }
+
+        @Override
+        public String getVerificationCode() {
+            return codePrompt(code);
+        }
     }
 }

@@ -18,12 +18,15 @@ package com.okta.cli.commands;
 import com.okta.cli.OktaCli;
 import com.okta.cli.common.model.OrganizationRequest;
 import com.okta.cli.common.model.OrganizationResponse;
+import com.okta.cli.common.model.RegistrationQuestions;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.common.service.SetupService;
+import com.okta.cli.console.PromptOption;
 import com.okta.cli.console.Prompter;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 
 @Command(name = "register",
@@ -45,30 +48,58 @@ public class Register implements Callable<Integer> {
     @CommandLine.Option(names = "--company", description = "Company / organization used when registering a new Okta account")
     protected String company;
 
-    protected OrganizationRequest organizationRequest() {
-        Prompter prompter = standardOptions.getEnvironment().prompter();
-        return new OrganizationRequest()
-                .setFirstName(prompter.promptUntilValue(firstName, "First name"))
-                .setLastName(prompter.promptUntilValue(lastName, "Last name"))
-                .setEmail(prompter.promptUntilValue(email, "Email address"))
-                .setOrganization(prompter.promptUntilValue(company, "Company"));
+    protected CliRegistrationQuestions registrationQuestions() {
+        return new CliRegistrationQuestions();
     }
 
     @Override
     public Integer call() throws Exception {
-        Prompter prompter = standardOptions.getEnvironment().prompter();
+
+        CliRegistrationQuestions registrationQuestions = registrationQuestions();
+
         SetupService setupService = new DefaultSetupService(null);
-        OrganizationResponse orgResponse = setupService.createOktaOrg(this::organizationRequest,
+        OrganizationResponse orgResponse = setupService.createOktaOrg(registrationQuestions,
                                    standardOptions.getEnvironment().getOktaPropsFile(),
                                    standardOptions.getEnvironment().isDemo(),
                                    standardOptions.getEnvironment().isInteractive());
 
-        // TODO this logic (specifically because of older, no replaced, maven code needs to be restructured
         String identifier = orgResponse.getId();
         setupService.verifyOktaOrg(identifier,
-                () -> prompter.promptUntilValue("Verification code"),
+                registrationQuestions,
                 standardOptions.getEnvironment().getOktaPropsFile());
 
         return 0;
+
+
+// TODO include demo logic?
+//            if (demo) { // always prompt for user info in "demo mode", this info will not be used but it makes for a more realistic demo
+//                organizationRequestSupplier.get();
+//            }
+    }
+
+    private class CliRegistrationQuestions implements RegistrationQuestions {
+
+        private final Prompter prompter = standardOptions.getEnvironment().prompter();
+
+        @Override
+        public boolean isOverwriteConfig() {
+            PromptOption<Boolean> yes = PromptOption.of("Yes", Boolean.TRUE);
+            PromptOption<Boolean> no = PromptOption.of("No", Boolean.FALSE);
+            return prompter.promptIfEmpty(null, "Overwrite configuration file?", List.of(yes, no), yes);
+        }
+
+        @Override
+        public OrganizationRequest getOrganizationRequest() {
+            return new OrganizationRequest()
+                    .setFirstName(prompter.promptUntilValue(firstName, "First name"))
+                    .setLastName(prompter.promptUntilValue(lastName, "Last name"))
+                    .setEmail(prompter.promptUntilValue(email, "Email address"))
+                    .setOrganization(prompter.promptUntilValue(company, "Company"));
+        }
+
+        @Override
+        public String getVerificationCode() {
+            return prompter.promptUntilValue("Verification code");
+        }
     }
 }
