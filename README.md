@@ -93,23 +93,17 @@ echo `. ~/okta.bash` >> ~/.bash_profile
 
 For more details on using bash completion see the [Picocli documentation](https://picocli.info/autocomplete.html#_installing_completion_scripts_permanently_in_bashzsh).
 
-## Building / Contributing
+## Contribute
 
-You'll need to use the [GraalVM]() to build this project. That's what supports the native build.
+The easiest way to build the project is to use [sdkman]().
 
-If you use [sdkman]() on Mac, it's pretty easy to get the right version installed:
+If you have `sdkman_auto_env=true` in your `~/.sdkman/etc/config`, then when you switch to the project folder, the correct
+JVM will be selected automatically.
 
-```
-sdk install java $(cat .java-version) && sdk use java $(cat .java-version)
-gu install native-image
-```
+You can also type: `sdk env` and the correct JVM will be used while in the project folder.
 
-If you want to test against a locally running service, you'll need to run the cli with the following environment
-variable:
+Build with: `mvn clean install`
 
-```
-OKTA_CLI_BASE_URL=http://localhost:8080/
-```
+**NOTE:** On IntelliJ (at least), you'll also need to add in the Lombok plugin to avoid compiler errors on getters and setters for data classes.
 
-**NOTE**: The backend service code is currently in a private repo.
-
+You can then run the Okta cli with: `./cli/target/okta`

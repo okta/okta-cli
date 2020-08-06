@@ -15,74 +15,15 @@
  */
 package com.okta.cli.common.model;
 
-import java.util.Objects;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
+@Data
+@Accessors(chain = true)
 public class OrganizationRequest {
 
     private String firstName;
     private String lastName;
     private String email;
     private String organization;
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public OrganizationRequest setFirstName(String firstName) {
-        this.firstName = firstName;
-        return this;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public OrganizationRequest setLastName(String lastName) {
-        this.lastName = lastName;
-        return this;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public OrganizationRequest setEmail(String email) {
-        this.email = email;
-        return this;
-    }
-
-    public String getOrganization() {
-        return organization;
-    }
-
-    public OrganizationRequest setOrganization(String organization) {
-        this.organization = organization;
-        return this;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        OrganizationRequest that = (OrganizationRequest) o;
-        return Objects.equals(firstName, that.firstName) &&
-               Objects.equals(lastName, that.lastName) &&
-               Objects.equals(email, that.email) &&
-               Objects.equals(organization, that.organization);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(firstName, lastName, email, organization);
-    }
-
-    @Override
-    public String toString() {
-        return "OrganizationRequest{" +
-               "firstName='" + firstName + '\'' +
-               ", lastName='" + lastName + '\'' +
-               ", email='" + email + '\'' +
-               ", organization='" + organization + '\'' +
-               '}';
-    }
 }

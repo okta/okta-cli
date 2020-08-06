@@ -13,13 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module com.okta.cli {
-    requires info.picocli;
-    requires okta.sdk.api;
-    requires okta.sdk.impl;
-    requires okta.commons.lang;
-    requires okta.config.check;
-    requires com.okta.cli.common;
-    opens com.okta.cli to info.picocli;
-    opens com.okta.cli.commands to info.picocli;
+package com.okta.cli.common;
+
+import com.okta.cli.common.model.ErrorResponse;
+
+public class RestException extends Exception {
+
+    private final ErrorResponse errorResponse;
+
+    public RestException(ErrorResponse errorResponse) {
+        super(errorResponse.getMessage());
+        this.errorResponse = errorResponse;
+    }
+
+    public RestException(ErrorResponse errorResponse, Throwable t) {
+        super(errorResponse.getMessage(), t);
+        this.errorResponse = errorResponse;
+    }
+
+    public ErrorResponse getErrorResponse() {
+        return errorResponse;
+    }
 }

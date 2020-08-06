@@ -27,11 +27,13 @@ import org.testng.annotations.Test
 import static com.okta.maven.orgcreation.TestUtil.expectException
 import static org.hamcrest.Matchers.containsString
 import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.equalTo
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.spy
 import static org.mockito.Mockito.verify
+import static org.mockito.Mockito.when
 
 @PrepareForTest(DefaultMavenRegistrationService)
 class DefaultMavenRegistrationServiceTest {
@@ -55,6 +57,20 @@ class DefaultMavenRegistrationServiceTest {
     }
 
     @Test
+    void verifyCode() {
+        Prompter prompter = mock(Prompter)
+        File propsFile = mock(File)
+        DefaultSetupService setupService = mock(DefaultSetupService)
+        PowerMockito.whenNew(DefaultSetupService).withArguments(null).thenReturn(setupService)
+
+        def registrationService = spy new DefaultMavenRegistrationService(prompter, propsFile, false, false)
+        registrationService.verify("test-id", null)
+
+        verify(setupService).verifyOktaOrg(eq("test-id"), any(), eq(propsFile))
+    }
+
+
+    @Test
     void promptNeededNonInteractive() {
         Prompter prompter = mock(Prompter)
         File propsFile = mock(File)
@@ -71,5 +87,23 @@ class DefaultMavenRegistrationServiceTest {
 
         exception = expectException IllegalArgumentException, { registrationService.organizationRequest("first-name", "last-name", "email@example.com", null) }
         assertThat exception.message, containsString("-Dcompany")
+    }
+
+    @Test
+    void promptForCode() {
+        Prompter prompter = mock(Prompter)
+        File propsFile = mock(File)
+
+        when(prompter.prompt(any(String))).thenReturn("totp-code-string")
+
+        assertThat new DefaultMavenRegistrationService(prompter, propsFile, false, true).codePrompt(null), equalTo("totp-code-string")
+    }
+
+    @Test
+    void promptForCode_nonInteractive() {
+        Prompter prompter = mock(Prompter)
+        File propsFile = mock(File)
+
+        expectException IllegalArgumentException, { new DefaultMavenRegistrationService(prompter, propsFile, false, false).codePrompt(null) }
     }
 }

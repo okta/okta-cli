@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.maven.orgcreation.service;
+package com.okta.cli.common;
 
-import com.okta.cli.common.model.OrganizationResponse;
-import org.apache.maven.plugin.MojoExecutionException;
+import com.okta.cli.common.model.ErrorResponse;
 
-public interface MavenRegistrationService {
+public class FactorVerificationException extends RestException {
 
-    OrganizationResponse register(String firstName, String lastName, String email, String company) throws MojoExecutionException;
+    public FactorVerificationException(ErrorResponse errorResponse, Throwable t) {
+        super(errorResponse, t);
+    }
 
-    void verify(String identifier, String code) throws MojoExecutionException;
+    public FactorVerificationException(ErrorResponse errorResponse) {
+        super(errorResponse);
+    }
 }

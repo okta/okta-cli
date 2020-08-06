@@ -19,6 +19,9 @@ import org.codehaus.plexus.components.interactivity.Prompter;
 import org.codehaus.plexus.components.interactivity.PrompterException;
 import org.codehaus.plexus.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class PromptUtil {
 
     private PromptUtil() {}
@@ -32,6 +35,29 @@ public final class PromptUtil {
                 try {
                     value = prompter.prompt(promptText);
                     value = promptIfNull(prompter, interactive, value, keyName, promptText);
+                }
+                catch (PrompterException e) {
+                    throw new RuntimeException( e.getMessage(), e );
+                }
+            } else {
+                throw new IllegalArgumentException( "You must specify the '" + keyName + "' property either on the command line " +
+                                                    "-D" + keyName + "=... or run in interactive mode" );
+            }
+        }
+        return value;
+    }
+
+    public static boolean promptYesNo(Prompter prompter, boolean interactive, Boolean currentValue, String keyName, String promptText) {
+
+        Boolean value = currentValue;
+
+        if (value == null) {
+            if (interactive) {
+                try {
+                    List<String> options = new ArrayList<>();
+                    options.add("Yes");
+                    options.add("No");
+                    value = options.get(0).equals(prompter.prompt(promptText, options, options.get(0)));
                 }
                 catch (PrompterException e) {
                     throw new RuntimeException( e.getMessage(), e );

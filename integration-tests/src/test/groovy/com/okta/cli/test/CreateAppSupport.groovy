@@ -46,12 +46,6 @@ trait CreateAppSupport {
         ]
     }
 
-    MockResponse jsonRequest(String json) {
-        return new MockResponse()
-                .setBody(json)
-                .setHeader("Content-Type", "application/json")
-    }
-
     void verifyOrgCreateRequest(RecordedRequest request, String firstName = "test-first", String lastName = "test-last", String email = "test-email@example.com", String company = "test co") {
         assertThat request.getRequestLine(), equalTo("POST /create HTTP/1.1")
         assertThat request.getHeader("Content-Type"), equalTo("application/json")

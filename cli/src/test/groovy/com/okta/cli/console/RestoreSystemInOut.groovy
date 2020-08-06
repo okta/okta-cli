@@ -13,14 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.maven.orgcreation.service;
+package com.okta.cli.console
 
-import com.okta.cli.common.model.OrganizationResponse;
-import org.apache.maven.plugin.MojoExecutionException;
+import org.testng.IInvokedMethod
+import org.testng.IInvokedMethodListener
+import org.testng.ITestResult
 
-public interface MavenRegistrationService {
+class RestoreSystemInOut implements IInvokedMethodListener {
 
-    OrganizationResponse register(String firstName, String lastName, String email, String company) throws MojoExecutionException;
+    private final InputStream originalIn = System.in
+    private final OutputStream originalOut = System.out
+    private final OutputStream originalErr = System.err
 
-    void verify(String identifier, String code) throws MojoExecutionException;
+    @Override
+    void afterInvocation(IInvokedMethod method, ITestResult testResult) {
+        System.in = originalIn
+        System.out = originalOut
+        System.err = originalErr
+    }
 }

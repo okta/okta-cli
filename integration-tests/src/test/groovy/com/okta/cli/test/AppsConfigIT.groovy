@@ -27,9 +27,9 @@ import static org.hamcrest.Matchers.containsString
 class AppsConfigIT implements MockWebSupport {
 
     @Test
-    void listApps() {
+    void happyPath() {
         List<MockResponse> responses = [new MockResponse()
-                                            .setBody('{ "id": "test-app-id", "label": "test-app-name" }')
+                                            .setBody('{ "id": "test-app-id", "label": "test-app-name", "signOnMode": "OPENID_CONNECT" }')
                                             .setHeader("Content-Type", "application/json"),
                                         new MockResponse()
                                             .setBody('{ "client_id": "test-id", "client_secret": "test-secret" }')

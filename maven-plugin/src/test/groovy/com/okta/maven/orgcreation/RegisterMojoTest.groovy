@@ -15,6 +15,7 @@
  */
 package com.okta.maven.orgcreation
 
+import com.okta.cli.common.model.OrganizationResponse
 import com.okta.maven.orgcreation.service.DefaultMavenRegistrationService
 import org.codehaus.plexus.components.interactivity.Prompter
 import org.powermock.api.mockito.PowerMockito
@@ -26,6 +27,7 @@ import org.testng.annotations.Test
 
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.verify
+import static org.mockito.Mockito.when
 
 @PrepareForTest(RegisterMojo)
 class RegisterMojoTest {
@@ -47,8 +49,13 @@ class RegisterMojoTest {
         def lastName = "Coder"
         def email = "joe.coder@example.com"
         def company = "Example Co."
+        def orgResponse = new OrganizationResponse()
+                .setEmail(email)
+                .setOrgUrl("https://org.example.com")
+                .setId("test-id")
 
         PowerMockito.whenNew(DefaultMavenRegistrationService).withArguments(prompter, oktaPropsFile, demo, interactive).thenReturn(mavenRegistrationService)
+        when(mavenRegistrationService.register(firstName, lastName, email, company)).thenReturn(orgResponse)
 
         RegisterMojo mojo = new RegisterMojo()
         mojo.firstName = firstName
@@ -62,5 +69,6 @@ class RegisterMojoTest {
 
         mojo.execute()
         verify(mavenRegistrationService).register(firstName, lastName, email, company)
+        verify(mavenRegistrationService).verify("test-id", null)
     }
 }

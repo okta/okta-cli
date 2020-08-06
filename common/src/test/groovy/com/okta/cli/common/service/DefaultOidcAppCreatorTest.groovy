@@ -116,5 +116,6 @@ class DefaultOidcAppCreatorTest {
         verify(settingsClient).setResponseTypes([OAuthResponseType.CODE])
         verify(settingsClient).setGrantTypes([OAuthGrantType.AUTHORIZATION_CODE])
         verify(settingsClient).setApplicationType(OpenIdConnectApplicationType.WEB)
+        verify(settingsClient).put("post_logout_redirect_uris", ["http://localhost:8080/"])
     }
 }

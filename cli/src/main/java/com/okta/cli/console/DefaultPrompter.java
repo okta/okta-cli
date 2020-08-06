@@ -29,16 +29,13 @@ import java.util.stream.IntStream;
 
 public class DefaultPrompter implements Prompter, Closeable {
 
-    private final BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
+    private final BufferedReader consoleReader;
 
     private final ConsoleOutput out;
 
-    public DefaultPrompter() {
-        this(ConsoleOutput.create(false));
-    }
-
     public DefaultPrompter(ConsoleOutput consoleOutput) {
         this.out = consoleOutput;
+        this.consoleReader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
     }
 
     @Override

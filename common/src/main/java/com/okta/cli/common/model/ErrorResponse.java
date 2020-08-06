@@ -13,14 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.maven.orgcreation.service;
+package com.okta.cli.common.model;
 
-import com.okta.cli.common.model.OrganizationResponse;
-import org.apache.maven.plugin.MojoExecutionException;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
-public interface MavenRegistrationService {
+import java.io.Serializable;
+import java.util.List;
 
-    OrganizationResponse register(String firstName, String lastName, String email, String company) throws MojoExecutionException;
+@Data
+@Accessors(chain = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ErrorResponse implements Serializable {
 
-    void verify(String identifier, String code) throws MojoExecutionException;
+    private static final long serialVersionUID = 7803104338172953590L;
+
+    private String error;
+    private String message;
+    private List<String> causes;
+    private int status;
 }

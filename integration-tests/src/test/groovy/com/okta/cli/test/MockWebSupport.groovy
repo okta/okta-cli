@@ -15,7 +15,7 @@
  */
 package com.okta.cli.test
 
-
+import groovy.json.JsonOutput
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 
@@ -35,6 +35,20 @@ trait MockWebSupport {
         } finally {
             mockWebServer.close()
         }
+    }
+
+    MockResponse jsonRequest(String json, int status=200) {
+        return new MockResponse()
+                .setResponseCode(status)
+                .setBody(json)
+                .setHeader("Content-Type", "application/json")
+    }
+
+    MockResponse jsonRequest(Object obj, int status=200) {
+        return new MockResponse()
+                .setResponseCode(status)
+                .setBody(JsonOutput.toJson(obj))
+                .setHeader("Content-Type", "application/json")
     }
 
 }

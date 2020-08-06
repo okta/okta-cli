@@ -15,9 +15,12 @@
  */
 package com.okta.cli.common.service;
 
+import com.okta.cli.common.FactorVerificationException;
+import com.okta.cli.common.RestException;
 import com.okta.cli.common.config.MutablePropertySource;
 import com.okta.cli.common.model.OrganizationRequest;
 import com.okta.cli.common.model.OrganizationResponse;
+import com.okta.cli.common.model.RegistrationQuestions;
 import com.okta.cli.common.progressbar.ProgressBar;
 import com.okta.commons.configcheck.ConfigurationValidator;
 import com.okta.commons.lang.Strings;
@@ -29,10 +32,14 @@ import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public class DefaultSetupService implements SetupService {
 
@@ -73,31 +80,10 @@ public class DefaultSetupService implements SetupService {
     }
 
     @Override
-    public void configureEnvironment(
-            Supplier<OrganizationRequest> organizationRequestSupplier,
-            File oktaPropsFile,
-            MutablePropertySource propertySource,
-            String oidcAppName,
-            String groupClaimName,
-            String issuerUri,
-            String authorizationServerId,
-            boolean demo,
-            boolean interactive,
-            String... redirectUris) throws IOException, ClientConfigurationException {
-
-            // get current or sign up for new org
-            String orgUrl = createOktaOrg(organizationRequestSupplier, oktaPropsFile, demo, interactive);
-
-            // Create new Application
-            createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, issuerUri, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB, redirectUris);
-
-    }
-
-    @Override
-    public String createOktaOrg(Supplier<OrganizationRequest> organizationRequestSupplier,
-                                File oktaPropsFile,
-                                boolean demo,
-                                boolean interactive) throws IOException, ClientConfigurationException {
+    public OrganizationResponse createOktaOrg(RegistrationQuestions registrationQuestions,
+                                              File oktaPropsFile,
+                                              boolean demo,
+                                              boolean interactive) throws IOException, ClientConfigurationException {
 
 
         // check if okta client config exists?
@@ -105,31 +91,68 @@ public class DefaultSetupService implements SetupService {
 
         String orgUrl;
         try (ProgressBar progressBar = ProgressBar.create(interactive)) {
-            if (Strings.isEmpty(clientConfiguration.getBaseUrl())) {
 
-                // resolve the request (potentially prompt for input) before starting the progress bar
-                OrganizationRequest organizationRequest = organizationRequestSupplier.get();
-                progressBar.start("Creating new Okta Organization, this may take a minute:");
+            if (!Strings.isEmpty(clientConfiguration.getBaseUrl())) {
+                progressBar.info("An existing Okta Organization (" + clientConfiguration.getBaseUrl() + ") was found in "+ oktaPropsFile.getAbsolutePath());
 
+                if (!registrationQuestions.isOverwriteConfig()) {
+                    throw new ClientConfigurationException("User canceled");
+                }
+
+                Instant instant = Instant.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern( "uuuuMMdd'T'HHmm" ).withZone(ZoneId.of("UTC"));
+
+                File backupFile = new File(oktaPropsFile.getParent(), oktaPropsFile.getName() + "." + formatter.format(instant));
+                Files.copy(oktaPropsFile.toPath(), backupFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                progressBar.info("Configuration file backed: "+ backupFile.getAbsolutePath());
+            }
+
+            // resolve the request (potentially prompt for input) before starting the progress bar
+            OrganizationRequest organizationRequest = registrationQuestions.getOrganizationRequest();
+            progressBar.start("Creating new Okta Organization, this may take a minute:");
+
+            try {
                 OrganizationResponse newOrg = organizationCreator.createNewOrg(getApiBaseUrl(), organizationRequest);
                 orgUrl = newOrg.getOrgUrl();
 
                 progressBar.info("OrgUrl: " + orgUrl);
-                progressBar.info("Check your email address to verify your account.\n");
-
-                // write ~/.okta/okta.yaml
-                sdkConfigurationService.writeOktaYaml(orgUrl, newOrg.getApiToken(), oktaPropsFile);
-            } else {
-                if (demo) { // always prompt for user info in "demo mode", this info will not be used but it makes for a more realistic demo
-                    organizationRequestSupplier.get();
-                }
-
-                orgUrl = clientConfiguration.getBaseUrl();
-                progressBar.info("Current OrgUrl: " + clientConfiguration.getBaseUrl());
-
+                progressBar.info("An email has been sent to you with a verification code.");
+                return newOrg;
+            } catch (RestException e) {
+                throw new ClientConfigurationException("Failed to create Okta Organization. You can register " +
+                                                       "manually by going to https://developer.okta.com/signup");
             }
         }
-        return orgUrl;
+    }
+
+
+    @Override
+    public void verifyOktaOrg(String identifier, RegistrationQuestions registrationQuestions, File oktaPropsFile) throws IOException, ClientConfigurationException {
+
+        try (ProgressBar progressBar = ProgressBar.create(true)) {
+
+            progressBar.info("Check your email");
+
+            OrganizationResponse response = null;
+            while(response == null) {
+                try {
+                    // prompt for code
+                    String code = registrationQuestions.getVerificationCode();
+                    response = organizationCreator.verifyNewOrg(getApiBaseUrl(), identifier, code);
+                } catch (FactorVerificationException e) {
+                    progressBar.info("Invalid Passcode, try again.");
+                }
+            }
+            // TODO handle polling in case the org is not ready
+
+            sdkConfigurationService.writeOktaYaml(response.getOrgUrl(), response.getApiToken(), oktaPropsFile);
+
+            progressBar.info("New Okta Account created!");
+            progressBar.info("Your Okta Domain: "+ response.getOrgUrl());
+            progressBar.info("To set your password open this link:\n" + response.getUpdatePasswordUrl());
+
+            // TODO demo mode?
+        }
     }
 
     @Override

@@ -15,12 +15,31 @@
  */
 package com.okta.cli.test
 
+import com.okta.commons.lang.Classes
 import org.hamcrest.Description
 import org.hamcrest.Matcher
+import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
 import org.hamcrest.TypeSafeMatcher
 
+import java.nio.charset.StandardCharsets
+import java.nio.file.FileSystems
+import java.nio.file.FileVisitResult
+import java.nio.file.FileVisitor
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.PathMatcher
+import java.nio.file.Paths
+import java.nio.file.SimpleFileVisitor
+import java.nio.file.attribute.BasicFileAttributes
 import java.time.Duration
+import java.util.concurrent.Callable
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
+import java.util.stream.Collectors
 
 class CommandRunner {
 
@@ -64,9 +83,20 @@ class CommandRunner {
     }
 
     Result runCommandWithInput(List<String> input, String... args) {
+        String[] envVars = ["HOME=${homeDir}", "OKTA_CLI_BASE_URL=${regServiceUrl}"]
+
+        return (isIde()) // if intellij
+            ? runInIsolatedClassloader(envVars, args, input)
+            : runProcess(envVars, args, input)
+    }
+
+    static boolean isIde() {
+        return System.getProperty("java.class.path").contains("idea_rt.jar") && Classes.isAvailable("com.okta.cli.OktaCli")
+    }
+
+    Result runProcess(String[] envVars, String[] args, List<String> input) {
 
         String command = [getCli(homeDir), "-Duser.home=${homeDir}", "-Dokta.testing.disableHttpsCheck=true", args].flatten().join(" ")
-        String[] envVars = ["HOME=${homeDir}", "OKTA_CLI_BASE_URL=${regServiceUrl}"]
 
         def sout = new StringBuilder()
         def serr = new StringBuilder()
@@ -89,6 +119,66 @@ class CommandRunner {
         return new Result(process.exitValue(), command, envVars, sout.toString(), serr.toString(), workingDir, homeDir)
     }
 
+    Result runInIsolatedClassloader(String[] envVars, String[] args, List<String> input) {
+
+        RestoreEnvironmentVariables restoreEnvironmentVariables = new RestoreEnvironmentVariables()
+        restoreEnvironmentVariables.saveValues()
+        RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties()
+        restoreSystemProperties.saveValues()
+
+        envVars.each {
+            String[] parts = it.split("=")
+            RestoreEnvironmentVariables.setEnvironmentVariable(parts[0], parts[1])
+        }
+
+        System.setProperty("user.home", homeDir.absolutePath)
+
+        PrintStream originalOut = System.out
+        PrintStream originalErr = System.err
+        InputStream originalIn = System.in
+        ByteArrayOutputStream out = new ByteArrayOutputStream()
+        ByteArrayOutputStream err = new ByteArrayOutputStream()
+        ByteArrayInputStream testInput = new ByteArrayInputStream(input.join("\n").getBytes(StandardCharsets.UTF_8))
+
+        ExecutorService executorService = Executors.newFixedThreadPool(1)
+
+        int exitCode = -255
+
+        try {
+            System.out = new PrintStream(out)
+            System.err = new PrintStream(err)
+            System.in = testInput
+
+            Callable<Integer> callable = new Callable<Integer>() {
+                @Override
+                Integer call() throws Exception {
+                    // isolate the classpath so the static lookups of the User Home dir are reload
+                    URL[] classPath = Arrays.stream(System.getProperty("java.class.path").split(File.pathSeparator))
+                        .map { new File(it).toURI().toURL() }
+                        .collect(Collectors.toList())
+                    Thread.currentThread().setContextClassLoader(new URLClassLoader(classPath))
+
+                    return com.okta.cli.OktaCli.run(args)
+                }
+            }
+
+            Future<Integer> future = executorService.submit(callable)
+            exitCode = future.get(30, TimeUnit.SECONDS)
+            executorService.shutdown()
+
+        } catch(TimeoutException e) {
+            e.printStackTrace(originalErr)
+        } finally {
+            System.out = originalOut
+            System.err = originalErr
+            System.in = originalIn
+            restoreEnvironmentVariables.restoreOriginalVariables()
+            restoreSystemProperties.restoreOriginalVariables()
+        }
+
+        return new Result(exitCode, "OktaCli.run(${args})", envVars, out.toString(), err.toString(), workingDir, homeDir)
+    }
+
     protected void setupHomeDir(File homeDir) {
         if (initHomeDir != null) {
             initHomeDir.call(homeDir)
@@ -107,6 +197,29 @@ class CommandRunner {
 
         // setting the home directory is tricky, so fitler it into the command
         return cli.replaceAll("##user.home##", homeDir.absolutePath)
+    }
+
+    static File jarFile() {
+
+        Path startDir = Paths.get("../cli/target/")
+        String pattern = "okta-cli-*.jar"
+
+        final PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern)
+        List<File> matches = new ArrayList<>()
+
+        FileVisitor<Path> matcherVisitor = new SimpleFileVisitor<Path>() {
+            @Override
+            FileVisitResult visitFile(Path file, BasicFileAttributes attribs) {
+                if (matcher.matches(file.getFileName())) {
+                    matches.add(file.toFile())
+                }
+                return FileVisitResult.CONTINUE
+            }
+        };
+        Files.walkFileTree(startDir, matcherVisitor)
+        MatcherAssert.assertThat(matches, Matchers.hasSize(1))
+
+        return matches.get(0)
     }
 
     static class Result {

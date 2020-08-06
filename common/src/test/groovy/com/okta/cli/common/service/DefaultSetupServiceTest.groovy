@@ -15,9 +15,12 @@
  */
 package com.okta.cli.common.service
 
+import com.okta.cli.common.FactorVerificationException
 import com.okta.cli.common.config.MutablePropertySource
+import com.okta.cli.common.model.ErrorResponse
 import com.okta.cli.common.model.OrganizationRequest
 import com.okta.cli.common.model.OrganizationResponse
+import com.okta.cli.common.model.RegistrationQuestions
 import com.okta.sdk.client.Client
 import com.okta.sdk.client.ClientBuilder
 import com.okta.sdk.client.Clients
@@ -32,6 +35,7 @@ import org.testng.IObjectFactory
 import org.testng.annotations.ObjectFactory
 import org.testng.annotations.Test
 
+import java.time.Instant
 import java.util.function.Supplier
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -47,108 +51,66 @@ class DefaultSetupServiceTest {
     }
 
     @Test
-    void configEnvWithExistingOrg() {
-
-        Supplier<OrganizationRequest> organizationRequestSupplier = mock(Supplier)
-        OrganizationRequest request = mock(OrganizationRequest)
-        File oktaPropsFile = mock(File)
-        MutablePropertySource propertySource = mock(MutablePropertySource)
-        String oidcAppName = "test-app-name"
-        String groupClaimName = "group-claim"
-        String authorizationServerId = "test-auth-id"
-        boolean demo = false
-        boolean interactive = false
-        String orgUrl = "http://okta.example.com"
-
-        def originalSetupService = setupService()
-        def setupService = spy(originalSetupService)
-
-
-        ClientConfiguration clientConfiguration = mock(ClientConfiguration)
-
-        when(originalSetupService.sdkConfigurationService.loadUnvalidatedConfiguration()).thenReturn(clientConfiguration)
-        when(clientConfiguration.getBaseUrl()).thenReturn(orgUrl)
-        when(organizationRequestSupplier.get()).thenReturn(request)
-
-        // these methods are tested elsewhere in this class
-        doNothing().when(setupService).createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
-
-        setupService.configureEnvironment(organizationRequestSupplier,
-                                          oktaPropsFile,
-                                          propertySource,
-                                          oidcAppName,
-                                          groupClaimName,
-                                          null,
-                                          authorizationServerId,
-                                          demo,
-                                          interactive)
-
-        verify(setupService).createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
-    }
-
-    @Test
-    void configEnvNewOrg() {
-
-        Supplier<OrganizationRequest> organizationRequestSupplier = mock(Supplier)
-        OrganizationRequest request = mock(OrganizationRequest)
-        File oktaPropsFile = mock(File)
-        MutablePropertySource propertySource = mock(MutablePropertySource)
-        String oidcAppName = "test-app-name"
-        String groupClaimName = "group-claim"
-        String authorizationServerId = "test-auth-id"
-        boolean demo = false
-        boolean interactive = false
-        String orgUrl = "http://okta.example.com"
-
-        def originalSetupService = setupService()
-        def setupService = spy(originalSetupService)
-
-
-        ClientConfiguration clientConfiguration = mock(ClientConfiguration)
-
-        when(originalSetupService.sdkConfigurationService.loadUnvalidatedConfiguration()).thenReturn(clientConfiguration)
-        when(clientConfiguration.getBaseUrl()).thenReturn(null)
-        when(organizationRequestSupplier.get()).thenReturn(request)
-
-        // these methods are tested elsewhere in this class
-        doNothing().when(setupService).createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
-        doReturn(orgUrl).when(setupService).createOktaOrg(organizationRequestSupplier, oktaPropsFile, demo, interactive)
-
-        setupService.configureEnvironment(organizationRequestSupplier,
-                oktaPropsFile,
-                propertySource,
-                oidcAppName,
-                groupClaimName,
-                null,
-                authorizationServerId,
-                demo,
-                interactive)
-
-        verify(setupService).createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
-    }
-
-    @Test
     void createOktaOrg() {
 
         String newOrgUrl = "https://org.example.com"
-        String newOrgToken = "test-token"
 
         DefaultSetupService setupService = setupService()
 
-        Supplier<OrganizationRequest> organizationRequestSupplier = mock(Supplier)
         OrganizationRequest orgRequest = mock(OrganizationRequest)
+        RegistrationQuestions registrationQuestions = RegistrationQuestions.answers(true, orgRequest, null)
         File oktaPropsFile = mock(File)
         OrganizationResponse orgResponse = mock(OrganizationResponse)
-        when(organizationRequestSupplier.get()).thenReturn(orgRequest)
         when(setupService.organizationCreator.createNewOrg("https://start.okta.dev/", orgRequest)).thenReturn(orgResponse)
         when(orgResponse.getOrgUrl()).thenReturn(newOrgUrl)
-        when(orgResponse.getApiToken()).thenReturn(newOrgToken)
 
-        setupService.createOktaOrg(organizationRequestSupplier, oktaPropsFile, false, false)
+        setupService.createOktaOrg(registrationQuestions, oktaPropsFile, false, false)
 
-        verify(setupService.sdkConfigurationService).writeOktaYaml(newOrgUrl, newOrgToken, oktaPropsFile)
+        verify(setupService.organizationCreator).createNewOrg("https://start.okta.dev/", orgRequest)
     }
 
+    @Test
+    void verifyOktaOrg() {
+        String newOrgUrl = "https://org.example.com"
+
+        DefaultSetupService setupService = setupService()
+        RegistrationQuestions registrationQuestions = RegistrationQuestions.answers(true, null, "123456")
+
+        File oktaPropsFile = mock(File)
+        OrganizationResponse orgResponse = mock(OrganizationResponse)
+        when(setupService.organizationCreator.verifyNewOrg("https://start.okta.dev/", "test-id", "123456")).thenReturn(orgResponse)
+        when(orgResponse.getOrgUrl()).thenReturn(newOrgUrl)
+        when(orgResponse.getUpdatePasswordUrl()).thenReturn("https://reset.password")
+
+        setupService.verifyOktaOrg("test-id",  registrationQuestions, oktaPropsFile)
+
+        verify(setupService.organizationCreator).verifyNewOrg("https://start.okta.dev/", "test-id", "123456")
+    }
+
+    @Test
+    void verifyOktaOrg_invalidCode() {
+        String newOrgUrl = "https://org.example.com"
+
+        DefaultSetupService setupService = setupService()
+
+        File oktaPropsFile = mock(File)
+        OrganizationResponse orgResponse = mock(OrganizationResponse)
+        RegistrationQuestions registrationQuestions = mock(RegistrationQuestions)
+        when(registrationQuestions.getVerificationCode()).thenReturn("123456").thenReturn("654321")
+        when(setupService.organizationCreator.verifyNewOrg("https://start.okta.dev/", "test-id", "123456")).thenThrow(new FactorVerificationException(new ErrorResponse()
+                .setStatus(401)
+                .setError("test-error")
+                .setMessage("test-message")
+                .setCauses(["one", "two"])
+        , new Throwable("root-test-cause")))
+        when(setupService.organizationCreator.verifyNewOrg("https://start.okta.dev/", "test-id", "654321")).thenReturn(orgResponse)
+        when(orgResponse.getOrgUrl()).thenReturn(newOrgUrl)
+        when(orgResponse.getUpdatePasswordUrl()).thenReturn("https://reset.password")
+
+        setupService.verifyOktaOrg("test-id", registrationQuestions, oktaPropsFile)
+
+        verify(setupService.organizationCreator).verifyNewOrg("https://start.okta.dev/", "test-id", "123456")
+    }
 
     @Test
     void createOidcApplicationExistingClient() {

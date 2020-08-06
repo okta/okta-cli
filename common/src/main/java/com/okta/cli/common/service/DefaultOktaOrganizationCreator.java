@@ -15,9 +15,11 @@
  */
 package com.okta.cli.common.service;
 
-import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.CharStreams;
+import com.okta.cli.common.FactorVerificationException;
+import com.okta.cli.common.RestException;
+import com.okta.cli.common.model.ErrorResponse;
 import com.okta.cli.common.model.OrganizationRequest;
 import com.okta.cli.common.model.OrganizationResponse;
 import com.okta.commons.lang.ApplicationInfo;
@@ -33,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
@@ -46,16 +47,37 @@ public class DefaultOktaOrganizationCreator implements OktaOrganizationCreator {
             .map(e -> e.getKey() + "/" + e.getValue())
             .collect(Collectors.joining(" "));
 
+    ObjectMapper objectMapper = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+
     @Override
-    public OrganizationResponse createNewOrg(String apiBaseUrl, OrganizationRequest orgRequest) throws IOException {
+    public OrganizationResponse createNewOrg(String apiBaseUrl, OrganizationRequest orgRequest) throws RestException, IOException {
+
+        String url = apiBaseUrl + "/create";
+        String postBody = objectMapper.writeValueAsString(orgRequest);
+        return post(url, postBody, OrganizationResponse.class);
+    }
+
+    @Override
+    public OrganizationResponse verifyNewOrg(String apiBaseUrl, String identifier, String code) throws FactorVerificationException, IOException {
+
+        String url = apiBaseUrl + "/verify/" + identifier;
+        String postBody = "{\"code\":\"" + code + "\"}";
+
+        try {
+            return post(url, postBody, OrganizationResponse.class);
+        } catch (RestException e) {
+            throw new FactorVerificationException(e.getErrorResponse(), e);
+        }
+    }
+
+    private <T> T post(String url, String body, Class<T> responseType) throws RestException, IOException {
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpPost post = new HttpPost(apiBaseUrl + "/create");
+            HttpPost post = new HttpPost(url);
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            String postBody = objectMapper.writeValueAsString(orgRequest);
-
-            post.setEntity(new StringEntity(postBody, StandardCharsets.UTF_8));
+            post.setEntity(new StringEntity(body, StandardCharsets.UTF_8));
             post.setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
             post.setHeader(HttpHeaders.ACCEPT, APPLICATION_JSON);
             post.setHeader(HttpHeaders.USER_AGENT, USER_AGENT_STRING);
@@ -68,8 +90,15 @@ public class DefaultOktaOrganizationCreator implements OktaOrganizationCreator {
             }
 
             InputStream content = response.getEntity().getContent();
-            String body = CharStreams.toString(new InputStreamReader(content, StandardCharsets.UTF_8)); // use input stream directly
-            return objectMapper.reader().readValue(new JsonFactory().createParser(body), OrganizationResponse.class);
+
+            // check for error
+            if (response.getStatusLine().getStatusCode() == 200) {
+                return objectMapper.reader().readValue(content, responseType);
+            } else {
+                // assume error
+                ErrorResponse error = objectMapper.reader().readValue(content, ErrorResponse.class);
+                throw new RestException(error);
+            }
         }
     }
 }

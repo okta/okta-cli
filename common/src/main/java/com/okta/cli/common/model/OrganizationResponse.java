@@ -15,53 +15,18 @@
  */
 package com.okta.cli.common.model;
 
-import java.util.Objects;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
+@Data
+@Accessors(chain = true)
 public class OrganizationResponse {
 
+    private String id;
     private String orgUrl;
     private String email;
     private String apiToken;
+    private String factorId;
+    private String updatePasswordUrl;
 
-    public String getOrgUrl() {
-        return orgUrl;
-    }
-
-    public OrganizationResponse setOrgUrl(String orgUrl) {
-        this.orgUrl = orgUrl;
-        return this;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public OrganizationResponse setEmail(String email) {
-        this.email = email;
-        return this;
-    }
-
-    public String getApiToken() {
-        return apiToken;
-    }
-
-    public OrganizationResponse setApiToken(String apiToken) {
-        this.apiToken = apiToken;
-        return this;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        OrganizationResponse that = (OrganizationResponse) o;
-        return Objects.equals(orgUrl, that.orgUrl) &&
-               Objects.equals(email, that.email) &&
-               Objects.equals(apiToken, that.apiToken);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(orgUrl, email, apiToken);
-    }
 }
