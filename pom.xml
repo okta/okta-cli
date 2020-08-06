@@ -26,7 +26,7 @@
 
     <groupId>com.okta.cli</groupId>
     <artifactId>okta-cli-tools</artifactId>
-    <version>0.4.0-SNAPSHOT</version>
+    <version>0.4.0</version>
     <packaging>pom</packaging>
 
     <name>Okta CLI Tools</name>
@@ -75,25 +75,25 @@
             <dependency>
                 <groupId>com.okta.cli</groupId>
                 <artifactId>okta-cli-common</artifactId>
-                <version>0.4.0-SNAPSHOT</version>
+                <version>0.4.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.okta.cli</groupId>
                 <artifactId>okta-cli</artifactId>
-                <version>0.4.0-SNAPSHOT</version>
+                <version>0.4.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.okta.cli</groupId>
                 <artifactId>okta-cli-its</artifactId>
-                <version>0.4.0-SNAPSHOT</version>
+                <version>0.4.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.okta</groupId>
                 <artifactId>okta-maven-plugin</artifactId>
-                <version>0.4.0-SNAPSHOT</version>
+                <version>0.4.0</version>
             </dependency>
 
             <dependency>
@@ -272,4 +272,8 @@
             </build>
         </profile>
     </profiles>
+
+  <scm>
+    <tag>okta-cli-tools-0.4.0</tag>
+  </scm>
 </project>
