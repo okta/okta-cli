@@ -19,20 +19,16 @@ import org.testng.Assert
 import org.testng.annotations.Listeners
 import org.testng.annotations.Test
 
-import java.rmi.StubNotFoundException
-
 import static org.hamcrest.Matchers.nullValue
-import static org.mockito.Mockito.doThrow
 import static org.mockito.Mockito.mock
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.equalTo
 import static org.mockito.Mockito.verify
-import static org.mockito.Mockito.when
 
 @Listeners(RestoreSystemInOut)
 class DefaultPrompterTest {
 
-    @Test(timeOut = 1000l)
+    @Test(timeOut = 2000l)
     void basicPrompter() {
 
         ConsoleOutput out = mock(ConsoleOutput)
@@ -45,7 +41,7 @@ class DefaultPrompterTest {
         verify(out).write("hello: ")
     }
 
-    @Test(timeOut = 1000l)
+    @Test(timeOut = 2000l)
     void nullResult() {
 
         ConsoleOutput out = mock(ConsoleOutput)
@@ -57,7 +53,7 @@ class DefaultPrompterTest {
         assertThat(result, nullValue())
     }
 
-    @Test(timeOut = 1000l)
+    @Test(timeOut = 2000l)
     void promptWithOptions_noDefault() {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
@@ -77,7 +73,7 @@ class DefaultPrompterTest {
         assertThat(outputStream.toString(), equalTo(expectedOutput))
     }
 
-    @Test(timeOut = 1000l)
+    @Test(timeOut = 2000l)
     void promptWithOptions_withDefault() {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
@@ -99,7 +95,7 @@ class DefaultPrompterTest {
         assertThat(outputStream.toString(), equalTo(expectedOutput))
     }
 
-    @Test//(timeOut = 1000l)
+    @Test//(timeOut = 2000l)
     void promptWithOptions_invalidSelection() {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
@@ -127,7 +123,7 @@ class DefaultPrompterTest {
         assertThat(outputStream.toString(), equalTo(expectedOutput))
     }
 
-    @Test(timeOut = 1000l)
+    @Test(timeOut = 2000l)
     void failToReadLine() {
         ConsoleOutput out = mock(ConsoleOutput)
         System.in = mock(InputStream)
