@@ -41,4 +41,17 @@
         <!-- generated help mojo class -->
     </Match>
 
+    <Match>
+        <!-- This method is used to protect against this issue -->
+        <Class name="com.okta.cli.common.service.FileUtils"/>
+        <Method name="ensureRelative"/>
+        <Bug pattern="PATH_TRAVERSAL_IN"/>
+    </Match>
+
+    <Match>
+        <!-- TODO: This logic will likely move to a server request -->
+        <Class name="com.okta.cli.common.service.TarballExtractor"/>
+        <Bug pattern="HTTP_PARAMETER_POLLUTION"/>
+    </Match>
+
 </FindBugsFilter>

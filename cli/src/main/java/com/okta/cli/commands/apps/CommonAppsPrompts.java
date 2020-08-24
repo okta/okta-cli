@@ -26,13 +26,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-final class CommonAppsPrompts {
+public final class CommonAppsPrompts {
 
     private static final String DEFAULT_ISSUER_NAME = "default";
 
     private CommonAppsPrompts() {}
 
-    static AuthorizationServer getIssuer(Client client, Prompter prompter, String authorizationServerId) {
+    public static AuthorizationServer getIssuer(Client client, Prompter prompter, String authorizationServerId) {
         Map<String, AuthorizationServer> asMap = new DefaultAuthorizationServerService().authorizationServersMap(client);
 
         if (!Strings.isEmpty(authorizationServerId)) {

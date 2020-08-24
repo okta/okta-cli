@@ -1,0 +1,57 @@
+/*
+ * Copyright 2020-Present Okta, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.okta.cli.common.model;
+
+import com.okta.cli.common.config.MutablePropertySource;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+public class FilterConfigBuilder {
+
+    private static final String CLI_OKTA_ISSUER = "CLI_OKTA_ISSUER";
+    private static final String CLI_OKTA_CLIENT_ID = "CLI_OKTA_CLIENT_ID";
+    private static final String CLI_OKTA_CLIENT_SECRET = "CLI_OKTA_CLIENT_SECRET";
+
+    private final Map<String, String> filterValues = new HashMap<>();
+
+    public FilterConfigBuilder setClientId(String clientId) {
+        filterValues.put(CLI_OKTA_CLIENT_ID, clientId);
+        return this;
+    }
+
+    public FilterConfigBuilder setClientSecret(String clientSecret) {
+        filterValues.put(CLI_OKTA_CLIENT_SECRET, clientSecret);
+        return this;
+    }
+
+    public FilterConfigBuilder setIssuer(String issuer) {
+        filterValues.put(CLI_OKTA_ISSUER, issuer);
+        return this;
+    }
+
+    // TODO: this is a bit ugly...
+    public FilterConfigBuilder fromPropertySource(MutablePropertySource propertySource) {
+        return this.setIssuer(propertySource.getProperty("okta.oauth2.issuer"))
+                .setClientId(propertySource.getProperty("okta.oauth2.client-id"))
+                .setClientSecret(propertySource.getProperty("okta.oauth2.client-secret"));
+    }
+
+    public Map<String, String> build() {
+        return Collections.unmodifiableMap(filterValues);
+    }
+}
