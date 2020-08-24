@@ -38,6 +38,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -164,7 +165,7 @@ public class DefaultSetupService implements SetupService {
                                       String authorizationServerId,
                                       boolean interactive,
                                       OpenIdConnectApplicationType appType,
-                                      String... redirectUris) throws IOException {
+                                      List<String> redirectUris) throws IOException {
 
         // Create new Application
         String clientId = propertySource.getProperty(getClientIdPropertyName());
