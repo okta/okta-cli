@@ -21,12 +21,10 @@ import com.okta.cli.common.model.OrganizationResponse;
 import com.okta.cli.common.model.RegistrationQuestions;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.common.service.SetupService;
-import com.okta.cli.console.PromptOption;
 import com.okta.cli.console.Prompter;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-import java.util.List;
 import java.util.concurrent.Callable;
 
 @Command(name = "register",
@@ -83,9 +81,7 @@ public class Register implements Callable<Integer> {
 
         @Override
         public boolean isOverwriteConfig() {
-            PromptOption<Boolean> yes = PromptOption.of("Yes", Boolean.TRUE);
-            PromptOption<Boolean> no = PromptOption.of("No", Boolean.FALSE);
-            return prompter.promptIfEmpty(null, "Overwrite configuration file?", List.of(yes, no), yes);
+            return prompter.promptYesNo("Overwrite configuration file?");
         }
 
         @Override

@@ -24,6 +24,11 @@ public class DisabledPrompter implements Prompter {
     }
 
     @Override
+    public boolean promptYesNo(String message, boolean defaultYes) {
+        throw fail(message);
+    }
+
+    @Override
     public <T> T prompt(String message, List<PromptOption<T>> promptOptions, PromptOption<T> defaultChoice) {
         throw fail(message);
     }
