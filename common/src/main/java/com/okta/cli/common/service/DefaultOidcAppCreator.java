@@ -37,7 +37,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class DefaultOidcAppCreator implements OidcAppCreator {
+class DefaultOidcAppCreator implements OidcAppCreator {
 
     @Override
     public ExtensibleResource createOidcApp(Client client, String oidcAppName, String... redirectUris) {

@@ -27,6 +27,7 @@ import com.okta.cli.common.service.DefaultSampleConfigParser;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.common.service.FileUtils;
 import com.okta.cli.common.service.TarballExtractor;
+import com.okta.cli.console.ConsoleOutput;
 import com.okta.commons.lang.Strings;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
@@ -52,8 +53,14 @@ public class Start implements Callable<Integer> {
     @CommandLine.Option(names = {"--branch", "-b"}, description = "GitHub branch to use", hidden = true, defaultValue = "wip")
     private String branchName;
 
+    @CommandLine.Spec
+    private CommandLine.Model.CommandSpec spec;
+
     @Override
     public Integer call() throws Exception {
+
+        // registration is required, walk through the registration flow if needed
+        Register.requireRegistration(standardOptions);
 
         File projectDirectory = new File(".").getCanonicalFile();
 
@@ -92,7 +99,7 @@ public class Start implements Callable<Integer> {
                 null,
                 authorizationServer.getIssuer(),
                 authorizationServer.getId(),
-                false,
+                true,
                 OpenIdConnectApplicationType.valueOf(config.getOAuthClient().getApplicationType().toUpperCase(Locale.ENGLISH)), // TODO default to SPA
                 config.getOAuthClient().getRedirectUris().toArray(new String[0])
         );
@@ -105,6 +112,14 @@ public class Start implements Callable<Integer> {
         // verify config file input is relative to current directory (avoid ../.. path traversal)
         File configFile = FileUtils.ensureRelative(projectDirectory, config.getAppConfig());
         new DefaultInterpolator().interpolate(configFile, context);
+
+        ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
+        out.writeLine("Application configuration written to: "+ config.getAppConfig() + "\n");
+
+        // provide instructions to user
+        if (!Strings.isEmpty(config.getDirections())) {
+            out.writeLine(config.getDirections());
+        }
 
         return 0;
     }

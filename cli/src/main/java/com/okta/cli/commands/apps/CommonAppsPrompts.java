@@ -50,10 +50,10 @@ public final class CommonAppsPrompts {
             return asMap.get(DEFAULT_ISSUER_NAME);
         } else {
             List<PromptOption<AuthorizationServer>> issuerOptions = asMap.values().stream()
-                    .map(it -> PromptOption.of(it.getIssuer(), it))
+                    .map(it -> PromptOption.of(it.getName() + " - " + it.getIssuer(), it))
                     .collect(Collectors.toList());
 
-            return prompter.prompt("Issuer:", issuerOptions, issuerOptions.get(0));
+            return prompter.prompt("Your Okta Organization has multiple Authorization Servers (Issuer), please select one:", issuerOptions, issuerOptions.get(0));
         }
     }
 }

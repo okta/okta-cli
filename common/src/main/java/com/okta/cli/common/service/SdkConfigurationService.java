@@ -22,6 +22,8 @@ import java.io.IOException;
 
 public interface SdkConfigurationService {
 
+    boolean isConfigured() throws ClientConfigurationException;
+
     ClientConfiguration loadUnvalidatedConfiguration() throws ClientConfigurationException;
 
     void writeOktaYaml(String orgUrl, String apiToken, File oktaPropsFile) throws IOException;

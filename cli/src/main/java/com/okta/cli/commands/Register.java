@@ -19,8 +19,10 @@ import com.okta.cli.OktaCli;
 import com.okta.cli.common.model.OrganizationRequest;
 import com.okta.cli.common.model.OrganizationResponse;
 import com.okta.cli.common.model.RegistrationQuestions;
+import com.okta.cli.common.service.DefaultSdkConfigurationService;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.common.service.SetupService;
+import com.okta.cli.console.ConsoleOutput;
 import com.okta.cli.console.PromptOption;
 import com.okta.cli.console.Prompter;
 import picocli.CommandLine;
@@ -47,6 +49,21 @@ public class Register implements Callable<Integer> {
 
     @CommandLine.Option(names = "--company", description = "Company / organization used when registering a new Okta account")
     protected String company;
+
+    public Register() {}
+
+    private Register(OktaCli.StandardOptions standardOptions) {
+        this.standardOptions = standardOptions;
+    }
+
+    public static void requireRegistration(OktaCli.StandardOptions standardOptions) throws Exception {
+        if (!new DefaultSdkConfigurationService().isConfigured()) {
+            ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
+            out.writeLine("Registering for a new Okta account, if you would like to use an existing account, use 'okta login' instead.\n");
+            new Register(standardOptions).call();
+            out.writeLine("");
+        }
+    }
 
     protected CliRegistrationQuestions registrationQuestions() {
         return new CliRegistrationQuestions();

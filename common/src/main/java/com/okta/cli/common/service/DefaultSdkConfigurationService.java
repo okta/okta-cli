@@ -15,6 +15,7 @@
  */
 package com.okta.cli.common.service;
 
+import com.okta.commons.lang.Strings;
 import com.okta.sdk.impl.client.DefaultClientBuilder;
 import com.okta.sdk.impl.config.ClientConfiguration;
 import org.yaml.snakeyaml.Yaml;
@@ -33,6 +34,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DefaultSdkConfigurationService implements SdkConfigurationService {
+
+    @Override
+    public boolean isConfigured() throws ClientConfigurationException {
+
+        ClientConfiguration config = loadUnvalidatedConfiguration();
+
+        return !Strings.isEmpty(config.getApiToken())
+            && !Strings.isEmpty(config.getBaseUrl());
+    }
 
     @Override
     public ClientConfiguration loadUnvalidatedConfiguration() throws ClientConfigurationException {

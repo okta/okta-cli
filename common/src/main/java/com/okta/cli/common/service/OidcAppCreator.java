@@ -18,7 +18,7 @@ package com.okta.cli.common.service;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.resource.ExtensibleResource;
 
-public interface OidcAppCreator {
+interface OidcAppCreator {
 
     ExtensibleResource createOidcApp(Client client, String oidcAppName, String... redirectUris);
 

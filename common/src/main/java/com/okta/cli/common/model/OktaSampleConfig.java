@@ -30,6 +30,7 @@ public class OktaSampleConfig {
     private OAuthClient oauthClient;
     private String appConfig;
     private String command;
+    private String directions;
 
     public OAuthClient getOAuthClient() {
         return oauthClient;

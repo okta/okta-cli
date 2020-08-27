@@ -31,7 +31,7 @@ public interface ProgressBar extends AutoCloseable {
         if (interactive) {
             return new ConsoleProgressBar();
         } else {
-            return new LoggerProgressBar();
+            return new NonInteractiveProgressBar();
         }
     }
 }
