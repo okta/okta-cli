@@ -84,6 +84,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.graalvm.nativeimage</groupId>
+            <artifactId>svm</artifactId>
+            <version>20.2.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.google.auto.service</groupId>
             <artifactId>auto-service</artifactId>
             <version>1.0-rc6</version>
