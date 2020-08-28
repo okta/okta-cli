@@ -28,6 +28,7 @@ import java.lang.reflect.Constructor;
  *
  * TODO: Next time we update GraalVM attempt to remove this class
  */
+@SuppressWarnings("PMD")
 @TargetClass(classNameProvider = Package_jdk_internal_reflect.class, className = "ReflectionFactory")
 public final class Target_jdk_internal_reflect_ReflectionFactory {
 
