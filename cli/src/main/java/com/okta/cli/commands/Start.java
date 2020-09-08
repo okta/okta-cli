@@ -25,7 +25,6 @@ import com.okta.cli.common.model.OktaSampleConfig;
 import com.okta.cli.common.service.DefaultInterpolator;
 import com.okta.cli.common.service.DefaultSampleConfigParser;
 import com.okta.cli.common.service.DefaultSetupService;
-import com.okta.cli.common.service.FileUtils;
 import com.okta.cli.common.service.TarballExtractor;
 import com.okta.cli.console.ConsoleOutput;
 import com.okta.commons.lang.Strings;
@@ -45,6 +44,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
+
+import static com.okta.cli.common.service.SampleConfigParser.SAMPLE_CONFIG_PATH;
 
 @CommandLine.Command(name = "start",
                      description = "Creates an Okta Sample Application")
@@ -82,10 +83,7 @@ public class Start implements Callable<Integer> {
             } catch (IOException e) {
                 throw new CliFailureException("Failed to extract tarball from URL: " + url, e);
             }
-
-        // check for `.okta.yaml` file
-        // TODO - make this constant or config
-        } else if (new File(".okta/.okta.yaml").exists()) {
+        } else if (new File(SAMPLE_CONFIG_PATH).exists()) {
             appName = projectDirectory.getName();
 
         // TODO default operation?
@@ -121,7 +119,6 @@ public class Start implements Callable<Integer> {
         Files.walkFileTree(Paths.get("./"), new SampleFileVisitor(context));
 
         ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
-        out.writeLine("Application configuration written to: "+ config.getAppConfig() + "\n");
 
         // provide instructions to user
         if (!Strings.isEmpty(config.getDirections())) {
