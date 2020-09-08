@@ -85,7 +85,7 @@ public class Start implements Callable<Integer> {
 
         // check for `.okta.yaml` file
         // TODO - make this constant or config
-        } else if (new File(".okta.yaml").exists()) {
+        } else if (new File(".okta/.okta.yaml").exists()) {
             appName = projectDirectory.getName();
 
         // TODO default operation?
