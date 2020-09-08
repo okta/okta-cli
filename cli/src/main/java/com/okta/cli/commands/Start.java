@@ -36,6 +36,12 @@ import picocli.CommandLine;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -68,6 +74,7 @@ public class Start implements Callable<Integer> {
         // sampleName defined, unzip tarball
         if (!Strings.isEmpty(sampleName)) {
             appName = "okta-" + sampleName + "-sample";
+            // TODO - make this constant or config
             String url = "https://github.com/okta-samples/" + appName + "/tarball/" + branchName;
             try {
                 // extract the remote zip
@@ -77,6 +84,7 @@ public class Start implements Callable<Integer> {
             }
 
         // check for `.okta.yaml` file
+        // TODO - make this constant or config
         } else if (new File(".okta.yaml").exists()) {
             appName = projectDirectory.getName();
 
@@ -109,9 +117,8 @@ public class Start implements Callable<Integer> {
                 .fromPropertySource(propertySource)
                 .build();
 
-        // verify config file input is relative to current directory (avoid ../.. path traversal)
-        File configFile = FileUtils.ensureRelative(projectDirectory, config.getAppConfig());
-        new DefaultInterpolator().interpolate(configFile, context);
+        // walk directory structure, ignore .okta
+        Files.walkFileTree(Paths.get("./"), new SampleFileVisitor(context));
 
         ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
         out.writeLine("Application configuration written to: "+ config.getAppConfig() + "\n");
@@ -122,5 +129,35 @@ public class Start implements Callable<Integer> {
         }
 
         return 0;
+    }
+
+    static class SampleFileVisitor extends SimpleFileVisitor<Path> {
+
+        private Map<String, String> context;
+
+        public SampleFileVisitor(Map<String, String> context) {
+            this.context = context;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path path, BasicFileAttributes attr) throws IOException {
+            if (!attr.isRegularFile()) {
+                return FileVisitResult.CONTINUE;
+            }
+
+            new DefaultInterpolator().interpolate(path, context);
+
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attr) {
+            // TODO - make this a constant or project var
+            if (".okta".equals(dir.getFileName().toString())) {
+                return FileVisitResult.SKIP_SUBTREE;
+            }
+
+            return FileVisitResult.CONTINUE;
+        }
     }
 }
