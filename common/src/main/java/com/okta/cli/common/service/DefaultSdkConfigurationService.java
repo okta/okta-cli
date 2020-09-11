@@ -89,6 +89,11 @@ public class DefaultSdkConfigurationService implements SdkConfigurationService {
         }
 
         // ensure only the current user has access to this file, for systems with permissive umasks
+        Files.setPosixFilePermissions(parentDir.toPath(), Set.of(
+                PosixFilePermission.OWNER_READ,
+                PosixFilePermission.OWNER_WRITE,
+                PosixFilePermission.OWNER_EXECUTE));
+
         Files.setPosixFilePermissions(oktaPropsFile.toPath(), Set.of(
                 PosixFilePermission.OWNER_READ,
                 PosixFilePermission.OWNER_WRITE));

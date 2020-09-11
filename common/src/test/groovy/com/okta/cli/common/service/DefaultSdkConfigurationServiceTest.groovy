@@ -20,6 +20,9 @@ import com.okta.sdk.impl.client.DefaultClientBuilder
 import com.okta.sdk.impl.config.ClientConfiguration
 import org.testng.annotations.Test
 
+import java.nio.file.Files
+import java.nio.file.attribute.PosixFilePermission
+
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.is
 import static org.hamcrest.io.FileMatchers.anExistingFile
@@ -51,6 +54,13 @@ class DefaultSdkConfigurationServiceTest {
                     client: [
                         orgUrl: "https://okta.example.com",
                         token: "an-api-token"]]])
+
+        assertThat Files.getPosixFilePermissions(configFile.toPath()), is([PosixFilePermission.OWNER_READ,
+                                                                           PosixFilePermission.OWNER_WRITE] as Set)
+        assertThat Files.getPosixFilePermissions(configFile.getParentFile().toPath()), is([
+                                                                                        PosixFilePermission.OWNER_READ,
+                                                                                        PosixFilePermission.OWNER_WRITE,
+                                                                                        PosixFilePermission.OWNER_EXECUTE] as Set)
     }
 
     private static DefaultSdkConfigurationService configurationService(ClientConfiguration clientConfig) {
