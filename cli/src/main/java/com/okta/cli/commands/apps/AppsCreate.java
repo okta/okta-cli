@@ -101,7 +101,7 @@ public class AppsCreate implements Callable<Integer> {
 
         WebAppTemplate appTemplate = prompter.promptIfEmpty(webAppTemplate, "Type of Application", Arrays.asList(WebAppTemplate.values()), WebAppTemplate.GENERIC);
 
-        String redirectUri = getRedirectUri(Map.of("Spring Security", "http://localhost:8080/login/oauth2/code/okta",
+        List<String> redirectUris = getRedirectUris(Map.of("Spring Security", "http://localhost:8080/login/oauth2/code/okta",
                                                    "JHipster", "http://localhost:8080/login/oauth2/code/oidc"),
                                             appTemplate.getDefaultRedirectUri());
 
@@ -111,7 +111,7 @@ public class AppsCreate implements Callable<Integer> {
         String groupClaimName = appTemplate.getGroupsClaim();
 
         MutablePropertySource propertySource = appCreationMixin.getPropertySource(appTemplate.getDefaultConfigFileName());
-        new DefaultSetupService(appTemplate.getSpringPropertyKey()).createOidcApplication(propertySource, appName, baseUrl, groupClaimName, issuer.getIssuer(), issuer.getId(), true, OpenIdConnectApplicationType.WEB, redirectUri);
+        new DefaultSetupService(appTemplate.getSpringPropertyKey()).createOidcApplication(propertySource, appName, baseUrl, groupClaimName, issuer.getIssuer(), issuer.getId(), true, OpenIdConnectApplicationType.WEB, redirectUris);
 
         out.writeLine("Okta application configuration has been written to: " + propertySource.getName());
 
@@ -129,12 +129,12 @@ public class AppsCreate implements Callable<Integer> {
                 .collect(Collectors.joining("."));
 
         String defaultRedirectUri = reverseDomain + ":/callback";
-        String redirectUri = getRedirectUri(Map.of("Reverse Domain name", "com.example:/callback"), defaultRedirectUri);
+        List<String> redirectUris = getRedirectUris(Map.of("Reverse Domain name", "com.example:/callback"), defaultRedirectUri);
         Client client = Clients.builder().build();
         AuthorizationServer issuer = getIssuer(client);
 
         MutablePropertySource propertySource = new MapPropertySource();
-        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, issuer.getIssuer(), issuer.getId(), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.NATIVE, redirectUri);
+        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, issuer.getIssuer(), issuer.getId(), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.NATIVE, redirectUris);
 
         out.writeLine("Okta application configuration: ");
         propertySource.getProperties().forEach((key, value) -> {
@@ -170,12 +170,12 @@ public class AppsCreate implements Callable<Integer> {
         ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
 
         String baseUrl = getBaseUrl();
-        String redirectUri = getRedirectUri(Map.of("/callback", "http://localhost:8080/callback"), SpaAppTemplate.GENERIC.getDefaultRedirectUri());
+        List<String> redirectUris = getRedirectUris(Map.of("/callback", "http://localhost:8080/callback"), SpaAppTemplate.GENERIC.getDefaultRedirectUri());
         Client client = Clients.builder().build();
         AuthorizationServer authorizationServer = getIssuer(client);
 
         MutablePropertySource propertySource = new MapPropertySource();
-        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, authorizationServer.getIssuer(), authorizationServer.getId(), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.BROWSER, redirectUri);
+        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, authorizationServer.getIssuer(), authorizationServer.getId(), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.BROWSER, redirectUris);
 
         out.writeLine("Okta application configuration: ");
         out.bold("Issuer:    ");
@@ -204,16 +204,23 @@ public class AppsCreate implements Callable<Integer> {
         }
     }
 
-    private String getRedirectUri(Map<String, String> commonExamples, String defaultRedirectUri) {
+    private List<String> getRedirectUris(Map<String, String> commonExamples, String defaultRedirectUri) {
         Prompter prompter = standardOptions.getEnvironment().prompter();
 
         StringBuilder redirectUriPrompt = new StringBuilder("Redirect URI\nCommon defaults:\n");
         commonExamples.forEach((key, value) -> {
                 redirectUriPrompt.append(" ").append(key).append(" - ").append(value).append("\n");
         });
-       redirectUriPrompt.append("Enter your Redirect URI");
+        redirectUriPrompt.append("Enter your Redirect URI");
 
-        return prompter.promptIfEmpty(appCreationMixin.redirectUri, redirectUriPrompt.toString(), defaultRedirectUri);
+        String result = prompter.promptIfEmpty(appCreationMixin.redirectUri, redirectUriPrompt.toString(), defaultRedirectUri).trim();
+        result = result.replaceFirst("^\\[", "");
+        result = result.replaceFirst("]$", "");
+
+        return Arrays.stream(result.split(","))
+                .map(String::trim)
+                .filter(it -> !it.isEmpty())
+                .collect(Collectors.toList());
     }
 
     /**

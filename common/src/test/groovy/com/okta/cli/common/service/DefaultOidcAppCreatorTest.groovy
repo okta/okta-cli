@@ -52,7 +52,7 @@ class DefaultOidcAppCreatorTest {
         when(client.http()).thenReturn(http)
         when(http.get("/api/v1/internal/apps/${appId}/settings/clientcreds", ExtensibleResource)).thenReturn(response)
 
-        ExtensibleResource result = appCreator.createOidcApp(client, appName)
+        ExtensibleResource result = appCreator.createOidcApp(client, appName, [])
 
         assertThat result, is(response)
     }
@@ -107,7 +107,7 @@ class DefaultOidcAppCreatorTest {
         when(client.http()).thenReturn(http)
         when(http.get("/api/v1/internal/apps/${appId}/settings/clientcreds", ExtensibleResource)).thenReturn(response)
 
-        ExtensibleResource result = appCreator.createOidcApp(client, appName, "http://localhost:8080/callback", "http://localhost:8080/login/oauth2/code/okta")
+        ExtensibleResource result = appCreator.createOidcApp(client, appName, ["http://localhost:8080/callback", "http://localhost:8080/login/oauth2/code/okta"])
 
         assertThat result, is(response)
 

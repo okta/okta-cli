@@ -37,8 +37,8 @@
     </Match>
 
     <Match>
-        <Class name="com.okta.maven.orgcreation.HelpMojo"/>
-        <!-- generated help mojo class -->
+        <Class name="com.okta.cli.graalvm.Target_jdk_internal_reflect_ReflectionFactory"/>
+        <!-- ignore all, these are special Graal build time advice -->
     </Match>
 
     <Match>

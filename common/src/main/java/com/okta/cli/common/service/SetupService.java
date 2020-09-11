@@ -22,6 +22,8 @@ import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public interface SetupService {
 
@@ -34,6 +36,18 @@ public interface SetupService {
                        RegistrationQuestions registrationQuestions,
                        File oktaPropsFile) throws IOException, ClientConfigurationException;
 
+    default void createOidcApplication(MutablePropertySource propertySource,
+                               String oidcAppName,
+                               String orgUrl,
+                               String groupClaimName,
+                               String issuerUri,
+                               String authorizationServerId,
+                               boolean interactive,
+                               OpenIdConnectApplicationType appType,
+                               String... redirectUris) throws IOException {
+        createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, issuerUri, authorizationServerId, interactive, appType, Arrays.asList(redirectUris));
+    }
+
     void createOidcApplication(MutablePropertySource propertySource,
                                String oidcAppName,
                                String orgUrl,
@@ -42,5 +56,5 @@ public interface SetupService {
                                String authorizationServerId,
                                boolean interactive,
                                OpenIdConnectApplicationType appType,
-                               String... redirectUris) throws IOException;
+                               List<String> redirectUris) throws IOException;
 }

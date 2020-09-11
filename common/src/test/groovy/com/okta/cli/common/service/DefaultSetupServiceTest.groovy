@@ -156,7 +156,7 @@ class DefaultSetupServiceTest {
         ExtensibleResource resource = mock(ExtensibleResource)
         when(resource.getString("client_id")).thenReturn("test-client-id")
         when(resource.getString("client_secret")).thenReturn("test-client-secret")
-        when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName)).thenReturn(resource)
+        when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName, [])).thenReturn(resource)
 
         setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
 
@@ -192,7 +192,7 @@ class DefaultSetupServiceTest {
         ExtensibleResource resource = mock(ExtensibleResource)
         when(resource.getString("client_id")).thenReturn("test-client-id")
         when(resource.getString("client_secret")).thenReturn("test-client-secret")
-        when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName)).thenReturn(resource)
+        when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName, [])).thenReturn(resource)
 
         setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
 

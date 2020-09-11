@@ -18,13 +18,15 @@ package com.okta.cli.common.service;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.resource.ExtensibleResource;
 
-interface OidcAppCreator {
+import java.util.List;
 
-    ExtensibleResource createOidcApp(Client client, String oidcAppName, String... redirectUris);
+public interface OidcAppCreator {
 
-    ExtensibleResource createOidcNativeApp(Client client, String oidcAppName, String... redirectUris);
+    ExtensibleResource createOidcApp(Client client, String oidcAppName, List<String> redirectUris);
 
-    ExtensibleResource createOidcSpaApp(Client client, String oidcAppName, String... redirectUris);
+    ExtensibleResource createOidcNativeApp(Client client, String oidcAppName, List<String> redirectUris);
 
-    ExtensibleResource createOidcServiceApp(Client client, String oidcAppName, String... redirectUris);
+    ExtensibleResource createOidcSpaApp(Client client, String oidcAppName, List<String> redirectUris);
+
+    ExtensibleResource createOidcServiceApp(Client client, String oidcAppName, List<String> redirectUris);
 }
