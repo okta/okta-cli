@@ -83,7 +83,7 @@ class RegisterIT implements MockWebSupport {
             responses.forEach { mockWebServer.enqueue(it) }
 
             List<String> input = [
-                    "1", // overwrite config
+                    "y", // overwrite config
                     "test-first",
                     "test-last",
                     "test-email@example.com",
@@ -126,7 +126,7 @@ okta:
     void existingConfigFile_noOverwrite() {
 
             List<String> input = [
-                    "2" // no overwrite
+                    "no" // no overwrite
             ]
 
             CommandRunner runner = new CommandRunner()

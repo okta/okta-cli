@@ -23,6 +23,12 @@ public interface Prompter {
 
     String prompt(String message);
 
+    default boolean promptYesNo(String message) {
+        return promptYesNo(message, true);
+    }
+
+    boolean promptYesNo(String message, boolean defaultYes);
+
     default String promptIfEmpty(String value, String message, String defaultValue) {
 
         // prompt if empty

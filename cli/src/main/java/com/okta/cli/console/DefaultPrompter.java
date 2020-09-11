@@ -41,11 +41,40 @@ public class DefaultPrompter implements Prompter, Closeable {
     @Override
     public String prompt(String message) {
         out.write(message + ": ");
+        return prompt();
+    }
+
+    private String prompt() {
         out.flush();
         try {
             return consoleReader.readLine();
         } catch (IOException e) {
             throw new PrompterException("Failed to read console input", e);
+        }
+    }
+
+    public boolean promptYesNo(String message, boolean defaultYes) {
+
+        out.write(message + " [");
+        if (defaultYes) {
+            out.bold("Y");
+            out.write("/n");
+        } else {
+            out.write("y/");
+            out.bold("N");
+        }
+        out.write("]");
+
+        String resultText = prompt();
+        if (Strings.isEmpty(resultText)) {
+            return defaultYes;
+        } else if (resultText.equalsIgnoreCase("y") || resultText.equalsIgnoreCase("yes")) {
+            return true;
+        } else if (resultText.equalsIgnoreCase("n") || resultText.equalsIgnoreCase("no")) {
+            return false;
+        } else {
+            out.writeError("\nInvalid choice, try again\n\n");
+            return promptYesNo(message, defaultYes);
         }
     }
 

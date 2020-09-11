@@ -23,6 +23,8 @@ import static org.hamcrest.Matchers.nullValue
 import static org.mockito.Mockito.mock
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.equalTo
+import static org.mockito.Mockito.timeout
+import static org.mockito.Mockito.times
 import static org.mockito.Mockito.verify
 
 @Listeners(RestoreSystemInOut)
@@ -130,6 +132,67 @@ class DefaultPrompterTest {
 
         DefaultPrompter prompter = new DefaultPrompter(out)
         expectException(PrompterException) { prompter.prompt("hello") }
+    }
+
+    @Test(timeOut = 2000l)
+    void promptYesNo_defaultYes() {
+        ConsoleOutput out = mock(ConsoleOutput)
+
+        expectInput("")
+        DefaultPrompter prompter = new DefaultPrompter(out)
+        boolean result = prompter.promptYesNo("Are you good?")
+
+        assertThat("expected prompter default to 'true'", result)
+        verify(out).write("Are you good? [")
+        verify(out).bold("Y")
+        verify(out).write("/n")
+        verify(out).write("]")
+    }
+
+    @Test(timeOut = 2000l)
+    void promptYesNo_defaultNo() {
+        ConsoleOutput out = mock(ConsoleOutput)
+
+        expectInput("")
+        DefaultPrompter prompter = new DefaultPrompter(out)
+        boolean result = prompter.promptYesNo("Are you good?", false)
+
+        assertThat("expected prompter default to 'false'", !result)
+        verify(out).write("Are you good? [")
+        verify(out).write("y/")
+        verify(out).bold("N")
+        verify(out).write("]")
+    }
+
+    @Test(timeOut = 2000l)
+    void promptYesNo_no() {
+        ConsoleOutput out = mock(ConsoleOutput)
+
+        expectInput("no")
+        DefaultPrompter prompter = new DefaultPrompter(out)
+        boolean result = prompter.promptYesNo("Are you good?", true)
+
+        assertThat("expected prompter default to 'false'", !result)
+        verify(out).write("Are you good? [")
+        verify(out).bold("Y")
+        verify(out).write("/n")
+        verify(out).write("]")
+    }
+
+    @Test(timeOut = 2000l)
+    void promptYesNo_Other() {
+        ConsoleOutput out = mock(ConsoleOutput)
+
+        expectInput("foobar\nyes")
+        DefaultPrompter prompter = new DefaultPrompter(out)
+        boolean result = prompter.promptYesNo("Are you good?", true)
+
+        assertThat("expected prompter default to 'true'", result)
+        verify(out, times(2)).write("Are you good? [")
+        verify(out, times(2)).bold("Y")
+        verify(out, times(2)).write("/n")
+        verify(out, times(2)).write("]")
+        verify(out, times(1)).writeError("\nInvalid choice, try again\n\n")
     }
 
     static void expectInput(String text) {
