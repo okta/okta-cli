@@ -28,10 +28,13 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermission;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class DefaultSdkConfigurationService implements SdkConfigurationService {
 
@@ -49,7 +52,7 @@ public class DefaultSdkConfigurationService implements SdkConfigurationService {
         try {
             Field field = DefaultClientBuilder.class.getDeclaredField("clientConfig");
 
-            AccessController.doPrivileged((PrivilegedAction) () -> {
+            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
                 field.setAccessible(true);
                 return null;
             });
@@ -84,6 +87,11 @@ public class DefaultSdkConfigurationService implements SdkConfigurationService {
         try (Writer writer = fileWriter(oktaPropsFile)){
             yaml.dump(rootProps, writer);
         }
+
+        // ensure only the current user has access to this file, for systems with permissive umasks
+        Files.setPosixFilePermissions(oktaPropsFile.toPath(), Set.of(
+                PosixFilePermission.OWNER_READ,
+                PosixFilePermission.OWNER_WRITE));
     }
 
     DefaultClientBuilder clientBuilder() {
