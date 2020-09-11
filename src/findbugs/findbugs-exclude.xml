@@ -54,4 +54,10 @@
         <Bug pattern="HTTP_PARAMETER_POLLUTION"/>
     </Match>
 
+    <Match>
+        <Class name="com.okta.cli.commands.Start$SampleFileVisitor"/>
+        <Method name="preVisitDirectory"/>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
+
 </FindBugsFilter>

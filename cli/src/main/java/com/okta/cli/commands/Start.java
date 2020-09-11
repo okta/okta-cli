@@ -60,9 +60,6 @@ public class Start implements Callable<Integer> {
     @CommandLine.Option(names = {"--branch", "-b"}, description = "GitHub branch to use", hidden = true, defaultValue = "wip")
     private String branchName;
 
-    @CommandLine.Spec
-    private CommandLine.Model.CommandSpec spec;
-
     @Override
     public Integer call() throws Exception {
 
