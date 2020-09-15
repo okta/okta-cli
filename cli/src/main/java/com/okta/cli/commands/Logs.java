@@ -36,7 +36,8 @@ import java.util.concurrent.Callable;
 import static java.lang.Thread.sleep;
 
 @CommandLine.Command(name = "logs",
-                     description = "Lists Okta log events")
+                     description = "Lists Okta log events",
+                     hidden = true)
 public class Logs implements Callable<Integer> {
 
     @CommandLine.Mixin

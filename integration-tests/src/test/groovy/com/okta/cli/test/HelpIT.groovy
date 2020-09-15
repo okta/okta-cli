@@ -36,7 +36,6 @@ class HelpIT {
                 containsString("\n  register "),
                 containsString("\n  login "),
                 containsString("\n  apps "),
-                containsString("\n  logs "),
                 containsString("\n  help ")
         ), emptyString())
     }
