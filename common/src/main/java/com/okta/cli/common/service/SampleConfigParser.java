@@ -28,5 +28,9 @@ public interface SampleConfigParser {
         return parseConfig(new File(SAMPLE_CONFIG_PATH));
     }
 
+    default OktaSampleConfig loadConfig(String localPath) throws IOException {
+        return parseConfig(new File(localPath + File.separator + SAMPLE_CONFIG_PATH));
+    }
+
     OktaSampleConfig parseConfig(File configFile) throws IOException;
 }

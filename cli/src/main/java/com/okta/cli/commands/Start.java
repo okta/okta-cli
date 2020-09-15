@@ -66,7 +66,8 @@ public class Start implements Callable<Integer> {
         // registration is required, walk through the registration flow if needed
         Register.requireRegistration(standardOptions);
 
-        File projectDirectory = new File(".").getCanonicalFile();
+        String localPath = "." + File.separator + sampleName;
+        File projectDirectory = new File(localPath).getCanonicalFile();
 
         String appName;
         // sampleName defined, unzip tarball
@@ -80,7 +81,7 @@ public class Start implements Callable<Integer> {
             } catch (IOException e) {
                 throw new CliFailureException("Failed to extract tarball from URL: " + url, e);
             }
-        } else if (new File(SAMPLE_CONFIG_PATH).exists()) {
+        } else if (new File(localPath + File.separator + SAMPLE_CONFIG_PATH).exists()) {
             appName = projectDirectory.getName();
 
         // TODO default operation?
@@ -89,7 +90,7 @@ public class Start implements Callable<Integer> {
         }
 
         // parse the `.okta.yaml` file
-        OktaSampleConfig config = new DefaultSampleConfigParser().loadConfig();
+        OktaSampleConfig config = new DefaultSampleConfigParser().loadConfig(localPath);
 
         // create the Okta application
         Client client = Clients.builder().build();
@@ -113,7 +114,7 @@ public class Start implements Callable<Integer> {
                 .build();
 
         // walk directory structure, ignore .okta
-        Files.walkFileTree(Paths.get("./"), new SampleFileVisitor(context));
+        Files.walkFileTree(Paths.get(localPath), new SampleFileVisitor(context));
 
         ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
 
