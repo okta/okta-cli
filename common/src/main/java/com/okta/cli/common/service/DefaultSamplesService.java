@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-Present Okta, Inc.
+ * Copyright 2020-Present Okta, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,18 @@
  */
 package com.okta.cli.common.service;
 
-import com.okta.cli.common.FactorVerificationException;
 import com.okta.cli.common.RestException;
-import com.okta.cli.common.model.OrganizationRequest;
-import com.okta.cli.common.model.OrganizationResponse;
+import com.okta.cli.common.model.SamplesListings;
 
 import java.io.IOException;
+import java.util.List;
 
-public interface OktaOrganizationCreator {
+public class DefaultSamplesService implements SamplesService {
 
-    OrganizationResponse createNewOrg(OrganizationRequest orgRequest) throws IOException, RestException;
+    private final RestClient restClient = new HttpRestClient();
 
-    OrganizationResponse verifyNewOrg(String identifier, String code) throws FactorVerificationException, IOException;
+    @Override
+    public List<SamplesListings.OktaSample> listSamples() throws IOException, RestException {
+        return restClient.get("/samples", SamplesListings.class).getItems();
+    }
 }

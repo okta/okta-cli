@@ -16,15 +16,18 @@
 package com.okta.cli.common.service
 
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import com.okta.cli.common.RestoreEnvironmentVariables
 import com.okta.cli.common.WireMockSupport
 import com.okta.cli.common.model.OrganizationRequest
 import com.okta.cli.common.model.OrganizationResponse
+import org.testng.annotations.Listeners
 import org.testng.annotations.Test
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.is
 
+@Listeners([RestoreEnvironmentVariables])
 class DefaultOrganizationCreatorTest implements WireMockSupport {
 
     @Override
@@ -50,8 +53,10 @@ class DefaultOrganizationCreatorTest implements WireMockSupport {
     @Test
     void basicSuccessTest() {
 
+        RestoreEnvironmentVariables.setEnvironmentVariable("OKTA_CLI_BASE_URL", mockUrl())
+
         DefaultOktaOrganizationCreator creator = new DefaultOktaOrganizationCreator()
-        OrganizationResponse response = creator.createNewOrg(mockUrl(), new OrganizationRequest()
+        OrganizationResponse response = creator.createNewOrg(new OrganizationRequest()
             .setEmail("joe.coder@example.com")
             .setOrganization("Test co")
             .setFirstName("Joe")

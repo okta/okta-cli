@@ -22,11 +22,15 @@ import com.okta.cli.common.config.MutablePropertySource;
 import com.okta.cli.common.model.AuthorizationServer;
 import com.okta.cli.common.model.FilterConfigBuilder;
 import com.okta.cli.common.model.OktaSampleConfig;
+import com.okta.cli.common.model.SamplesListings;
 import com.okta.cli.common.service.DefaultInterpolator;
 import com.okta.cli.common.service.DefaultSampleConfigParser;
+import com.okta.cli.common.service.DefaultSamplesService;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.common.service.TarballExtractor;
 import com.okta.cli.console.ConsoleOutput;
+import com.okta.cli.console.PromptOption;
+import com.okta.commons.lang.Assert;
 import com.okta.commons.lang.Strings;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
@@ -38,12 +42,13 @@ import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 import static com.okta.cli.common.service.SampleConfigParser.SAMPLE_CONFIG_PATH;
 
@@ -57,7 +62,7 @@ public class Start implements Callable<Integer> {
     @CommandLine.Parameters(description = "Name of sample", arity = "0..1")
     private String sampleName;
 
-    @CommandLine.Option(names = {"--branch", "-b"}, description = "GitHub branch to use", hidden = true, defaultValue = "wip")
+    @CommandLine.Option(names = {"--branch", "-b"}, description = "GitHub branch to use", hidden = true, defaultValue = "master")
     private String branchName;
 
     @Override
@@ -66,31 +71,48 @@ public class Start implements Callable<Integer> {
         // registration is required, walk through the registration flow if needed
         Register.requireRegistration(standardOptions);
 
-        String localPath = "." + File.separator + sampleName;
-        File projectDirectory = new File(localPath).getCanonicalFile();
+        final String appName;
+        final File projectDirectory;
+        final boolean extractedProject;
 
-        String appName;
-        // sampleName defined, unzip tarball
+        // sampleName defined, unzip tarball into a new directory
         if (!Strings.isEmpty(sampleName)) {
             appName = "okta-" + sampleName + "-sample";
+            projectDirectory = new File(sampleName).getCanonicalFile();
+
             // TODO - make this constant or config
             String url = "https://github.com/okta-samples/" + appName + "/tarball/" + branchName;
-            try {
-                // extract the remote zip
-                new TarballExtractor().extract(url, projectDirectory);
-            } catch (IOException e) {
-                throw new CliFailureException("Failed to extract tarball from URL: " + url, e);
-            }
-        } else if (new File(localPath + File.separator + SAMPLE_CONFIG_PATH).exists()) {
-            appName = projectDirectory.getName();
+            extractSample(url, projectDirectory);
+            extractedProject = true;
 
-        // TODO default operation?
+        // check for existing .okta/.okta.yaml
+        } else if (new File(SAMPLE_CONFIG_PATH).exists()) {
+            projectDirectory = new File(".").getCanonicalFile();
+            appName = projectDirectory.getName();
+            extractedProject = false;
+
+        // other, get the list of samples from start.okta.dev and let the user pick them
         } else {
-            throw new CliFailureException("Running `okta start` must be run with a `sampleName` or run from a directory that contains a `.okta.yaml` file.");
+            // get list of samples
+            List<PromptOption<SamplesListings.OktaSample>> sampleOptions = new DefaultSamplesService().listSamples().stream()
+                    .map(sample -> PromptOption.of(sample.getDescription(), sample))
+                    .collect(Collectors.toList());
+
+            Assert.notEmpty(sampleOptions, "Failed to get the list of example applications. Check your network connection and try to rerun this command.");
+
+            // prompt for selection
+            SamplesListings.OktaSample sample = standardOptions.getEnvironment()
+                    .prompter().prompt("Select a sample", sampleOptions, sampleOptions.get(0));
+
+            appName = "okta-" + sample.getName() + "-sample";
+            projectDirectory = new File(appName).getCanonicalFile();
+            // extract the selected sample
+            extractSample(sample.getTarballUrl(), projectDirectory);
+            extractedProject = true;
         }
 
         // parse the `.okta.yaml` file
-        OktaSampleConfig config = new DefaultSampleConfigParser().loadConfig(localPath);
+        OktaSampleConfig config = new DefaultSampleConfigParser().loadConfig(projectDirectory);
 
         // create the Okta application
         Client client = Clients.builder().build();
@@ -111,19 +133,35 @@ public class Start implements Callable<Integer> {
         // filter config file
         Map<String, String> context = new FilterConfigBuilder()
                 .fromPropertySource(propertySource)
+                .setIssuerId(authorizationServer.getId())
                 .build();
 
         // walk directory structure, ignore .okta
-        Files.walkFileTree(Paths.get(localPath), new SampleFileVisitor(context));
+        Files.walkFileTree(projectDirectory.toPath(), new SampleFileVisitor(context));
 
         ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
 
         // provide instructions to user
         if (!Strings.isEmpty(config.getDirections())) {
+
+            // Tell the user to cd into the new dir if needed
+            if (extractedProject) {
+                out.writeLine("Change the directory:");
+                out.writeLine("    cd " + projectDirectory.getName() + "\n");
+            }
             out.writeLine(config.getDirections());
         }
 
         return 0;
+    }
+
+    private void extractSample(String url, File projectDirectory) {
+        try {
+            // extract the remote zip
+            new TarballExtractor().extract(url, projectDirectory);
+        } catch (IOException e) {
+            throw new CliFailureException("Failed to extract tarball from URL: " + url, e);
+        }
     }
 
     static class SampleFileVisitor extends SimpleFileVisitor<Path> {

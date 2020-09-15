@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-Present Okta, Inc.
+ * Copyright 2020-Present Okta, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,16 @@
  */
 package com.okta.cli.common.service;
 
-import com.okta.cli.common.FactorVerificationException;
 import com.okta.cli.common.RestException;
-import com.okta.cli.common.model.OrganizationRequest;
-import com.okta.cli.common.model.OrganizationResponse;
 
 import java.io.IOException;
 
-public interface OktaOrganizationCreator {
+public interface RestClient {
 
-    OrganizationResponse createNewOrg(OrganizationRequest orgRequest) throws IOException, RestException;
+    <T> T get(String url, Class<T> type) throws RestException, IOException;
 
-    OrganizationResponse verifyNewOrg(String identifier, String code) throws FactorVerificationException, IOException;
+    <T> T post(String url, Object body, Class<T> responseType) throws RestException, IOException;
+
+    <T> T post(String url, String body, Class<T> responseType) throws RestException, IOException;
+
 }

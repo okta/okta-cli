@@ -54,11 +54,6 @@ public class DefaultSetupService implements SetupService {
 
     private final String springPropertyKey;
 
-    /**
-     * The base URL of the service used to create a new Okta account.
-     * This value is NOT exposed as a plugin parameter, but CAN be set using the env var {@code OKTA_CLI_BASE_URL}.
-     */
-    private String apiBaseUrl = "https://start.okta.dev/";
 
     public DefaultSetupService(String springPropertyKey) {
         this(new DefaultSdkConfigurationService(),
@@ -113,7 +108,7 @@ public class DefaultSetupService implements SetupService {
             progressBar.start("Creating new Okta Organization, this may take a minute:");
 
             try {
-                OrganizationResponse newOrg = organizationCreator.createNewOrg(getApiBaseUrl(), organizationRequest);
+                OrganizationResponse newOrg = organizationCreator.createNewOrg(organizationRequest);
                 orgUrl = newOrg.getOrgUrl();
 
                 progressBar.info("OrgUrl: " + orgUrl);
@@ -139,7 +134,7 @@ public class DefaultSetupService implements SetupService {
                 try {
                     // prompt for code
                     String code = registrationQuestions.getVerificationCode();
-                    response = organizationCreator.verifyNewOrg(getApiBaseUrl(), identifier, code);
+                    response = organizationCreator.verifyNewOrg(identifier, code);
                 } catch (FactorVerificationException e) {
                     progressBar.info("Invalid Passcode, try again.");
                 }
@@ -218,10 +213,6 @@ public class DefaultSetupService implements SetupService {
                 progressBar.info("Existing OIDC application detected for clientId: "+ clientId + ", skipping new application creation\n");
             }
         }
-    }
-
-    public String getApiBaseUrl() {
-        return System.getenv().getOrDefault("OKTA_CLI_BASE_URL", apiBaseUrl);
     }
 
     private String getIssuerUriPropertyName() {

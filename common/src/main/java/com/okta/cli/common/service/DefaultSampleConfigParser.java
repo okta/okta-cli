@@ -17,6 +17,7 @@ package com.okta.cli.common.service;
 
 import com.okta.cli.common.model.OktaSampleConfig;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,7 +28,11 @@ public class DefaultSampleConfigParser implements SampleConfigParser {
     @Override
     public OktaSampleConfig parseConfig(File configFile) throws IOException {
         try (FileInputStream fileInputStream = new FileInputStream(configFile.getAbsoluteFile())) {
-            return new Yaml().loadAs(fileInputStream, OktaSampleConfig.class);
+
+            // ignore unknown properties, so we can add additional features and not break older clients
+            Representer representer = new Representer();
+            representer.getPropertyUtils().setSkipMissingProperties(true);
+            return new Yaml(representer).loadAs(fileInputStream, OktaSampleConfig.class);
         }
     }
 }

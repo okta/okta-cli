@@ -17,13 +17,16 @@ package com.okta.cli.common.model;
 
 import com.okta.cli.common.config.MutablePropertySource;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class FilterConfigBuilder {
 
+    private static final String CLI_OKTA_ORG_URL = "CLI_OKTA_ORG_URL";
     private static final String CLI_OKTA_ISSUER = "CLI_OKTA_ISSUER";
+    private static final String CLI_OKTA_ISSUER_ID = "CLI_OKTA_ISSUER_ID";
     private static final String CLI_OKTA_CLIENT_ID = "CLI_OKTA_CLIENT_ID";
     private static final String CLI_OKTA_CLIENT_SECRET = "CLI_OKTA_CLIENT_SECRET";
 
@@ -38,9 +41,14 @@ public class FilterConfigBuilder {
         filterValues.put(CLI_OKTA_CLIENT_SECRET, clientSecret);
         return this;
     }
+    public FilterConfigBuilder setIssuerId(String issuerId) {
+        filterValues.put(CLI_OKTA_ISSUER_ID, issuerId);
+        return this;
+    }
 
     public FilterConfigBuilder setIssuer(String issuer) {
         filterValues.put(CLI_OKTA_ISSUER, issuer);
+        filterValues.put(CLI_OKTA_ORG_URL, URI.create(issuer).resolve("/").toString());
         return this;
     }
 

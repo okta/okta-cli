@@ -45,9 +45,10 @@ trait MockWebSupport {
     }
 
     MockResponse jsonRequest(Object obj, int status=200) {
+        def body = JsonOutput.toJson(obj)
         return new MockResponse()
                 .setResponseCode(status)
-                .setBody(JsonOutput.toJson(obj))
+                .setBody(body)
                 .setHeader("Content-Type", "application/json")
     }
 
