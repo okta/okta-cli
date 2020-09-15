@@ -29,8 +29,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
-import java.util.logging.Level
-import java.util.logging.Logger
 
 import static com.okta.cli.test.CommandRunner.resultMatches
 import static org.hamcrest.MatcherAssert.assertThat
@@ -40,9 +38,8 @@ class StartIT implements MockWebSupport, CreateAppSupport {
 
     // TODO: currently broken, there is something the mock server needs to deal with
     @Test(enabled = false)
-    void regAndListSamples()
-    {
-        Logger.getLogger(MockWebServer.class.getName()).setLevel(Level.INFO)
+    void regAndListSamples() {
+        // Logger.getLogger(MockWebServer.class.getName()).setLevel(Level.INFO)
 
 
         MockWebServer mockWebServer = createMockServer()
