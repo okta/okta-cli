@@ -15,6 +15,7 @@
  */
 package com.okta.cli.common.service;
 
+import com.okta.commons.lang.Strings;
 import com.okta.sdk.impl.client.DefaultClientBuilder;
 import com.okta.sdk.impl.config.ClientConfiguration;
 import org.yaml.snakeyaml.Yaml;
@@ -27,19 +28,31 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermission;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class DefaultSdkConfigurationService implements SdkConfigurationService {
+
+    @Override
+    public boolean isConfigured() throws ClientConfigurationException {
+
+        ClientConfiguration config = loadUnvalidatedConfiguration();
+
+        return !Strings.isEmpty(config.getApiToken())
+            && !Strings.isEmpty(config.getBaseUrl());
+    }
 
     @Override
     public ClientConfiguration loadUnvalidatedConfiguration() throws ClientConfigurationException {
         try {
             Field field = DefaultClientBuilder.class.getDeclaredField("clientConfig");
 
-            AccessController.doPrivileged((PrivilegedAction) () -> {
+            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
                 field.setAccessible(true);
                 return null;
             });
@@ -74,6 +87,16 @@ public class DefaultSdkConfigurationService implements SdkConfigurationService {
         try (Writer writer = fileWriter(oktaPropsFile)){
             yaml.dump(rootProps, writer);
         }
+
+        // ensure only the current user has access to this file, for systems with permissive umasks
+        Files.setPosixFilePermissions(parentDir.toPath(), Set.of(
+                PosixFilePermission.OWNER_READ,
+                PosixFilePermission.OWNER_WRITE,
+                PosixFilePermission.OWNER_EXECUTE));
+
+        Files.setPosixFilePermissions(oktaPropsFile.toPath(), Set.of(
+                PosixFilePermission.OWNER_READ,
+                PosixFilePermission.OWNER_WRITE));
     }
 
     DefaultClientBuilder clientBuilder() {

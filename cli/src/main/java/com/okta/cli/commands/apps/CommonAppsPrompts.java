@@ -26,13 +26,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-final class CommonAppsPrompts {
+public final class CommonAppsPrompts {
 
     private static final String DEFAULT_ISSUER_NAME = "default";
 
     private CommonAppsPrompts() {}
 
-    static AuthorizationServer getIssuer(Client client, Prompter prompter, String authorizationServerId) {
+    public static AuthorizationServer getIssuer(Client client, Prompter prompter, String authorizationServerId) {
         Map<String, AuthorizationServer> asMap = new DefaultAuthorizationServerService().authorizationServersMap(client);
 
         if (!Strings.isEmpty(authorizationServerId)) {
@@ -50,10 +50,10 @@ final class CommonAppsPrompts {
             return asMap.get(DEFAULT_ISSUER_NAME);
         } else {
             List<PromptOption<AuthorizationServer>> issuerOptions = asMap.values().stream()
-                    .map(it -> PromptOption.of(it.getIssuer(), it))
+                    .map(it -> PromptOption.of(it.getName() + " - " + it.getIssuer(), it))
                     .collect(Collectors.toList());
 
-            return prompter.prompt("Issuer:", issuerOptions, issuerOptions.get(0));
+            return prompter.prompt("Your Okta Organization has multiple Authorization Servers (Issuer), please select one:", issuerOptions, issuerOptions.get(0));
         }
     }
 }

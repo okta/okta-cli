@@ -15,12 +15,19 @@
  */
 package com.okta.cli.common.progressbar;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.PrintStream;
 
-class LoggerProgressBar implements ProgressBar {
+class NonInteractiveProgressBar implements ProgressBar {
 
-    private static Logger LOG = LoggerFactory.getLogger(LoggerProgressBar.class);
+    private final PrintStream stream;
+
+    public NonInteractiveProgressBar() {
+        this(System.out);
+    }
+
+    NonInteractiveProgressBar(PrintStream stream) {
+        this.stream = stream;
+    }
 
     @Override
     public ProgressBar start() {
@@ -36,7 +43,7 @@ class LoggerProgressBar implements ProgressBar {
     @Override
     public void info(CharSequence message) {
         if (message != null) {
-            LOG.info(message.toString());
+            stream.println(message);
         }
     }
 

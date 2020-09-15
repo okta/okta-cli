@@ -35,9 +35,6 @@ import org.testng.IObjectFactory
 import org.testng.annotations.ObjectFactory
 import org.testng.annotations.Test
 
-import java.time.Instant
-import java.util.function.Supplier
-
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.is
 import static org.mockito.Mockito.*
@@ -61,12 +58,12 @@ class DefaultSetupServiceTest {
         RegistrationQuestions registrationQuestions = RegistrationQuestions.answers(true, orgRequest, null)
         File oktaPropsFile = mock(File)
         OrganizationResponse orgResponse = mock(OrganizationResponse)
-        when(setupService.organizationCreator.createNewOrg("https://start.okta.dev/", orgRequest)).thenReturn(orgResponse)
+        when(setupService.organizationCreator.createNewOrg(orgRequest)).thenReturn(orgResponse)
         when(orgResponse.getOrgUrl()).thenReturn(newOrgUrl)
 
         setupService.createOktaOrg(registrationQuestions, oktaPropsFile, false, false)
 
-        verify(setupService.organizationCreator).createNewOrg("https://start.okta.dev/", orgRequest)
+        verify(setupService.organizationCreator).createNewOrg(orgRequest)
     }
 
     @Test
@@ -78,13 +75,13 @@ class DefaultSetupServiceTest {
 
         File oktaPropsFile = mock(File)
         OrganizationResponse orgResponse = mock(OrganizationResponse)
-        when(setupService.organizationCreator.verifyNewOrg("https://start.okta.dev/", "test-id", "123456")).thenReturn(orgResponse)
+        when(setupService.organizationCreator.verifyNewOrg("test-id", "123456")).thenReturn(orgResponse)
         when(orgResponse.getOrgUrl()).thenReturn(newOrgUrl)
         when(orgResponse.getUpdatePasswordUrl()).thenReturn("https://reset.password")
 
         setupService.verifyOktaOrg("test-id",  registrationQuestions, oktaPropsFile)
 
-        verify(setupService.organizationCreator).verifyNewOrg("https://start.okta.dev/", "test-id", "123456")
+        verify(setupService.organizationCreator).verifyNewOrg("test-id", "123456")
     }
 
     @Test
@@ -97,19 +94,19 @@ class DefaultSetupServiceTest {
         OrganizationResponse orgResponse = mock(OrganizationResponse)
         RegistrationQuestions registrationQuestions = mock(RegistrationQuestions)
         when(registrationQuestions.getVerificationCode()).thenReturn("123456").thenReturn("654321")
-        when(setupService.organizationCreator.verifyNewOrg("https://start.okta.dev/", "test-id", "123456")).thenThrow(new FactorVerificationException(new ErrorResponse()
+        when(setupService.organizationCreator.verifyNewOrg("test-id", "123456")).thenThrow(new FactorVerificationException(new ErrorResponse()
                 .setStatus(401)
                 .setError("test-error")
                 .setMessage("test-message")
                 .setCauses(["one", "two"])
         , new Throwable("root-test-cause")))
-        when(setupService.organizationCreator.verifyNewOrg("https://start.okta.dev/", "test-id", "654321")).thenReturn(orgResponse)
+        when(setupService.organizationCreator.verifyNewOrg("test-id", "654321")).thenReturn(orgResponse)
         when(orgResponse.getOrgUrl()).thenReturn(newOrgUrl)
         when(orgResponse.getUpdatePasswordUrl()).thenReturn("https://reset.password")
 
         setupService.verifyOktaOrg("test-id", registrationQuestions, oktaPropsFile)
 
-        verify(setupService.organizationCreator).verifyNewOrg("https://start.okta.dev/", "test-id", "123456")
+        verify(setupService.organizationCreator).verifyNewOrg("test-id", "123456")
     }
 
     @Test

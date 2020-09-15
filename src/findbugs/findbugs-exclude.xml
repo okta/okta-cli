@@ -41,4 +41,36 @@
         <!-- ignore all, these are special Graal build time advice -->
     </Match>
 
+    <Match>
+        <!-- This method is used to protect against this issue -->
+        <Class name="com.okta.cli.common.service.FileUtils"/>
+        <Method name="ensureRelative"/>
+        <Bug pattern="PATH_TRAVERSAL_IN"/>
+    </Match>
+
+    <Match>
+        <!-- TODO: This logic will likely move to a server request -->
+        <Class name="com.okta.cli.common.service.TarballExtractor"/>
+        <Bug pattern="HTTP_PARAMETER_POLLUTION"/>
+    </Match>
+
+    <Match>
+        <!-- Users can override the URL for start.okta.dev -->
+        <Class name="com.okta.cli.common.service.HttpRestClient"/>
+        <Bug pattern="HTTP_PARAMETER_POLLUTION"/>
+    </Match>
+
+    <Match>
+        <!-- allows for user input -->
+        <Class name="com.okta.cli.commands.Start"/>
+        <Method name="call"/>
+        <Bug pattern="PATH_TRAVERSAL_IN"/>
+    </Match>
+
+    <Match>
+        <Class name="com.okta.cli.commands.Start$SampleFileVisitor"/>
+        <Method name="preVisitDirectory"/>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
+
 </FindBugsFilter>

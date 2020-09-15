@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-Present Okta, Inc.
+ * Copyright 2020-Present Okta, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.cli.common.progressbar;
+package com.okta.cli.commands;
 
-public interface ProgressBar extends AutoCloseable {
+public class CliFailureException extends RuntimeException {
+    public CliFailureException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    ProgressBar start();
-
-    ProgressBar start(CharSequence message);
-
-    void info(CharSequence message);
-
-    @Override
-    void close();
-
-    static ProgressBar create(boolean interactive) {
-
-        if (interactive) {
-            return new ConsoleProgressBar();
-        } else {
-            return new NonInteractiveProgressBar();
-        }
+    public CliFailureException(String message) {
+        super(message);
     }
 }

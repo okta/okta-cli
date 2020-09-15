@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-Present Okta, Inc.
+ * Copyright 2020-Present Okta, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,22 @@
  */
 package com.okta.cli.common.service;
 
-import com.okta.cli.common.FactorVerificationException;
-import com.okta.cli.common.RestException;
-import com.okta.cli.common.model.OrganizationRequest;
-import com.okta.cli.common.model.OrganizationResponse;
+import com.okta.cli.common.model.OktaSampleConfig;
 
+import java.io.File;
 import java.io.IOException;
 
-public interface OktaOrganizationCreator {
+public interface SampleConfigParser {
 
-    OrganizationResponse createNewOrg(OrganizationRequest orgRequest) throws IOException, RestException;
+    String SAMPLE_CONFIG_PATH = ".okta/okta.yaml";
 
-    OrganizationResponse verifyNewOrg(String identifier, String code) throws FactorVerificationException, IOException;
+    default OktaSampleConfig loadConfig() throws IOException {
+        return parseConfig(new File(SAMPLE_CONFIG_PATH));
+    }
+
+    default OktaSampleConfig loadConfig(File localPath) throws IOException {
+        return parseConfig(new File(localPath, SAMPLE_CONFIG_PATH));
+    }
+
+    OktaSampleConfig parseConfig(File configFile) throws IOException;
 }

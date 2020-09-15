@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-Present Okta, Inc.
+ * Copyright 2020-Present Okta, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.cli.common.progressbar;
+package com.okta.cli.common.service;
 
-public interface ProgressBar extends AutoCloseable {
+import com.okta.cli.common.RestException;
 
-    ProgressBar start();
+import java.io.IOException;
 
-    ProgressBar start(CharSequence message);
+public interface RestClient {
 
-    void info(CharSequence message);
+    <T> T get(String url, Class<T> type) throws RestException, IOException;
 
-    @Override
-    void close();
+    <T> T post(String url, Object body, Class<T> responseType) throws RestException, IOException;
 
-    static ProgressBar create(boolean interactive) {
+    <T> T post(String url, String body, Class<T> responseType) throws RestException, IOException;
 
-        if (interactive) {
-            return new ConsoleProgressBar();
-        } else {
-            return new NonInteractiveProgressBar();
-        }
-    }
 }
