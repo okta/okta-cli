@@ -19,4 +19,10 @@
   -->
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
 
+    <suppress>
+        <notes><![CDATA[ Invalid GAV detection ]]></notes>
+        <gav regex="true">^org\.graalvm\.truffle:truffle-nfi:.*$</gav>
+        <cpe>cpe:/a:sun:openjdk</cpe>
+    </suppress>
+
 </suppressions>
