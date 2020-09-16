@@ -21,21 +21,15 @@ import java.io.PrintStream;
 
 public interface ConsoleOutput extends Closeable {
 
-    void write(String msg);
+    void write(Object msg);
 
-    default void write(Object obj) {
-        write(obj + "");
-    }
+    void writeLine(Object msg);
 
-    void writeLine(String msg);
+    void writeError(Object message);
 
-    default void writeLine(Object obj) {
-        writeLine(obj + "");
-    }
+    void writeWarning(Object message);
 
-    void writeError(String message);
-
-    void bold(String message);
+    void bold(Object message);
 
     void flush();
 
@@ -56,25 +50,29 @@ public interface ConsoleOutput extends Closeable {
         }
 
         @Override
-        public void write(String msg) {
+        public void write(Object msg) {
             out.print(msg);
         }
 
         @Override
-        public void writeLine(String msg) {
+        public void writeLine(Object msg) {
             out.println(msg);
             flush();
         }
 
-        public void writeError(String message) {
+        public void writeError(Object message) {
             writeWithColor(message, ConsoleColors.RED);
         }
 
-        public void bold(String message) {
+        public void writeWarning(Object message) {
+            writeWithColor(message, ConsoleColors.YELLOW);
+        }
+
+        public void bold(Object message) {
             writeWithColor(message, ConsoleColors.BOLD);
         }
 
-        public void writeWithColor(String message, String ansiColor) {
+        public void writeWithColor(Object message, String ansiColor) {
             if (colors) {
                 out.print(ansiColor);
             }
