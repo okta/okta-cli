@@ -31,7 +31,7 @@ RUN_ITS=${RUN_ITS:-false} # run the ITs if we have an ENV_VARS are set
 
 # we only deploy from a given branch NOT for pull requests, and ONLY when we can run the ITs
 # and do NOT deploy releases, only snapshots right now
-if [ "$BRANCH" = "$SNAPSHOT_BRANCH" ] && [ "$PULL_REQUEST" = false ] && [ "$RUN_ITS" = true ] && [ ! "$IS_RELEASE" = true ]; then
+if [ "$BRANCH" = "$SNAPSHOT_BRANCH" ] && [ "$PULL_REQUEST" = false ] && [ "$RUN_ITS" = true ] && [ ! "$IS_RELEASE" = true ] && [ "$RUNNER_OS" = "Linux" ]; then
     DEPLOY=true
 fi
 DEPLOY=${DEPLOY:-false}
