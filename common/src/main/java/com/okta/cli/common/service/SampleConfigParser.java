@@ -22,7 +22,7 @@ import java.io.IOException;
 
 public interface SampleConfigParser {
 
-    String SAMPLE_CONFIG_PATH = ".okta/okta.yaml";
+    String SAMPLE_CONFIG_PATH = ".okta/sample-config.yaml";
 
     default OktaSampleConfig loadConfig() throws IOException {
         return parseConfig(new File(SAMPLE_CONFIG_PATH));
