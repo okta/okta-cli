@@ -27,7 +27,12 @@ import com.okta.sdk.client.Clients
 import com.okta.sdk.impl.config.ClientConfiguration
 import com.okta.sdk.resource.ExtensibleResource
 import com.okta.sdk.resource.application.OpenIdConnectApplicationType
+import com.okta.sdk.resource.role.Scope
+import com.okta.sdk.resource.role.ScopeType
+import com.okta.sdk.resource.trusted.origin.TrustedOrigin
+import com.okta.sdk.resource.trusted.origin.TrustedOriginList
 import org.mockito.ArgumentCaptor
+import org.mockito.Mockito
 import org.powermock.api.mockito.PowerMockito
 import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.testng.PowerMockObjectFactory
@@ -222,6 +227,122 @@ class DefaultSetupServiceTest {
         assertThat setupService3.getClientSecretPropertyName(), is("spring.security.oauth2.client.registration.oidc.client-secret")
     }
 
+    @Test
+    void configureTrustedOriginTest_null() {
+
+        Client client = mock(Client)
+        new DefaultSetupService(null).configureTrustedOrigins(client, null)
+
+        // trustedOrigins was null, nothing should have happened
+        verifyNoInteractions(client)
+    }
+
+    @Test
+    void configureTrustedOriginTest_empty() {
+
+        Client client = mock(Client)
+        new DefaultSetupService(null).configureTrustedOrigins(client, [])
+
+        // trustedOrigins was null, nothing should have happened
+        verifyNoInteractions(client)
+    }
+
+    @Test
+    void configureTrustedOriginTest_existingMatchingOrigins() {
+
+        String url = "http://foo.example.com"
+        Client client = mock(Client)
+        Scope cors = mock(Scope)
+        Scope redirect = mock(Scope)
+        TrustedOriginList origins = mock(TrustedOriginList)
+        TrustedOrigin origin1 = mock(TrustedOrigin)
+
+        when(client.instantiate(Scope)).thenReturn(cors).thenReturn(redirect)
+        when(cors.setType(ScopeType.CORS)).thenReturn(cors)
+        when(redirect.setType(ScopeType.REDIRECT)).thenReturn(redirect)
+        when(client.listOrigins()).thenReturn(origins)
+        when(origins.stream()).thenReturn([origin1].stream())
+        when(origin1.getOrigin()).thenReturn(url)
+
+        new DefaultSetupService(null).configureTrustedOrigins(client, ["http://foo.example.com"])
+
+        // test specifics
+        verify(client).listOrigins()
+        verify(client, times(2)).instantiate(Scope)
+
+        // scopes should be updated
+        verify(origin1).setScopes([cors, redirect])
+        verify(origin1).update()
+
+        verifyNoMoreInteractions(client)
+    }
+
+    @Test
+    void configureTrustedOriginTest_nonMatchingOrigins() {
+
+        String url = "http://bar.example.com"
+        Client client = mock(Client)
+        Scope cors = mock(Scope)
+        Scope redirect = mock(Scope)
+        TrustedOriginList origins = mock(TrustedOriginList)
+        TrustedOrigin origin1 = mock(TrustedOrigin)
+        TrustedOrigin newOrigin = mock(TrustedOrigin, Mockito.RETURNS_DEEP_STUBS)
+
+        when(client.instantiate(Scope)).thenReturn(cors).thenReturn(redirect)
+        when(cors.setType(ScopeType.CORS)).thenReturn(cors)
+        when(redirect.setType(ScopeType.REDIRECT)).thenReturn(redirect)
+        when(client.listOrigins()).thenReturn(origins)
+        when(origins.stream()).thenReturn([origin1].stream())
+        when(origin1.getOrigin()).thenReturn(url)
+        when(client.instantiate(TrustedOrigin)).thenReturn(newOrigin)
+        when(newOrigin.setOrigin("http://foo.example.com")
+                      .setName("http://foo.example.com")
+                      .setScopes([cors, redirect])).thenReturn(newOrigin)
+
+        new DefaultSetupService(null).configureTrustedOrigins(client, ["http://foo.example.com"])
+
+        // test specifics
+        verify(client).listOrigins()
+        verify(client, times(2)).instantiate(Scope)
+
+        // scopes should be updated
+        verify(client).instantiate(TrustedOrigin)
+        verify(client).createOrigin(newOrigin)
+
+        verifyNoMoreInteractions(client)
+    }
+
+    @Test
+    void configureTrustedOriginTest_noExistingOrigins() {
+
+        Client client = mock(Client)
+        Scope cors = mock(Scope)
+        Scope redirect = mock(Scope)
+        TrustedOriginList origins = mock(TrustedOriginList)
+        TrustedOrigin newOrigin = mock(TrustedOrigin, Mockito.RETURNS_DEEP_STUBS)
+
+        when(client.instantiate(Scope)).thenReturn(cors).thenReturn(redirect)
+        when(cors.setType(ScopeType.CORS)).thenReturn(cors)
+        when(redirect.setType(ScopeType.REDIRECT)).thenReturn(redirect)
+        when(client.listOrigins()).thenReturn(origins)
+        when(origins.stream()).thenReturn([].stream())
+        when(client.instantiate(TrustedOrigin)).thenReturn(newOrigin)
+        when(newOrigin.setOrigin("http://foo.example.com")
+                .setName("http://foo.example.com")
+                .setScopes([cors, redirect])).thenReturn(newOrigin)
+
+        new DefaultSetupService(null).configureTrustedOrigins(client, ["http://foo.example.com"])
+
+        // test specifics
+        verify(client).listOrigins()
+        verify(client, times(2)).instantiate(Scope)
+
+        // scopes should be updated
+        verify(client).instantiate(TrustedOrigin)
+        verify(client).createOrigin(newOrigin)
+
+        verifyNoMoreInteractions(client)
+    }
 
     private static DefaultSetupService setupService(String springPropertyKey = null) {
         OktaOrganizationCreator organizationCreator = mock(OktaOrganizationCreator)

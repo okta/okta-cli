@@ -22,7 +22,7 @@ import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public interface SetupService {
@@ -37,15 +37,26 @@ public interface SetupService {
                        File oktaPropsFile) throws IOException, ClientConfigurationException;
 
     default void createOidcApplication(MutablePropertySource propertySource,
-                               String oidcAppName,
-                               String orgUrl,
-                               String groupClaimName,
-                               String issuerUri,
-                               String authorizationServerId,
-                               boolean interactive,
-                               OpenIdConnectApplicationType appType,
-                               String... redirectUris) throws IOException {
-        createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, issuerUri, authorizationServerId, interactive, appType, Arrays.asList(redirectUris));
+                                       String oidcAppName,
+                                       String orgUrl,
+                                       String groupClaimName,
+                                       String issuerUri,
+                                       String authorizationServerId,
+                                       boolean interactive,
+                                       OpenIdConnectApplicationType appType) throws IOException {
+        createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, issuerUri, authorizationServerId, interactive, appType, Collections.emptyList());
+    }
+
+    default void createOidcApplication(MutablePropertySource propertySource,
+                                       String oidcAppName,
+                                       String orgUrl,
+                                       String groupClaimName,
+                                       String issuerUri,
+                                       String authorizationServerId,
+                                       boolean interactive,
+                                       OpenIdConnectApplicationType appType,
+                                       List<String> redirectUris) throws IOException {
+        createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, issuerUri, authorizationServerId, interactive, appType, redirectUris, Collections.emptyList());
     }
 
     void createOidcApplication(MutablePropertySource propertySource,
@@ -56,5 +67,6 @@ public interface SetupService {
                                String authorizationServerId,
                                boolean interactive,
                                OpenIdConnectApplicationType appType,
-                               List<String> redirectUris) throws IOException;
+                               List<String> redirectUris,
+                               List<String> trustedOrigins) throws IOException;
 }

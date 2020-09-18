@@ -29,6 +29,10 @@ import com.okta.sdk.client.Clients;
 import com.okta.sdk.impl.config.ClientConfiguration;
 import com.okta.sdk.resource.ExtensibleResource;
 import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
+import com.okta.sdk.resource.role.Scope;
+import com.okta.sdk.resource.role.ScopeType;
+import com.okta.sdk.resource.trusted.origin.TrustedOrigin;
+import com.okta.sdk.resource.trusted.origin.TrustedOriginList;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +45,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class DefaultSetupService implements SetupService {
 
@@ -160,7 +166,8 @@ public class DefaultSetupService implements SetupService {
                                       String authorizationServerId,
                                       boolean interactive,
                                       OpenIdConnectApplicationType appType,
-                                      List<String> redirectUris) throws IOException {
+                                      List<String> redirectUris,
+                                      List<String> trustedOrigins) throws IOException {
 
         // Create new Application
         String clientId = propertySource.getProperty(getClientIdPropertyName());
@@ -209,9 +216,54 @@ public class DefaultSetupService implements SetupService {
                     progressBar.info("Creating Authorization Server claim '" + groupClaimName + "':");
                     authorizationServerService.createGroupClaim(client, groupClaimName, authorizationServerId);
                 }
+
+                // configure trusted origins
+                configureTrustedOrigins(client, trustedOrigins);
             } else {
                 progressBar.info("Existing OIDC application detected for clientId: "+ clientId + ", skipping new application creation\n");
             }
+        }
+    }
+
+    private void configureTrustedOrigins(Client client, List<String> trustedOrigins) {
+        // Configure CORS if needed
+        if (!com.okta.commons.lang.Collections.isEmpty(trustedOrigins)) {
+
+            TrustedOriginList origins = client.listOrigins();
+
+            Scope cors = client.instantiate(Scope.class)
+                    .setType(ScopeType.CORS);
+            Scope redirect = client.instantiate(Scope.class)
+                    .setType(ScopeType.REDIRECT);
+
+            trustedOrigins.forEach(url -> {
+                origins.stream()
+                        .filter(trustedOrigin -> url.equals(trustedOrigin.getOrigin()))
+
+                        // origins are unique, so just grab the first
+                        .findFirst().ifPresentOrElse(trustedOrigin -> {
+
+                            // nested object, just get the enum in a set
+                            Set<ScopeType> scopes = trustedOrigin.getScopes().stream()
+                                    .map(Scope::getType)
+                                    .collect(Collectors.toSet());
+
+                            // if either is missing enable both of them
+                            if (!scopes.contains(ScopeType.CORS) || !scopes.contains(ScopeType.REDIRECT)) {
+
+                                // Add CORS and Redirect to origin
+                                trustedOrigin.setScopes(List.of(cors, redirect));
+                                trustedOrigin.update();
+                            }
+                        }, () -> {
+                            // create a new trusted origin if it doesn't exist
+                            client.createOrigin(client.instantiate(TrustedOrigin.class)
+                                    .setOrigin(url)
+                                    .setName(url)
+                                    .setScopes(List.of(cors, redirect)));
+                        }
+                );
+            });
         }
     }
 

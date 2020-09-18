@@ -198,7 +198,7 @@ class DefaultOidcAppCreator implements OidcAppCreator {
 
     private void assignAppToEveryoneGroup(Client client, Application app) {
         // look up 'everyone' group id
-        String everyoneGroupId = client.listGroups("everyone", null, null).single().getId();
+        String everyoneGroupId = client.listGroups("everyone", null).single().getId();
 
         ApplicationGroupAssignment aga = client.instantiate(ApplicationGroupAssignment.class).setPriority(2);
         app.createApplicationGroupAssignment(everyoneGroupId, aga);

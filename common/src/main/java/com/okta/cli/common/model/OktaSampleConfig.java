@@ -31,6 +31,7 @@ public class OktaSampleConfig {
     private String appConfig;
     private String command;
     private String directions;
+    private List<String> trustedOrigins;
 
     public OAuthClient getOAuthClient() {
         return oauthClient;

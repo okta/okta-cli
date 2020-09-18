@@ -36,7 +36,7 @@ public class SdkResourceConfigGenerator {
     public static void main(String[] args) throws Exception {
 
         File destFile = new File("src/main/graalvm/okta-sdk-reflect-config.json");
-        System.out.println("Writing reflect-confif file: " + destFile.getAbsolutePath());
+        System.out.println("Writing reflect-config file: " + destFile.getAbsolutePath());
         List<Map<String, Object>> resourceConfig = new ArrayList<>();
 
         Method method = DiscriminatorConfig.class.getDeclaredMethod("loadConfig");

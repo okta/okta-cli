@@ -31,6 +31,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.concurrent.Callable;
 
 import static java.lang.Thread.sleep;
@@ -53,8 +54,8 @@ public class Logs implements Callable<Integer> {
         ConsoleOutput output = standardOptions.getEnvironment().getConsoleOutput();
 
         // At most 1 hour back
-        String since = Instant.now().minus(1, ChronoUnit.HOURS).toString();
-        LogEventList logs = client.getLogs(null, since, null, null, null);
+        Instant since = Instant.now().minus(1, ChronoUnit.HOURS);
+        LogEventList logs = client.getLogs(new Date(since.toEpochMilli()), null, null, null, null);
 
         output.bold("Time                      Severity  Status     Message\n");
         logs.stream().forEach(log -> writeEvent(output, logsBaseUrl(logs), log));

@@ -127,7 +127,8 @@ public class Start implements Callable<Integer> {
                 authorizationServer.getId(),
                 true,
                 OpenIdConnectApplicationType.valueOf(config.getOAuthClient().getApplicationType().toUpperCase(Locale.ENGLISH)), // TODO default to SPA
-                config.getOAuthClient().getRedirectUris().toArray(new String[0])
+                config.getOAuthClient().getRedirectUris(),
+                config.getTrustedOrigins()
         );
 
         // filter config file
