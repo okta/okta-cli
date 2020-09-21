@@ -47,6 +47,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -113,6 +114,11 @@ public class Start implements Callable<Integer> {
 
         // parse the `.okta.yaml` file
         OktaSampleConfig config = new DefaultSampleConfigParser().loadConfig(projectDirectory);
+        // default to SPA application
+        OpenIdConnectApplicationType applicationType = Optional.ofNullable(config.getOAuthClient().getApplicationType())
+                .map(it -> it.toUpperCase(Locale.ENGLISH))
+                .map(OpenIdConnectApplicationType::valueOf)
+                .orElse(OpenIdConnectApplicationType.BROWSER);
 
         // create the Okta application
         Client client = Clients.builder().build();
@@ -126,8 +132,9 @@ public class Start implements Callable<Integer> {
                 authorizationServer.getIssuer(),
                 authorizationServer.getId(),
                 true,
-                OpenIdConnectApplicationType.valueOf(config.getOAuthClient().getApplicationType().toUpperCase(Locale.ENGLISH)), // TODO default to SPA
+                applicationType,
                 config.getOAuthClient().getRedirectUris(),
+                config.getOAuthClient().getPostLogoutRedirectUris(),
                 config.getTrustedOrigins()
         );
 

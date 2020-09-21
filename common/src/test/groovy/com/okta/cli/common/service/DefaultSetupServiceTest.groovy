@@ -139,6 +139,42 @@ class DefaultSetupServiceTest {
     }
 
     @Test
+    void createOidcApplicationLogoutRedirectUris() {
+
+        MutablePropertySource propertySource = mock(MutablePropertySource)
+        String oidcAppName = "test-app-name"
+        String orgUrl = "https://org.example.com"
+        String groupClaimName = null
+        String authorizationServerId = "test-auth-id"
+        boolean interactive = false
+
+        PowerMockito.mockStatic(Clients)
+        ClientBuilder clientBuilder = mock(ClientBuilder)
+        Client client = mock(Client)
+        when(clientBuilder.build()).thenReturn(client)
+        when(Clients.builder()).thenReturn(clientBuilder)
+
+        DefaultSetupService setupService = setupService()
+        ExtensibleResource resource = mock(ExtensibleResource)
+        when(resource.getString("client_id")).thenReturn("test-client-id")
+        when(resource.getString("client_secret")).thenReturn("test-client-secret")
+        when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName, ["https://test.example.com/callback", "https://test.example.com/callback2"], ["https://test.example.com/logout", "https://test.example.com/logout2"])).thenReturn(resource)
+
+        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB, ["https://test.example.com/callback", "https://test.example.com/callback2"], ["https://test.example.com/logout", "https://test.example.com/logout2"])
+
+        ArgumentCaptor<Map> mapCapture = ArgumentCaptor.forClass(Map)
+        verify(propertySource).addProperties(mapCapture.capture())
+        assertThat mapCapture.getValue(), is([
+                "okta.oauth2.issuer": "${orgUrl}/oauth2/${authorizationServerId}".toString(),
+                "okta.oauth2.client-id": "test-client-id",
+                "okta.oauth2.client-secret": "test-client-secret"
+        ])
+
+        // no group claim created
+        PowerMockito.verifyNoMoreInteractions(setupService.authorizationServerService)
+    }
+
+    @Test
     void createOidcApplicationNoGroups() {
 
         MutablePropertySource propertySource = mock(MutablePropertySource)
@@ -158,7 +194,7 @@ class DefaultSetupServiceTest {
         ExtensibleResource resource = mock(ExtensibleResource)
         when(resource.getString("client_id")).thenReturn("test-client-id")
         when(resource.getString("client_secret")).thenReturn("test-client-secret")
-        when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName, [])).thenReturn(resource)
+        when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName, [], [])).thenReturn(resource)
 
         setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
 
@@ -194,7 +230,7 @@ class DefaultSetupServiceTest {
         ExtensibleResource resource = mock(ExtensibleResource)
         when(resource.getString("client_id")).thenReturn("test-client-id")
         when(resource.getString("client_secret")).thenReturn("test-client-secret")
-        when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName, [])).thenReturn(resource)
+        when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName, [], [])).thenReturn(resource)
 
         setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
 
