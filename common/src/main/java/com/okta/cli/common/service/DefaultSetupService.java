@@ -231,10 +231,11 @@ public class DefaultSetupService implements SetupService {
 
             TrustedOriginList origins = client.listOrigins();
 
-            Scope cors = client.instantiate(Scope.class)
-                    .setType(ScopeType.CORS);
-            Scope redirect = client.instantiate(Scope.class)
-                    .setType(ScopeType.REDIRECT);
+
+            List<Scope> scopes = List.of(
+                client.instantiate(Scope.class).setType(ScopeType.CORS),
+                client.instantiate(Scope.class).setType(ScopeType.REDIRECT)
+            );
 
             trustedOrigins.forEach(url -> {
                 origins.stream()
@@ -244,15 +245,15 @@ public class DefaultSetupService implements SetupService {
                         .findFirst().ifPresentOrElse(trustedOrigin -> {
 
                             // nested object, just get the enum in a set
-                            Set<ScopeType> scopes = trustedOrigin.getScopes().stream()
+                            Set<ScopeType> scopesSet = trustedOrigin.getScopes().stream()
                                     .map(Scope::getType)
                                     .collect(Collectors.toSet());
 
                             // if either is missing enable both of them
-                            if (!scopes.contains(ScopeType.CORS) || !scopes.contains(ScopeType.REDIRECT)) {
+                            if (!scopesSet.contains(ScopeType.CORS) || !scopesSet.contains(ScopeType.REDIRECT)) {
 
                                 // Add CORS and Redirect to origin
-                                trustedOrigin.setScopes(List.of(cors, redirect));
+                                trustedOrigin.setScopes(scopes);
                                 trustedOrigin.update();
                             }
                         }, () -> {
@@ -260,7 +261,7 @@ public class DefaultSetupService implements SetupService {
                             client.createOrigin(client.instantiate(TrustedOrigin.class)
                                     .setOrigin(url)
                                     .setName(url)
-                                    .setScopes(List.of(cors, redirect)));
+                                    .setScopes(scopes));
                         }
                 );
             });
