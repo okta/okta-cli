@@ -114,7 +114,7 @@ class CommandRunner {
             }
         }
 
-        process.waitForOrKill(Duration.ofSeconds(30).toMillis())
+        process.waitForOrKill(timeout().toMillis())
 
         return new Result(process.exitValue(), command, envVars, sout.toString(), serr.toString(), workingDir, homeDir)
     }
@@ -163,7 +163,7 @@ class CommandRunner {
             }
 
             Future<Integer> future = executorService.submit(callable)
-            exitCode = future.get(30, TimeUnit.SECONDS)
+            exitCode = future.get(timeout().toSeconds(), TimeUnit.SECONDS)
             executorService.shutdown()
 
         } catch(TimeoutException e) {
@@ -316,5 +316,13 @@ class CommandRunner {
             mismatchDescription.appendText(item.stdErr)
             mismatchDescription.appendText("\"")
         }
+    }
+
+    private static Duration timeout() {
+        String timeout = System.getenv("OKTA_ITS_TIMEOUT")
+        return timeout != null ?
+                Duration.parse(timeout) :
+                Duration.ofSeconds(30)
+
     }
 }
