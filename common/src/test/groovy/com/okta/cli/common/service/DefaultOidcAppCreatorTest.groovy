@@ -102,7 +102,7 @@ class DefaultOidcAppCreatorTest {
 
         when(groupList.single()).thenReturn(group)
         when(group.getId()).thenReturn(groupId)
-        when(client.listGroups("everyone", null, null)).thenReturn(groupList)
+        when(client.listGroups("everyone", null)).thenReturn(groupList)
 
         when(client.http()).thenReturn(http)
         when(http.get("/api/v1/internal/apps/${appId}/settings/clientcreds", ExtensibleResource)).thenReturn(response)
