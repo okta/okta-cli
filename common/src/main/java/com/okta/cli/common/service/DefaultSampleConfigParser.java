@@ -32,7 +32,15 @@ public class DefaultSampleConfigParser implements SampleConfigParser {
             // ignore unknown properties, so we can add additional features and not break older clients
             Representer representer = new Representer();
             representer.getPropertyUtils().setSkipMissingProperties(true);
-            return new Yaml(representer).loadAs(fileInputStream, OktaSampleConfig.class);
+            OktaSampleConfig config = new Yaml(representer).loadAs(fileInputStream, OktaSampleConfig.class);
+
+            // TODO improve validation of configuration
+            if (config.getOAuthClient() == null) {
+                throw new IllegalArgumentException("Sample configuration file: '" + configFile.getAbsoluteFile() +
+                                                   "' must contain an 'oauthClient' element, see: " +
+                                                   "https://github.com/oktadeveloper/okta-cli/wiki/Create-an-Okta-Start-Samples");
+            }
+            return config;
         }
     }
 }

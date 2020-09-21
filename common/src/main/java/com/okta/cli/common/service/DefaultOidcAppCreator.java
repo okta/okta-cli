@@ -30,17 +30,15 @@ import com.okta.sdk.resource.application.OpenIdConnectApplicationSettingsClient;
 import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 class DefaultOidcAppCreator implements OidcAppCreator {
 
     @Override
-    public ExtensibleResource createOidcApp(Client client, String oidcAppName, List<String> redirectUris) {
+    public ExtensibleResource createOidcApp(Client client, String oidcAppName, List<String> redirectUris, List<String> postLogoutRedirectUris) {
 
         Optional<Application> existingApp = getApplication(client, oidcAppName);
 
@@ -53,16 +51,9 @@ class DefaultOidcAppCreator implements OidcAppCreator {
                     .setGrantTypes(Collections.singletonList(OAuthGrantType.AUTHORIZATION_CODE))
                     .setApplicationType(OpenIdConnectApplicationType.WEB);
 
-            // TODO expose this setting to the user
-            // TODO the post redirect URI should be exposed in v2 of the SDK
-            Set<String> postLogoutRedirect = redirectUris.stream()
-                    .map(redirectUri -> {
-                        URI uri = URI.create(redirectUri).resolve("/");
-                        return uri.toString();
-                    })
-                    .collect(Collectors.toSet());
-            if (!postLogoutRedirect.isEmpty()) {
-                oauthClient.put("post_logout_redirect_uris", new ArrayList<>(postLogoutRedirect));
+            List<String> logoutRedirectUris = getOrDefaultWebBasedPostLogoutRedirectUris(postLogoutRedirectUris, redirectUris);
+            if (!logoutRedirectUris.isEmpty()) {
+                oauthClient.setPostLogoutRedirectUris(logoutRedirectUris);
             }
 
             Application app = client.instantiate(OpenIdConnectApplication.class)
@@ -80,7 +71,7 @@ class DefaultOidcAppCreator implements OidcAppCreator {
     }
 
     @Override
-    public ExtensibleResource createOidcNativeApp(Client client, String oidcAppName, List<String> redirectUris) {
+    public ExtensibleResource createOidcNativeApp(Client client, String oidcAppName, List<String> redirectUris, List<String> postLogoutRedirectUris) {
 
         Optional<Application> existingApp = getApplication(client, oidcAppName);
 
@@ -101,8 +92,9 @@ class DefaultOidcAppCreator implements OidcAppCreator {
                             .setOAuthClient(client.instantiate(ApplicationCredentialsOAuthClient.class)
                             .setTokenEndpointAuthMethod(OAuthEndpointAuthenticationMethod.NONE)));
 
-            // TODO expose post_logout_redirect_uris setting to the user
-            // for mobile apps this is likely to be something like protocol://logout
+            if (!postLogoutRedirectUris.isEmpty()) {
+                oauthClient.setPostLogoutRedirectUris(postLogoutRedirectUris);
+            }
 
             app = client.createApplication(app);
             assignAppToEveryoneGroup(client, app);
@@ -115,7 +107,7 @@ class DefaultOidcAppCreator implements OidcAppCreator {
     }
 
     @Override
-    public ExtensibleResource createOidcSpaApp(Client client, String oidcAppName, List<String> redirectUris) {
+    public ExtensibleResource createOidcSpaApp(Client client, String oidcAppName, List<String> redirectUris, List<String> postLogoutRedirectUris) {
 
         Optional<Application> existingApp = getApplication(client, oidcAppName);
 
@@ -128,16 +120,9 @@ class DefaultOidcAppCreator implements OidcAppCreator {
                     .setGrantTypes(Collections.singletonList(OAuthGrantType.AUTHORIZATION_CODE))
                     .setApplicationType(OpenIdConnectApplicationType.BROWSER);
 
-            // TODO expose this setting to the user
-            // TODO the post redirect URI should be exposed in v2 of the SDK
-            Set<String> postLogoutRedirect = redirectUris.stream()
-                    .map(redirectUri -> {
-                        URI uri = URI.create(redirectUri).resolve("/");
-                        return uri.toString();
-                    })
-                    .collect(Collectors.toSet());
-            if (!postLogoutRedirect.isEmpty()) {
-                oauthClient.put("post_logout_redirect_uris", new ArrayList<>(postLogoutRedirect));
+            List<String> logoutRedirectUris = getOrDefaultWebBasedPostLogoutRedirectUris(postLogoutRedirectUris, redirectUris);
+            if (!logoutRedirectUris.isEmpty()) {
+                oauthClient.setPostLogoutRedirectUris(logoutRedirectUris);
             }
 
             Application app = client.instantiate(OpenIdConnectApplication.class)
@@ -202,5 +187,21 @@ class DefaultOidcAppCreator implements OidcAppCreator {
 
         ApplicationGroupAssignment aga = client.instantiate(ApplicationGroupAssignment.class).setPriority(2);
         app.createApplicationGroupAssignment(everyoneGroupId, aga);
+    }
+
+    private List<String> getOrDefaultWebBasedPostLogoutRedirectUris(List<String> postLogoutRedirectUris, List<String> redirectUris) {
+
+        if (com.okta.commons.lang.Collections.isEmpty(postLogoutRedirectUris)) {
+                // default to using the redirect URIs base URL
+                return redirectUris.stream()
+                        .map(redirectUri -> {
+                            URI uri = URI.create(redirectUri).resolve("/");
+                            return uri.toString();
+                        })
+                        .distinct()
+                        .collect(Collectors.toList());
+        } else {
+            return postLogoutRedirectUris;
+        }
     }
 }
