@@ -21,6 +21,8 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class FilterConfigBuilder {
 
@@ -29,6 +31,7 @@ public class FilterConfigBuilder {
     private static final String CLI_OKTA_ISSUER_ID = "CLI_OKTA_ISSUER_ID";
     private static final String CLI_OKTA_CLIENT_ID = "CLI_OKTA_CLIENT_ID";
     private static final String CLI_OKTA_CLIENT_SECRET = "CLI_OKTA_CLIENT_SECRET";
+    private static final String CLI_OKTA_REVERSE_DOMAIN = "CLI_OKTA_REVERSE_DOMAIN";
 
     private final Map<String, String> filterValues = new HashMap<>();
 
@@ -48,7 +51,23 @@ public class FilterConfigBuilder {
 
     public FilterConfigBuilder setIssuer(String issuer) {
         filterValues.put(CLI_OKTA_ISSUER, issuer);
-        filterValues.put(CLI_OKTA_ORG_URL, URI.create(issuer).resolve("/").toString());
+        setOrgUrl(URI.create(issuer).resolve("/").toString());
+        return this;
+    }
+
+    public FilterConfigBuilder setOrgUrl(String orgUrl) {
+        filterValues.put(CLI_OKTA_ORG_URL, orgUrl);
+
+        String[] hostParts = URI.create(orgUrl).getHost().split("\\.");
+        String reverseDomain = IntStream.rangeClosed(1, hostParts.length)
+                    .mapToObj(i -> hostParts[hostParts.length - i])
+                    .collect(Collectors.joining("."));
+        setReverseDomain(reverseDomain);
+        return this;
+    }
+
+    public FilterConfigBuilder setReverseDomain(String reverseDomain) {
+        filterValues.put(CLI_OKTA_REVERSE_DOMAIN, reverseDomain);
         return this;
     }
 

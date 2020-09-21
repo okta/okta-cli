@@ -23,9 +23,11 @@ import com.okta.cli.common.model.AuthorizationServer;
 import com.okta.cli.common.model.FilterConfigBuilder;
 import com.okta.cli.common.model.OktaSampleConfig;
 import com.okta.cli.common.model.SamplesListings;
+import com.okta.cli.common.service.ClientConfigurationException;
 import com.okta.cli.common.service.DefaultInterpolator;
 import com.okta.cli.common.service.DefaultSampleConfigParser;
 import com.okta.cli.common.service.DefaultSamplesService;
+import com.okta.cli.common.service.DefaultSdkConfigurationService;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.common.service.TarballExtractor;
 import com.okta.cli.console.ConsoleOutput;
@@ -112,8 +114,11 @@ public class Start implements Callable<Integer> {
             extractedProject = true;
         }
 
+        // TODO need to better abstract away the ~/.okta/okta.yaml config values
+        Map<String, String> sampleContext = new FilterConfigBuilder().setOrgUrl(oktaBaseUrl()).build();
+
         // parse the `.okta.yaml` file
-        OktaSampleConfig config = new DefaultSampleConfigParser().loadConfig(projectDirectory);
+        OktaSampleConfig config = new DefaultSampleConfigParser().loadConfig(projectDirectory, sampleContext);
         // default to SPA application
         OpenIdConnectApplicationType applicationType = Optional.ofNullable(config.getOAuthClient().getApplicationType())
                 .map(it -> it.toUpperCase(Locale.ENGLISH))
@@ -200,5 +205,9 @@ public class Start implements Callable<Integer> {
 
             return FileVisitResult.CONTINUE;
         }
+    }
+
+    private String oktaBaseUrl() throws ClientConfigurationException {
+        return new DefaultSdkConfigurationService().loadUnvalidatedConfiguration().getBaseUrl();
     }
 }
