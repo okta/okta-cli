@@ -51,6 +51,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                     "",  // default of "test-project"
                     "2", // type of app choice "spa"
                     "",  // default callback "http://localhost:8080/callback"
+                    "",  // default post logout redirect
             ]
 
             def result = new CommandRunner()
@@ -59,6 +60,8 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
 
 
             assertThat result, resultMatches(0, allOf(
+                                                            containsString("Enter your Redirect URI [http://localhost:8080/callback]:"),
+                                                            containsString("Enter your Post Logout Redirect URI [http://localhost:8080/]:"),
                                                             containsString("Okta application configuration:"),
                                                             containsString("Client ID: test-id"),
                                                             containsString("Issuer:    ${mockWebServer.url("/")}/oauth2/test-as"),
@@ -95,6 +98,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                     "",  // default of "test-project"
                     "3", //  "native" type of app choice
                     "",  // default callback "localhost:/callback"
+                    "",  // default post logout redirect localhost:/
             ]
 
             def result = new CommandRunner()
@@ -105,6 +109,8 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             assertThat result, resultMatches(0, allOf(
                                                             containsString("Okta application configuration:"),
                                                             containsString("okta.oauth2.client-id: test-id"),
+                                                            containsString("Enter your Redirect URI [localhost:/callback]:"),
+                                                            containsString("Enter your Post Logout Redirect URI [localhost:/]:"),
                                                             containsString("okta.oauth2.issuer: ${mockWebServer.url("/")}/oauth2/test-as"),
                                                             not(containsString("okta.oauth2.client-secret"))),
                                                         null)
@@ -140,6 +146,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                     "", //  default "web" type of app choice
                     "", // default of "test-project"
                     "", // default callback "http://localhost:8080/callback"
+                    "",  // default post logout redirect http://localhost:8080/
             ]
 
             def result = new CommandRunner()
@@ -149,6 +156,8 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             assertThat result, resultMatches(0, allOf(
                                                             containsString("Created OIDC application, client-id: test-id"),
                                                             containsString("Okta application configuration has been written to"),
+                                                            containsString("Enter your Redirect URI [http://localhost:8080/callback]:"),
+                                                            containsString("Enter your Post Logout Redirect URI [http://localhost:8080/]:"),
                                                             containsString(".okta.env")),
                                                         null)
 
@@ -182,6 +191,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                     "",  // default of "test-project"
                     "4", //  "native" type of app choice
                     "",  // default callback "localhost:/callback"
+                    "",  // default post logout redirect
             ]
 
             def result = new CommandRunner()
@@ -221,6 +231,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                     "", //  default "web" type of app choice
                     "", // default of "test-project"
                     "", // default callback "http://localhost:8080/login/oauth2/code/okta"
+                    "",  // default post logout redirect
             ]
 
             def result = new CommandRunner()
@@ -230,6 +241,8 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             assertThat result, resultMatches(0, allOf(
                                                             containsString("Created OIDC application, client-id: test-id"),
                                                             containsString("Okta application configuration has been written to"),
+                                                            containsString("Enter your Redirect URI [http://localhost:8080/login/oauth2/code/okta]:"),
+                                                            containsString("Enter your Post Logout Redirect URI [http://localhost:8080/]:"),
                                                             containsString("application.properties")),
                                                         null)
 
