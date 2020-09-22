@@ -15,6 +15,7 @@
  */
 package com.okta.cli.console
 
+import com.okta.cli.TimeoutListener
 import org.testng.Assert
 import org.testng.annotations.Listeners
 import org.testng.annotations.Test
@@ -24,10 +25,10 @@ import static org.hamcrest.Matchers.equalTo
 import static org.hamcrest.Matchers.nullValue
 import static org.mockito.Mockito.*
 
-@Listeners(RestoreSystemInOut)
+@Listeners([RestoreSystemInOut, TimeoutListener])
 class DefaultPrompterTest {
 
-    @Test(timeOut = 3000l)
+    @Test
     void basicPrompter() {
 
         ConsoleOutput out = mock(ConsoleOutput)
@@ -40,7 +41,7 @@ class DefaultPrompterTest {
         verify(out).write("hello: ")
     }
 
-    @Test(timeOut = 3000l)
+    @Test
     void nullResult() {
 
         ConsoleOutput out = mock(ConsoleOutput)
@@ -52,7 +53,7 @@ class DefaultPrompterTest {
         assertThat(result, nullValue())
     }
 
-    @Test(timeOut = 3000l)
+    @Test
     void promptWithOptions_noDefault() {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
@@ -72,7 +73,7 @@ class DefaultPrompterTest {
         assertThat(outputStream.toString(), equalTo(expectedOutput))
     }
 
-    @Test(timeOut = 3000l)
+    @Test
     void promptWithOptions_withDefault() {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
@@ -94,7 +95,7 @@ class DefaultPrompterTest {
         assertThat(outputStream.toString(), equalTo(expectedOutput))
     }
 
-    @Test//(timeOut = 3000l)
+    @Test
     void promptWithOptions_invalidSelection() {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
@@ -122,7 +123,7 @@ class DefaultPrompterTest {
         assertThat(outputStream.toString(), equalTo(expectedOutput))
     }
 
-    @Test(timeOut = 3000l)
+    @Test
     void failToReadLine() {
         ConsoleOutput out = mock(ConsoleOutput)
         System.in = mock(InputStream)
@@ -131,7 +132,7 @@ class DefaultPrompterTest {
         expectException(PrompterException) { prompter.prompt("hello") }
     }
 
-    @Test(timeOut = 3000l)
+    @Test
     void promptYesNo_defaultYes() {
         ConsoleOutput out = mock(ConsoleOutput)
 
@@ -146,7 +147,7 @@ class DefaultPrompterTest {
         verify(out).write("]")
     }
 
-    @Test(timeOut = 3000l)
+    @Test
     void promptYesNo_defaultNo() {
         ConsoleOutput out = mock(ConsoleOutput)
 
@@ -161,7 +162,7 @@ class DefaultPrompterTest {
         verify(out).write("]")
     }
 
-    @Test(timeOut = 3000l)
+    @Test
     void promptYesNo_no() {
         ConsoleOutput out = mock(ConsoleOutput)
 
@@ -176,7 +177,7 @@ class DefaultPrompterTest {
         verify(out).write("]")
     }
 
-    @Test(timeOut = 3000l)
+    @Test
     void promptYesNo_Other() {
         ConsoleOutput out = mock(ConsoleOutput)
 
