@@ -20,6 +20,7 @@ import com.okta.cli.commands.apps.templates.AppType;
 import com.okta.cli.commands.apps.templates.ServiceAppTemplate;
 import com.okta.cli.commands.apps.templates.SpaAppTemplate;
 import com.okta.cli.commands.apps.templates.WebAppTemplate;
+import com.okta.cli.common.URIs;
 import com.okta.cli.common.config.MapPropertySource;
 import com.okta.cli.common.config.MutablePropertySource;
 import com.okta.cli.common.model.AuthorizationServer;
@@ -28,19 +29,18 @@ import com.okta.cli.common.service.DefaultSdkConfigurationService;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.console.ConsoleOutput;
 import com.okta.cli.console.Prompter;
+import com.okta.commons.lang.Assert;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
 import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
 import picocli.CommandLine;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @CommandLine.Command(name = "create",
         description = "Create an new Okta app")
@@ -104,14 +104,14 @@ public class AppsCreate implements Callable<Integer> {
         List<String> redirectUris = getRedirectUris(Map.of("Spring Security", "http://localhost:8080/login/oauth2/code/okta",
                                                    "JHipster", "http://localhost:8080/login/oauth2/code/oidc"),
                                             appTemplate.getDefaultRedirectUri());
-
+        List<String> postLogoutRedirectUris = getPostLogoutRedirectUris(redirectUris);
         Client client = Clients.builder().build();
         AuthorizationServer issuer = getIssuer(client);
         String baseUrl = getBaseUrl();
         String groupClaimName = appTemplate.getGroupsClaim();
 
         MutablePropertySource propertySource = appCreationMixin.getPropertySource(appTemplate.getDefaultConfigFileName());
-        new DefaultSetupService(appTemplate.getSpringPropertyKey()).createOidcApplication(propertySource, appName, baseUrl, groupClaimName, issuer.getIssuer(), issuer.getId(), true, OpenIdConnectApplicationType.WEB, redirectUris);
+        new DefaultSetupService(appTemplate.getSpringPropertyKey()).createOidcApplication(propertySource, appName, baseUrl, groupClaimName, issuer.getIssuer(), issuer.getId(), true, OpenIdConnectApplicationType.WEB, redirectUris, postLogoutRedirectUris);
 
         out.writeLine("Okta application configuration has been written to: " + propertySource.getName());
 
@@ -122,19 +122,16 @@ public class AppsCreate implements Callable<Integer> {
 
         ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
         String baseUrl = getBaseUrl();
-
-        String[] parts = URI.create(baseUrl).getHost().split("\\.");
-        String reverseDomain = IntStream.rangeClosed(1, parts.length)
-                .mapToObj(i -> parts[parts.length - i])
-                .collect(Collectors.joining("."));
+        String reverseDomain = URIs.reverseDomain(baseUrl);
 
         String defaultRedirectUri = reverseDomain + ":/callback";
-        List<String> redirectUris = getRedirectUris(Map.of("Reverse Domain name", "com.example:/callback"), defaultRedirectUri);
+        List<String> redirectUris = getRedirectUris(Map.of("Reverse Domain name", defaultRedirectUri), defaultRedirectUri);
+        List<String> postLogoutRedirectUris = getPostLogoutRedirectUris(redirectUris);
         Client client = Clients.builder().build();
         AuthorizationServer issuer = getIssuer(client);
 
         MutablePropertySource propertySource = new MapPropertySource();
-        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, issuer.getIssuer(), issuer.getId(), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.NATIVE, redirectUris);
+        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, issuer.getIssuer(), issuer.getId(), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.NATIVE, redirectUris, postLogoutRedirectUris);
 
         out.writeLine("Okta application configuration: ");
         propertySource.getProperties().forEach((key, value) -> {
@@ -171,11 +168,12 @@ public class AppsCreate implements Callable<Integer> {
 
         String baseUrl = getBaseUrl();
         List<String> redirectUris = getRedirectUris(Map.of("/callback", "http://localhost:8080/callback"), SpaAppTemplate.GENERIC.getDefaultRedirectUri());
+        List<String> postLogoutRedirectUris = getPostLogoutRedirectUris(redirectUris);
         Client client = Clients.builder().build();
         AuthorizationServer authorizationServer = getIssuer(client);
 
         MutablePropertySource propertySource = new MapPropertySource();
-        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, authorizationServer.getIssuer(), authorizationServer.getId(), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.BROWSER, redirectUris);
+        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, authorizationServer.getIssuer(), authorizationServer.getId(), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.BROWSER, redirectUris, postLogoutRedirectUris);
 
         out.writeLine("Okta application configuration: ");
         out.bold("Issuer:    ");
@@ -214,7 +212,24 @@ public class AppsCreate implements Callable<Integer> {
         redirectUriPrompt.append("Enter your Redirect URI");
 
         String result = prompter.promptIfEmpty(appCreationMixin.redirectUri, redirectUriPrompt.toString(), defaultRedirectUri).trim();
-        result = result.replaceFirst("^\\[", "");
+        return split(result);
+    }
+
+    private List<String> getPostLogoutRedirectUris(List<String> redirectUris) {
+        Prompter prompter = standardOptions.getEnvironment().prompter();
+
+        Assert.notEmpty(redirectUris, "Redirect Uris cannot be empty");
+        String defaultPostLogoutUri = redirectUris.stream()
+                .findFirst()
+                .map(URIs::baseUrlOf)
+                .get();
+
+        String result = prompter.promptIfEmpty(appCreationMixin.redirectUri, "Enter your Post Logout Redirect URI", defaultPostLogoutUri).trim();
+        return split(result);
+    }
+
+    private List<String> split(String input) {
+        String result = input.replaceFirst("^\\[", "");
         result = result.replaceFirst("]$", "");
 
         return Arrays.stream(result.split(","))
