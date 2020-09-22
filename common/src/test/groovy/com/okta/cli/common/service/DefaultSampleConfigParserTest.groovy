@@ -16,10 +16,10 @@
 package com.okta.cli.common.service
 
 import com.okta.cli.common.model.OktaSampleConfig
-import org.hamcrest.MatcherAssert
 import org.testng.annotations.Test
 
 import static org.hamcrest.Matchers.equalTo
+import static org.hamcrest.MatcherAssert.assertThat
 
 class DefaultSampleConfigParserTest {
 
@@ -31,8 +31,25 @@ class DefaultSampleConfigParserTest {
         file << "  redirectUris:\n"
         file << '    - ${CLI_OKTA_REVERSE_DOMAIN}.myApp://endpoint\n'
         file << '    - http://example.com/foo\n'
+        file << '  applicationType: web\n'
 
         OktaSampleConfig config = new DefaultSampleConfigParser().parseConfig(file, [CLI_OKTA_REVERSE_DOMAIN: "com.example.id"])
-        MatcherAssert.assertThat config.getOAuthClient().redirectUris, equalTo(["com.example.id.myApp://endpoint", "http://example.com/foo"])
+        assertThat config.getOAuthClient().redirectUris, equalTo(["com.example.id.myApp://endpoint", "http://example.com/foo"])
+        assertThat config.getOAuthClient().getApplicationType(), equalTo("web")
+
+    }
+
+    @Test
+    void defaultsTest() {
+
+        File file = File.createTempFile("basicFilterTest", "-sample.yaml")
+        file << "oauthClient:\n"
+        file << "  redirectUris:\n"
+        file << '    - http://example.com/foo\n'
+
+        OktaSampleConfig config = new DefaultSampleConfigParser().parseConfig(file)
+        assertThat config.getOAuthClient().redirectUris, equalTo(["http://example.com/foo"])
+        assertThat config.getOAuthClient().getApplicationType(), equalTo("browser")
+
     }
 }
