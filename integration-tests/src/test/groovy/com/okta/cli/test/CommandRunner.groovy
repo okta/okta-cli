@@ -116,6 +116,10 @@ class CommandRunner {
 
         process.waitForOrKill(Duration.ofSeconds(30).toMillis())
 
+        // flush the console output
+        System.out.flush()
+        System.err.flush()
+
         return new Result(process.exitValue(), command, envVars, sout.toString(), serr.toString(), workingDir, homeDir)
     }
 
