@@ -23,9 +23,11 @@ import com.okta.cli.common.model.AuthorizationServer;
 import com.okta.cli.common.model.FilterConfigBuilder;
 import com.okta.cli.common.model.OktaSampleConfig;
 import com.okta.cli.common.model.SamplesListings;
+import com.okta.cli.common.service.ClientConfigurationException;
 import com.okta.cli.common.service.DefaultInterpolator;
 import com.okta.cli.common.service.DefaultSampleConfigParser;
 import com.okta.cli.common.service.DefaultSamplesService;
+import com.okta.cli.common.service.DefaultSdkConfigurationService;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.common.service.TarballExtractor;
 import com.okta.cli.console.ConsoleOutput;
@@ -47,7 +49,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -112,13 +113,13 @@ public class Start implements Callable<Integer> {
             extractedProject = true;
         }
 
+        // TODO need to better abstract away the ~/.okta/okta.yaml config values
+        Map<String, String> sampleContext = new FilterConfigBuilder().setOrgUrl(oktaBaseUrl()).build();
+
         // parse the `.okta.yaml` file
-        OktaSampleConfig config = new DefaultSampleConfigParser().loadConfig(projectDirectory);
-        // default to SPA application
-        OpenIdConnectApplicationType applicationType = Optional.ofNullable(config.getOAuthClient().getApplicationType())
-                .map(it -> it.toUpperCase(Locale.ENGLISH))
-                .map(OpenIdConnectApplicationType::valueOf)
-                .orElse(OpenIdConnectApplicationType.BROWSER);
+        OktaSampleConfig config = new DefaultSampleConfigParser().loadConfig(projectDirectory, sampleContext);
+        OpenIdConnectApplicationType applicationType = OpenIdConnectApplicationType.valueOf(
+                config.getOAuthClient().getApplicationType().toUpperCase(Locale.ENGLISH));
 
         // create the Okta application
         Client client = Clients.builder().build();
@@ -200,5 +201,9 @@ public class Start implements Callable<Integer> {
 
             return FileVisitResult.CONTINUE;
         }
+    }
+
+    private String oktaBaseUrl() throws ClientConfigurationException {
+        return new DefaultSdkConfigurationService().loadUnvalidatedConfiguration().getBaseUrl();
     }
 }
