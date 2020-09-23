@@ -206,7 +206,7 @@
                         <argument>--no-server</argument>
                         <argument>--enable-url-protocols=http,https</argument>
                         <argument>-H:ResourceConfigurationFiles=src/main/graalvm/resource-config.json</argument>
-                        <argument>-H:ReflectionConfigurationFiles=src/main/graalvm/reflect-config.json,src/main/graalvm/okta-sdk-reflect-config.json</argument>
+                        <argument>-H:ReflectionConfigurationFiles=src/main/graalvm/reflect-config.json</argument>
                         <argument>-H:+TraceClassInitialization</argument>
                         <argument>-H:+ReportExceptionStackTraces</argument>
                         <argument>-H:Class=com.okta.cli.OktaCli</argument>
