@@ -24,7 +24,6 @@ import com.okta.cli.common.URIs;
 import com.okta.cli.common.config.MapPropertySource;
 import com.okta.cli.common.config.MutablePropertySource;
 import com.okta.cli.common.model.AuthorizationServer;
-import com.okta.cli.common.service.ClientConfigurationException;
 import com.okta.cli.common.service.DefaultSdkConfigurationService;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.console.ConsoleOutput;
@@ -194,12 +193,7 @@ public class AppsCreate implements Callable<Integer> {
     }
 
     private String getBaseUrl() {
-        try {
-            // TODO more hacking
-            return new DefaultSdkConfigurationService().loadUnvalidatedConfiguration().getBaseUrl();
-        } catch (ClientConfigurationException e) {
-            throw new IllegalStateException("Unable to find base URL, run `okta login` and try again");
-        }
+        return new DefaultSdkConfigurationService().loadUnvalidatedConfiguration().getBaseUrl();
     }
 
     private List<String> getRedirectUris(Map<String, String> commonExamples, String defaultRedirectUri) {

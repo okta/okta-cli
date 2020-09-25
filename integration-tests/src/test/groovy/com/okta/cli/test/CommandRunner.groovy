@@ -196,10 +196,10 @@ class CommandRunner {
 
         String cli = System.getProperty("okta-cli-test.path")
         if (cli == null || cli.isBlank()) {
-            return new File("../cli/target/okta").absolutePath
+            return new File("../cli/target/okta-runner").absolutePath
         }
 
-        // setting the home directory is tricky, so fitler it into the command
+        // setting the home directory is tricky, so filter it into the command
         return cli.replaceAll("##user.home##", homeDir.absolutePath)
     }
 

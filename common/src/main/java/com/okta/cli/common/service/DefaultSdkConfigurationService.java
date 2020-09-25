@@ -26,12 +26,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermission;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -39,7 +36,7 @@ import java.util.Set;
 public class DefaultSdkConfigurationService implements SdkConfigurationService {
 
     @Override
-    public boolean isConfigured() throws ClientConfigurationException {
+    public boolean isConfigured() {
 
         ClientConfiguration config = loadUnvalidatedConfiguration();
 
@@ -48,20 +45,8 @@ public class DefaultSdkConfigurationService implements SdkConfigurationService {
     }
 
     @Override
-    public ClientConfiguration loadUnvalidatedConfiguration() throws ClientConfigurationException {
-        try {
-            Field field = DefaultClientBuilder.class.getDeclaredField("clientConfig");
-
-            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-                field.setAccessible(true);
-                return null;
-            });
-
-            return (ClientConfiguration) field.get(clientBuilder());
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new ClientConfigurationException("Could not load Okta SDK configuration, ensure okta-sdk-api version has " +
-                    "not been changed in this plugin's configuration: " + e.getMessage(), e);
-        }
+    public ClientConfiguration loadUnvalidatedConfiguration() {
+        return clientBuilder().getClientConfiguration();
     }
 
     @Override

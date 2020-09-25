@@ -22,6 +22,10 @@ import com.okta.cli.commands.Register;
 import com.okta.cli.commands.Start;
 import com.okta.cli.commands.apps.Apps;
 import com.okta.commons.lang.ApplicationInfo;
+import io.quarkus.picocli.runtime.PicocliRunner;
+import io.quarkus.picocli.runtime.annotations.TopCommand;
+import io.quarkus.runtime.Quarkus;
+import io.quarkus.runtime.annotations.QuarkusMain;
 import picocli.AutoComplete;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -31,6 +35,8 @@ import picocli.CommandLine.Spec;
 
 import java.util.List;
 
+@QuarkusMain
+@TopCommand
 @Command(name = "okta",
         description = "The Okta CLI helps you configure your applications to use Okta.",
         subcommands = {
@@ -51,17 +57,10 @@ public class OktaCli implements Runnable {
     private StandardOptions standardOptions;
 
     public static void main(String... args) {
-        System.exit(run(args));
-    }
 
-    public static int run(String... args) {
-        OktaCli oktaCli = new OktaCli();
-        CommandLine commandLine = new CommandLine(oktaCli)
-                .setExecutionExceptionHandler(oktaCli.new ExceptionHandler())
-                .setExecutionStrategy(new CommandLine.RunLast())
-                .setUsageHelpAutoWidth(true)
-                .setUsageHelpWidth(200);
-        return commandLine.execute(args);
+        Quarkus.run(PicocliRunner.class, args);
+        // TODO, configure exit handler?
+//        System.exit(run(args));
     }
 
     public OktaCli() {}
@@ -71,7 +70,7 @@ public class OktaCli implements Runnable {
         throw new CommandLine.ParameterException(spec.commandLine(), "Specify a command");
     }
 
-    class ExceptionHandler implements CommandLine.IExecutionExceptionHandler {
+    static class ExceptionHandler implements CommandLine.IExecutionExceptionHandler {
 
         @Override
         public int handleExecutionException(Exception ex, CommandLine commandLine, CommandLine.ParseResult parseResult) throws Exception {
@@ -79,7 +78,7 @@ public class OktaCli implements Runnable {
             // TODO get the root cause exception
 
             // `null` is the typical message for an NPE, so print the stack traces
-            if (standardOptions.isVerbose()|| ex instanceof NullPointerException) {
+            if (Boolean.getBoolean("okta.verbose") || ex instanceof NullPointerException) {
                 ex.printStackTrace();
             } else {
                 System.err.println("\nAn error occurred if you need more detail use the '--verbose' option\n");
@@ -115,6 +114,7 @@ public class OktaCli implements Runnable {
             this.verbose = verbose;
             if (verbose) {
                 System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
+                System.setProperty("okta.verbose", "true");
             }
         }
 

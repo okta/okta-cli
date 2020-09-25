@@ -16,7 +16,11 @@
 package com.okta.cli.commands;
 
 import com.okta.cli.OktaCli;
+import com.okta.cli.common.service.DefaultSdkConfigurationService;
+import com.okta.cli.common.service.SdkConfigurationService;
 import com.okta.cli.console.ConsoleOutput;
+import com.okta.commons.lang.Strings;
+import com.okta.sdk.impl.config.ClientConfiguration;
 import picocli.CommandLine;
 
 import java.util.concurrent.Callable;
@@ -47,6 +51,14 @@ public class DumpCommand implements Callable<Integer> {
             out.write(" = ");
             out.writeLine(value);
         });
+
+        SdkConfigurationService configurationService = new DefaultSdkConfigurationService();
+        ClientConfiguration clientConfig = configurationService.loadUnvalidatedConfiguration();
+        out.writeLine("SDK Config: ");
+        out.writeLine("\tOrg Url: " + clientConfig.getBaseUrl());
+        out.writeLine("\tToken: " + (Strings.isEmpty(clientConfig.getApiToken())
+                ? "empty"
+                : "not-empty"));
 
         return 0;
     }

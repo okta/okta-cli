@@ -49,7 +49,11 @@ class OktaConfigMatcher extends TypeSafeMatcher<File> {
 
     @Override
     protected void describeMismatchSafely(File item, Description mismatchDescription) {
-        mismatchDescription.appendText("File contents: " + item?.text)
+        if (item?.exists()) {
+            mismatchDescription.appendText("File contents: " + item?.text)
+        } else {
+            mismatchDescription.appendText("File not found: " + item?.absolutePath)
+        }
     }
 
     private static Map parseYaml(File oktaConfigFile) {

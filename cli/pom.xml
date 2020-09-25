@@ -31,7 +31,20 @@
         <maven.compiler.target>11</maven.compiler.target>
 
         <picocli.version>4.2.0</picocli.version>
+        <quarkus.version>1.8.1.Final</quarkus.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.quarkus</groupId>
+                <artifactId>quarkus-bom</artifactId>
+                <version>${quarkus.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -59,21 +72,14 @@
         </dependency>
 
         <dependency>
-            <groupId>info.picocli</groupId>
-            <artifactId>picocli</artifactId>
-            <version>${picocli.version}</version>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-picocli</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.7.29</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.29</version>
-            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -119,6 +125,15 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>io.quarkus</groupId>
+                    <artifactId>quarkus-maven-plugin</artifactId>
+                    <version>${quarkus.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
 <!--            <plugin>-->
 <!--                <groupId>org.codehaus.mojo</groupId>-->
@@ -150,6 +165,42 @@
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.quarkus</groupId>
+                <artifactId>quarkus-maven-plugin</artifactId>
+                <configuration>
+                    <uberJar>true</uberJar>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>build</id>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>native-image</id>
+                        <goals>
+                            <goal>native-image</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>okta</finalName>
+                            <autoServiceLoaderRegistration>true</autoServiceLoaderRegistration>
+                            <reportExceptionStackTraces>true</reportExceptionStackTraces>
+                            <fullStackTraces>true</fullStackTraces>
+                            <enableFallbackImages>false</enableFallbackImages>
+                            <additionalBuildArgs>
+                                <arg>-H:ResourceConfigurationFiles=../../src/main/graalvm/resource-config.json</arg>
+                                <arg>-H:ReflectionConfigurationFiles=../../src/main/graalvm/reflect-config.json,../../src/main/graalvm/okta-sdk-reflect-config.json</arg>
+                                <arg>-H:+TraceClassInitialization</arg>
+                                <arg>--enable-url-protocols=http,https</arg>
+                                <!-- delay init of this builder to allow for changing the user.home for testing purposes -->
+<!--                                <arg>&#45;&#45;delay-class-initialization-to-runtime=com.okta.sdk.impl.client.DefaultClientBuilder</arg>-->
+                            </additionalBuildArgs>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>pl.project13.maven</groupId>
@@ -187,35 +238,35 @@
 <!--            </plugin>-->
 
             <!-- the GraalVM native-image maven plugin is broken on windows, so just execute `native-image` directly -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <executable>native-image</executable>
-                    <arguments>
-                        <argument>--no-fallback</argument>
-                        <argument>--no-server</argument>
-                        <argument>--enable-url-protocols=http,https</argument>
-                        <argument>-H:ResourceConfigurationFiles=src/main/graalvm/resource-config.json</argument>
-                        <argument>-H:ReflectionConfigurationFiles=src/main/graalvm/reflect-config.json,src/main/graalvm/okta-sdk-reflect-config.json</argument>
-                        <argument>-H:+TraceClassInitialization</argument>
-                        <argument>-H:+ReportExceptionStackTraces</argument>
-                        <argument>-H:Class=com.okta.cli.OktaCli</argument>
-                        <argument>-H:Name=target/okta</argument>
-                        <argument>-cp</argument>
-                        <classpath />
-                    </arguments>
-                </configuration>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.codehaus.mojo</groupId>-->
+<!--                <artifactId>exec-maven-plugin</artifactId>-->
+<!--                <version>1.6.0</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>exec</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--                <configuration>-->
+<!--                    <executable>native-image</executable>-->
+<!--                    <arguments>-->
+<!--                        <argument>&#45;&#45;no-fallback</argument>-->
+<!--                        <argument>&#45;&#45;no-server</argument>-->
+<!--                        <argument>&#45;&#45;enable-url-protocols=http,https</argument>-->
+<!--                        <argument>-H:ResourceConfigurationFiles=src/main/graalvm/resource-config.json</argument>-->
+<!--                        <argument>-H:ReflectionConfigurationFiles=src/main/graalvm/reflect-config.json,src/main/graalvm/okta-sdk-reflect-config.json</argument>-->
+<!--                        <argument>-H:+TraceClassInitialization</argument>-->
+<!--                        <argument>-H:+ReportExceptionStackTraces</argument>-->
+<!--                        <argument>-H:Class=com.okta.cli.OktaCli</argument>-->
+<!--                        <argument>-H:Name=target/okta</argument>-->
+<!--                        <argument>-cp</argument>-->
+<!--                        <classpath />-->
+<!--                    </arguments>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
 
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -256,23 +307,23 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.2.7.RELEASE</version>
-                <configuration>
-                    <mainClass>com.okta.cli.OktaCli</mainClass>
-                </configuration>
-                <executions>
-                    <execution>
-                        <!-- force to after package phase -->
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--                <version>2.2.7.RELEASE</version>-->
+<!--                <configuration>-->
+<!--                    <mainClass>com.okta.cli.OktaCli</mainClass>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        &lt;!&ndash; force to after package phase &ndash;&gt;-->
+<!--                        <phase>pre-integration-test</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>repackage</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 

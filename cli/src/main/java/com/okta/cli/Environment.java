@@ -24,10 +24,6 @@ import java.io.File;
 
 public class Environment {
 
-    private final File baseDir = new File(System.getProperty("user.dir"));
-
-    private final File oktaPropsFile = new File(System.getProperty("user.home"), ".okta/okta.yaml");
-
     private Prompter prompter;
 
     private ConsoleOutput consoleOutput;
@@ -51,11 +47,11 @@ public class Environment {
     }
 
     public File workingDirectory() {
-        return baseDir;
+        return new File(System.getProperty("user.dir"));
     }
 
     public File getOktaPropsFile() {
-        return oktaPropsFile;
+        return new File(System.getProperty("user.home"), ".okta/okta.yaml");
     }
 
     public boolean isDemo() {
