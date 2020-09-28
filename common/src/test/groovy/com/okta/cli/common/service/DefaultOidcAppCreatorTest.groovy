@@ -52,7 +52,7 @@ class DefaultOidcAppCreatorTest {
         when(client.http()).thenReturn(http)
         when(http.get("/api/v1/internal/apps/${appId}/settings/clientcreds", ExtensibleResource)).thenReturn(response)
 
-        ExtensibleResource result = appCreator.createOidcApp(client, appName, [])
+        ExtensibleResource result = appCreator.createOidcApp(client, appName, [], [])
 
         assertThat result, is(response)
     }
@@ -107,7 +107,7 @@ class DefaultOidcAppCreatorTest {
         when(client.http()).thenReturn(http)
         when(http.get("/api/v1/internal/apps/${appId}/settings/clientcreds", ExtensibleResource)).thenReturn(response)
 
-        ExtensibleResource result = appCreator.createOidcApp(client, appName, ["http://localhost:8080/callback", "http://localhost:8080/login/oauth2/code/okta"])
+        ExtensibleResource result = appCreator.createOidcApp(client, appName, ["http://localhost:8080/callback", "http://localhost:8080/login/oauth2/code/okta"], [])
 
         assertThat result, is(response)
 
@@ -116,6 +116,68 @@ class DefaultOidcAppCreatorTest {
         verify(settingsClient).setResponseTypes([OAuthResponseType.CODE])
         verify(settingsClient).setGrantTypes([OAuthGrantType.AUTHORIZATION_CODE])
         verify(settingsClient).setApplicationType(OpenIdConnectApplicationType.WEB)
-        verify(settingsClient).put("post_logout_redirect_uris", ["http://localhost:8080/"])
+        verify(settingsClient).setPostLogoutRedirectUris(["http://localhost:8080/"])
+    }
+
+    @Test
+    void createNewAppWithPostLogoutUris() {
+
+        String appName = "appLabel-createNewApp"
+        String appId = "appId-createNewApp"
+        String groupId = "everyone-id"
+
+        Client client = mock(Client)
+        ApplicationList appList = mock(ApplicationList)
+        List<Application> apps = []
+        RequestBuilder http = mock(RequestBuilder)
+        ExtensibleResource response = mock(ExtensibleResource)
+
+        OpenIdConnectApplication newApp = mock(OpenIdConnectApplication)
+        OpenIdConnectApplicationSettings appSettings = mock(OpenIdConnectApplicationSettings)
+        OpenIdConnectApplicationSettingsClient settingsClient = mock(OpenIdConnectApplicationSettingsClient)
+        ApplicationGroupAssignment groupAssignment = mock(ApplicationGroupAssignment)
+
+        GroupList groupList = mock(GroupList)
+        Group group = mock(Group)
+
+        DefaultOidcAppCreator appCreator = new DefaultOidcAppCreator()
+
+        when(client.listApplications(appName, null, null, null)).thenReturn(appList)
+
+        when(newApp.setLabel(appName)).thenReturn(newApp)
+        when(newApp.setSettings(appSettings)).thenReturn(newApp)
+        when(appSettings.setOAuthClient(settingsClient)).thenReturn(appSettings)
+
+        when(client.instantiate(OpenIdConnectApplication)).thenReturn(newApp)
+        when(client.instantiate(OpenIdConnectApplicationSettings)).thenReturn(appSettings)
+        when(client.instantiate(OpenIdConnectApplicationSettingsClient)).thenReturn(settingsClient)
+        when(client.instantiate(ApplicationGroupAssignment)).thenReturn(groupAssignment)
+
+        when(settingsClient.setRedirectUris(any(List))).thenReturn(settingsClient)
+        when(settingsClient.setResponseTypes(any(List))).thenReturn(settingsClient)
+        when(settingsClient.setGrantTypes(any(List))).thenReturn(settingsClient)
+        when(settingsClient.setApplicationType(OpenIdConnectApplicationType.WEB)).thenReturn(settingsClient)
+
+        when(client.createApplication(newApp)).thenReturn(newApp)
+        when(newApp.getId()).thenReturn(appId)
+        when(appList.stream()).thenReturn(apps.stream())
+
+        when(groupList.single()).thenReturn(group)
+        when(group.getId()).thenReturn(groupId)
+        when(client.listGroups("everyone", null)).thenReturn(groupList)
+
+        when(client.http()).thenReturn(http)
+        when(http.get("/api/v1/internal/apps/${appId}/settings/clientcreds", ExtensibleResource)).thenReturn(response)
+
+        ExtensibleResource result = appCreator.createOidcApp(client, appName, ["http://localhost:8080/callback", "http://localhost:8080/login/oauth2/code/okta"], ["http://localhost:8080/logout", "http://localhost:8080/logout2"])
+
+        assertThat result, is(response)
+
+        verify(settingsClient).setRedirectUris(["http://localhost:8080/callback",
+                                                "http://localhost:8080/login/oauth2/code/okta"])
+        verify(settingsClient).setResponseTypes([OAuthResponseType.CODE])
+        verify(settingsClient).setGrantTypes([OAuthGrantType.AUTHORIZATION_CODE])
+        verify(settingsClient).setApplicationType(OpenIdConnectApplicationType.WEB)
+        verify(settingsClient).setPostLogoutRedirectUris(["http://localhost:8080/logout", "http://localhost:8080/logout2"])
     }
 }

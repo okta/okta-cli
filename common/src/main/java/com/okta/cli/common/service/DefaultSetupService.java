@@ -167,6 +167,7 @@ public class DefaultSetupService implements SetupService {
                                       boolean interactive,
                                       OpenIdConnectApplicationType appType,
                                       List<String> redirectUris,
+                                      List<String> postLogoutRedirectUris,
                                       List<String> trustedOrigins) throws IOException {
 
         // Create new Application
@@ -183,13 +184,13 @@ public class DefaultSetupService implements SetupService {
                 ExtensibleResource clientCredsResponse;
                 switch (appType) {
                     case WEB:
-                        clientCredsResponse = oidcAppCreator.createOidcApp(client, oidcAppName, redirectUris);
+                        clientCredsResponse = oidcAppCreator.createOidcApp(client, oidcAppName, redirectUris, postLogoutRedirectUris);
                         break;
                     case NATIVE:
-                        clientCredsResponse = oidcAppCreator.createOidcNativeApp(client, oidcAppName, redirectUris);
+                        clientCredsResponse = oidcAppCreator.createOidcNativeApp(client, oidcAppName, redirectUris, postLogoutRedirectUris);
                         break;
                     case BROWSER:
-                        clientCredsResponse = oidcAppCreator.createOidcSpaApp(client, oidcAppName, redirectUris);
+                        clientCredsResponse = oidcAppCreator.createOidcSpaApp(client, oidcAppName, redirectUris, postLogoutRedirectUris);
                         break;
                     case SERVICE:
                         clientCredsResponse = oidcAppCreator.createOidcServiceApp(client, oidcAppName, redirectUris);

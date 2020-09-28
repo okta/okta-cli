@@ -59,6 +59,19 @@ public interface SetupService {
         createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, issuerUri, authorizationServerId, interactive, appType, redirectUris, Collections.emptyList());
     }
 
+    default void createOidcApplication(MutablePropertySource propertySource,
+                                       String oidcAppName,
+                                       String orgUrl,
+                                       String groupClaimName,
+                                       String issuerUri,
+                                       String authorizationServerId,
+                                       boolean interactive,
+                                       OpenIdConnectApplicationType appType,
+                                       List<String> redirectUris,
+                                       List<String> postLogoutRedirectUris) throws IOException {
+        createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, issuerUri, authorizationServerId, interactive, appType, redirectUris, postLogoutRedirectUris, Collections.emptyList());
+    }
+
     void createOidcApplication(MutablePropertySource propertySource,
                                String oidcAppName,
                                String orgUrl,
@@ -68,5 +81,6 @@ public interface SetupService {
                                boolean interactive,
                                OpenIdConnectApplicationType appType,
                                List<String> redirectUris,
+                               List<String> postLogoutRedirectUris,
                                List<String> trustedOrigins) throws IOException;
 }

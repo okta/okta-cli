@@ -26,7 +26,7 @@
 
     <groupId>com.okta.cli</groupId>
     <artifactId>okta-cli-tools</artifactId>
-    <version>0.6.1-SNAPSHOT</version>
+    <version>0.7.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Okta CLI Tools</name>
@@ -73,19 +73,19 @@
             <dependency>
                 <groupId>com.okta.cli</groupId>
                 <artifactId>okta-cli-common</artifactId>
-                <version>0.6.1-SNAPSHOT</version>
+                <version>0.7.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.okta.cli</groupId>
                 <artifactId>okta-cli</artifactId>
-                <version>0.6.1-SNAPSHOT</version>
+                <version>0.7.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.okta.cli</groupId>
                 <artifactId>okta-cli-its</artifactId>
-                <version>0.6.1-SNAPSHOT</version>
+                <version>0.7.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>

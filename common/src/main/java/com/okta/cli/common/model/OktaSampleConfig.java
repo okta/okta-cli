@@ -49,6 +49,7 @@ public class OktaSampleConfig {
     @Data
     public static class OAuthClient {
         private List<String> redirectUris;
-        private String applicationType;
+        private List<String> postLogoutRedirectUris;
+        private String applicationType = "browser";
     }
 }

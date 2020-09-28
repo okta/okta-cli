@@ -22,11 +22,11 @@ import java.util.List;
 
 public interface OidcAppCreator {
 
-    ExtensibleResource createOidcApp(Client client, String oidcAppName, List<String> redirectUris);
+    ExtensibleResource createOidcApp(Client client, String oidcAppName, List<String> redirectUris, List<String> postLogoutRedirectUris);
 
-    ExtensibleResource createOidcNativeApp(Client client, String oidcAppName, List<String> redirectUris);
+    ExtensibleResource createOidcNativeApp(Client client, String oidcAppName, List<String> redirectUris, List<String> postLogoutRedirectUris);
 
-    ExtensibleResource createOidcSpaApp(Client client, String oidcAppName, List<String> redirectUris);
+    ExtensibleResource createOidcSpaApp(Client client, String oidcAppName, List<String> redirectUris, List<String> postLogoutRedirectUris);
 
     ExtensibleResource createOidcServiceApp(Client client, String oidcAppName, List<String> redirectUris);
 }

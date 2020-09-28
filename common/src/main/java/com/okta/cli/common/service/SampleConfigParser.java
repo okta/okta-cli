@@ -19,18 +19,25 @@ import com.okta.cli.common.model.OktaSampleConfig;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
+
+import static java.util.Collections.emptyMap;
 
 public interface SampleConfigParser {
 
     String SAMPLE_CONFIG_PATH = ".okta/sample-config.yaml";
 
-    default OktaSampleConfig loadConfig() throws IOException {
-        return parseConfig(new File(SAMPLE_CONFIG_PATH));
-    }
-
     default OktaSampleConfig loadConfig(File localPath) throws IOException {
         return parseConfig(new File(localPath, SAMPLE_CONFIG_PATH));
     }
 
-    OktaSampleConfig parseConfig(File configFile) throws IOException;
+    default OktaSampleConfig loadConfig(File localPath, Map<String, String> context) throws IOException {
+        return parseConfig(new File(localPath, SAMPLE_CONFIG_PATH), context);
+    }
+
+    default OktaSampleConfig parseConfig(File configFile) throws IOException {
+        return parseConfig(configFile, emptyMap());
+    }
+
+    OktaSampleConfig parseConfig(File configFile, Map<String, String> context) throws IOException;
 }
