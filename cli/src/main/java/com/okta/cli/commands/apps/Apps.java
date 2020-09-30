@@ -23,7 +23,8 @@ import picocli.CommandLine.Command;
          description = "Manage Okta apps",
          subcommands = {
                     AppsConfig.class,
-                    AppsCreate.class})
+                    AppsCreate.class,
+                    AppsDelete.class})
 public class Apps extends BaseCommand {
 
     @Override

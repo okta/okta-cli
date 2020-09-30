@@ -262,11 +262,6 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
         }
     }
 
-    private static void verify(RecordedRequest request, String method, String relativeUri) {
-        assertThat request.requestUrl.toString(), containsString(relativeUri)
-        assertThat request.method, equalTo(method)
-    }
-
     private static void verifyRedirectUri(RecordedRequest request, String... expectedRedirectUris) {
         verify(request, "POST", "/api/v1/apps")
         def body = new JsonSlurper().parse(request.getBody().inputStream())
