@@ -15,7 +15,7 @@
  */
 package com.okta.cli.commands.apps;
 
-import com.okta.cli.OktaCli;
+import com.okta.cli.commands.BaseCommand;
 import com.okta.cli.common.model.AuthorizationServer;
 import com.okta.cli.common.model.ClientCredentials;
 import com.okta.cli.console.ConsoleOutput;
@@ -27,24 +27,19 @@ import com.okta.sdk.resource.application.Application;
 import com.okta.sdk.resource.application.OpenIdConnectApplication;
 import picocli.CommandLine;
 
-import java.util.concurrent.Callable;
-
 @CommandLine.Command(name = "config",
         description = "Show an Okta app's configuration")
-public class AppsConfig implements Callable<Integer> {
-
-    @CommandLine.Mixin
-    private OktaCli.StandardOptions standardOptions;
+public class AppsConfig extends BaseCommand {
 
     @CommandLine.Option(names = "--app", description = "App ID", required = true)
     private String appName;
 
     @Override
-    public Integer call() {
+    public int runCommand() {
         Client client = Clients.builder().build();
         Application app = client.getApplication(appName);
 
-        ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
+        ConsoleOutput out = getConsoleOutput();
 
         Assert.isInstanceOf(OpenIdConnectApplication.class, app, "Existing application found with name '" +
                 appName +"' but it is NOT an OIDC application. Only OIDC applications work with the Okta CLI.");
@@ -52,7 +47,7 @@ public class AppsConfig implements Callable<Integer> {
         ClientCredentials clientCreds = new ClientCredentials(client.http()
                 .get("/api/v1/internal/apps/" + app.getId() + "/settings/clientcreds", ExtensibleResource.class));
 
-        AuthorizationServer authorizationServer = CommonAppsPrompts.getIssuer(client, standardOptions.getEnvironment().prompter(), null);
+        AuthorizationServer authorizationServer = CommonAppsPrompts.getIssuer(client, getPrompter(), null);
 
         out.writeLine("Name:          " + app.getLabel());
         out.writeLine("Client Id:     " + clientCreds.getClientId());

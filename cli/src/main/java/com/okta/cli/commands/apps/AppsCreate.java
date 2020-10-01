@@ -15,7 +15,7 @@
  */
 package com.okta.cli.commands.apps;
 
-import com.okta.cli.OktaCli;
+import com.okta.cli.commands.BaseCommand;
 import com.okta.cli.commands.apps.templates.AppType;
 import com.okta.cli.commands.apps.templates.ServiceAppTemplate;
 import com.okta.cli.commands.apps.templates.SpaAppTemplate;
@@ -39,15 +39,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 @CommandLine.Command(name = "create",
         description = "Create an new Okta app")
-public class AppsCreate implements Callable<Integer> {
-
-    @CommandLine.Mixin
-    private OktaCli.StandardOptions standardOptions;
+public class AppsCreate extends BaseCommand {
 
     @CommandLine.Mixin
     private AppCreationMixin appCreationMixin;
@@ -56,7 +52,7 @@ public class AppsCreate implements Callable<Integer> {
     List<QuickTemplate> quickTemplates;
 
     @Override
-    public Integer call() throws Exception {
+    public int runCommand() throws Exception {
 
         if (quickTemplates != null && quickTemplates.size() > 1) {
             throw new IllegalArgumentException("Only one positional parameter is allowed");
@@ -66,7 +62,7 @@ public class AppsCreate implements Callable<Integer> {
                 ? null
                 : quickTemplates.get(0);
 
-        Prompter prompter = standardOptions.getEnvironment().prompter();
+        Prompter prompter = getPrompter();
 
         // prompt (if needed) for the applicaiton name first
         String appName = getAppName();
@@ -96,8 +92,8 @@ public class AppsCreate implements Callable<Integer> {
 
     private int createWebApp(String appName, WebAppTemplate webAppTemplate) throws IOException {
 
-        ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
-        Prompter prompter = standardOptions.getEnvironment().prompter();
+        ConsoleOutput out = getConsoleOutput();
+        Prompter prompter = getPrompter();
 
         WebAppTemplate appTemplate = prompter.promptIfEmpty(webAppTemplate, "Type of Application", Arrays.asList(WebAppTemplate.values()), WebAppTemplate.GENERIC);
 
@@ -120,7 +116,7 @@ public class AppsCreate implements Callable<Integer> {
 
     private Integer createNativeApp(String appName) throws IOException {
 
-        ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
+        ConsoleOutput out = getConsoleOutput();
         String baseUrl = getBaseUrl();
         String reverseDomain = URIs.reverseDomain(baseUrl);
 
@@ -131,7 +127,7 @@ public class AppsCreate implements Callable<Integer> {
         AuthorizationServer issuer = getIssuer(client);
 
         MutablePropertySource propertySource = new MapPropertySource();
-        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, issuer.getIssuer(), issuer.getId(), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.NATIVE, redirectUris, postLogoutRedirectUris);
+        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, issuer.getIssuer(), issuer.getId(), getEnvironment().isInteractive(), OpenIdConnectApplicationType.NATIVE, redirectUris, postLogoutRedirectUris);
 
         out.writeLine("Okta application configuration: ");
         propertySource.getProperties().forEach((key, value) -> {
@@ -145,8 +141,8 @@ public class AppsCreate implements Callable<Integer> {
 
     private Integer createServiceApp(String appName, ServiceAppTemplate appTemplate) throws IOException {
 
-        ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
-        Prompter prompter = standardOptions.getEnvironment().prompter();
+        ConsoleOutput out = getConsoleOutput();
+        Prompter prompter = getPrompter();
 
         appTemplate = prompter.promptIfEmpty(appTemplate, "Framework of Application", Arrays.asList(ServiceAppTemplate.values()), ServiceAppTemplate.GENERIC);
 
@@ -155,7 +151,7 @@ public class AppsCreate implements Callable<Integer> {
         AuthorizationServer issuer = getIssuer(client);
 
         MutablePropertySource propertySource = appCreationMixin.getPropertySource(appTemplate.getDefaultConfigFileName());
-        new DefaultSetupService(appTemplate.getSpringPropertyKey()).createOidcApplication(propertySource, appName, baseUrl, null, issuer.getIssuer(), issuer.getId(), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.SERVICE);
+        new DefaultSetupService(appTemplate.getSpringPropertyKey()).createOidcApplication(propertySource, appName, baseUrl, null, issuer.getIssuer(), issuer.getId(), getEnvironment().isInteractive(), OpenIdConnectApplicationType.SERVICE);
 
         out.writeLine("Okta application configuration has been written to: " + propertySource.getName());
 
@@ -164,7 +160,7 @@ public class AppsCreate implements Callable<Integer> {
 
     private Integer createSpaApp(String appName) throws IOException {
 
-        ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
+        ConsoleOutput out = getConsoleOutput();
 
         String baseUrl = getBaseUrl();
         List<String> redirectUris = getRedirectUris(Map.of("/callback", "http://localhost:8080/callback"), SpaAppTemplate.GENERIC.getDefaultRedirectUri());
@@ -173,7 +169,7 @@ public class AppsCreate implements Callable<Integer> {
         AuthorizationServer authorizationServer = getIssuer(client);
 
         MutablePropertySource propertySource = new MapPropertySource();
-        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, authorizationServer.getIssuer(), authorizationServer.getId(), standardOptions.getEnvironment().isInteractive(), OpenIdConnectApplicationType.BROWSER, redirectUris, postLogoutRedirectUris);
+        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, authorizationServer.getIssuer(), authorizationServer.getId(), getEnvironment().isInteractive(), OpenIdConnectApplicationType.BROWSER, redirectUris, postLogoutRedirectUris);
 
         out.writeLine("Okta application configuration: ");
         out.bold("Issuer:    ");
@@ -184,12 +180,12 @@ public class AppsCreate implements Callable<Integer> {
     }
 
     private String getAppName() {
-        Prompter prompter = standardOptions.getEnvironment().prompter();
+        Prompter prompter = getPrompter();
         return prompter.promptUntilIfEmpty(appCreationMixin.appName,"Application name", appCreationMixin.getDefaultAppName());
     }
 
     private AuthorizationServer getIssuer(Client client) {
-        Prompter prompter = standardOptions.getEnvironment().prompter();
+        Prompter prompter = getPrompter();
         return CommonAppsPrompts.getIssuer(client, prompter, appCreationMixin.authorizationServerId);
     }
 
@@ -203,7 +199,7 @@ public class AppsCreate implements Callable<Integer> {
     }
 
     private List<String> getRedirectUris(Map<String, String> commonExamples, String defaultRedirectUri) {
-        Prompter prompter = standardOptions.getEnvironment().prompter();
+        Prompter prompter = getPrompter();
 
         StringBuilder redirectUriPrompt = new StringBuilder("Redirect URI\nCommon defaults:\n");
         commonExamples.forEach((key, value) -> {
@@ -216,7 +212,7 @@ public class AppsCreate implements Callable<Integer> {
     }
 
     private List<String> getPostLogoutRedirectUris(List<String> redirectUris) {
-        Prompter prompter = standardOptions.getEnvironment().prompter();
+        Prompter prompter = getPrompter();
 
         Assert.notEmpty(redirectUris, "Redirect Uris cannot be empty");
         String defaultPostLogoutUri = redirectUris.stream()

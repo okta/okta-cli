@@ -15,7 +15,6 @@
  */
 package com.okta.cli.commands;
 
-import com.okta.cli.OktaCli;
 import com.okta.cli.commands.apps.CommonAppsPrompts;
 import com.okta.cli.common.config.MapPropertySource;
 import com.okta.cli.common.config.MutablePropertySource;
@@ -49,17 +48,13 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import static com.okta.cli.common.service.SampleConfigParser.SAMPLE_CONFIG_PATH;
 
 @CommandLine.Command(name = "start",
                      description = "Creates an Okta Sample Application")
-public class Start implements Callable<Integer> {
-
-    @CommandLine.Mixin
-    private OktaCli.StandardOptions standardOptions;
+public class Start extends BaseCommand {
 
     @CommandLine.Parameters(description = "Name of sample", arity = "0..1")
     private String sampleName;
@@ -68,10 +63,10 @@ public class Start implements Callable<Integer> {
     private String branchName;
 
     @Override
-    public Integer call() throws Exception {
+    public int runCommand() throws Exception {
 
         // registration is required, walk through the registration flow if needed
-        Register.requireRegistration(standardOptions);
+        Register.requireRegistration(getStandardOptions());
 
         final String appName;
         final File projectDirectory;
@@ -103,8 +98,7 @@ public class Start implements Callable<Integer> {
             Assert.notEmpty(sampleOptions, "Failed to get the list of example applications. Check your network connection and try to rerun this command.");
 
             // prompt for selection
-            SamplesListings.OktaSample sample = standardOptions.getEnvironment()
-                    .prompter().prompt("Select a sample", sampleOptions, sampleOptions.get(0));
+            SamplesListings.OktaSample sample = getPrompter().prompt("Select a sample", sampleOptions, sampleOptions.get(0));
 
             appName = "okta-" + sample.getName() + "-sample";
             projectDirectory = new File(appName).getCanonicalFile();
@@ -123,7 +117,7 @@ public class Start implements Callable<Integer> {
 
         // create the Okta application
         Client client = Clients.builder().build();
-        AuthorizationServer authorizationServer = CommonAppsPrompts.getIssuer(client, standardOptions.getEnvironment().prompter(), null);
+        AuthorizationServer authorizationServer = CommonAppsPrompts.getIssuer(client, getPrompter(), null);
         MutablePropertySource propertySource = new MapPropertySource();
         new DefaultSetupService(null).createOidcApplication(
                 propertySource,
@@ -148,7 +142,7 @@ public class Start implements Callable<Integer> {
         // walk directory structure, ignore .okta
         Files.walkFileTree(projectDirectory.toPath(), new SampleFileVisitor(context));
 
-        ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
+        ConsoleOutput out = getConsoleOutput();
 
         // provide instructions to user
         if (!Strings.isEmpty(config.getDirections())) {
