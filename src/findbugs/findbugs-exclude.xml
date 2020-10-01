@@ -66,7 +66,7 @@
 
     <Match>
         <!-- Users can override the URL for start.okta.dev -->
-        <Class name="com.okta.cli.common.service.HttpRestClient"/>
+        <Class name="com.okta.cli.common.service.DefaultStartRestClient"/>
         <Bug pattern="HTTP_PARAMETER_POLLUTION"/>
     </Match>
 

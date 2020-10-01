@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.cli.common.service;
+package com.okta.cli.common.model;
 
-import com.okta.cli.common.RestException;
-import com.okta.cli.common.model.SamplesListings;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
-import java.io.IOException;
-import java.util.List;
+@Data
+@Accessors(chain = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class VersionInfo {
 
-public class DefaultSamplesService implements SamplesService {
-
-    private final RestClient restClient = new HttpRestClient();
-
-    @Override
-    public List<SamplesListings.OktaSample> listSamples() throws IOException, RestException {
-        return restClient.get("/samples", SamplesListings.class).getItems();
-    }
+    private String latestVersion;
+    private String latestReleaseUrl;
 }

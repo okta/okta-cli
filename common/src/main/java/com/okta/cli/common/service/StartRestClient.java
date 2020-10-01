@@ -17,11 +17,14 @@ package com.okta.cli.common.service;
 
 import com.okta.cli.common.RestException;
 import com.okta.cli.common.model.SamplesListings;
+import com.okta.cli.common.model.VersionInfo;
 
 import java.io.IOException;
 import java.util.List;
 
-public interface SamplesService {
+public interface StartRestClient {
+
+    VersionInfo getVersionInfo() throws IOException, RestException;
 
     List<SamplesListings.OktaSample> listSamples() throws IOException, RestException;
 }

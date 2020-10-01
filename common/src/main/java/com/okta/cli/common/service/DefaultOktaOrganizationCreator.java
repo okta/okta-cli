@@ -24,7 +24,7 @@ import java.io.IOException;
 
 public class DefaultOktaOrganizationCreator implements OktaOrganizationCreator {
 
-    private final RestClient restClient = new HttpRestClient();
+    private final RestClient restClient = new DefaultStartRestClient();
 
     @Override
     public OrganizationResponse createNewOrg(OrganizationRequest orgRequest) throws RestException, IOException {
