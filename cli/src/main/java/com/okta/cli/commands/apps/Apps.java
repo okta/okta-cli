@@ -15,30 +15,24 @@
  */
 package com.okta.cli.commands.apps;
 
-import com.okta.cli.OktaCli;
+import com.okta.cli.commands.BaseCommand;
 import com.okta.sdk.client.Clients;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
-
-import java.util.concurrent.Callable;
 
 @Command(name = "apps",
          description = "Manage Okta apps",
          subcommands = {
                     AppsConfig.class,
                     AppsCreate.class})
-public class Apps implements Callable<Integer> {
-
-    @CommandLine.Mixin
-    private OktaCli.StandardOptions standardOptions;
+public class Apps extends BaseCommand {
 
     @Override
-    public Integer call() throws Exception {
+    public int runCommand() throws Exception {
 
         Clients.builder().build()
                 .listApplications().stream()
                 .forEach(app -> {
-                    standardOptions.getEnvironment().getConsoleOutput().writeLine(app.getId() + "\t" + app.getLabel());
+                    getConsoleOutput().writeLine(app.getId() + "\t" + app.getLabel());
                 });
         return 0;
     }

@@ -15,7 +15,6 @@
  */
 package com.okta.cli.commands;
 
-import com.okta.cli.OktaCli;
 import com.okta.cli.console.ConsoleOutput;
 import com.okta.commons.lang.Strings;
 import com.okta.sdk.client.Client;
@@ -32,26 +31,22 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.concurrent.Callable;
 
 import static java.lang.Thread.sleep;
 
 @CommandLine.Command(name = "logs",
                      description = "Lists Okta log events",
                      hidden = true)
-public class Logs implements Callable<Integer> {
-
-    @CommandLine.Mixin
-    private OktaCli.StandardOptions standardOptions;
+public class Logs extends BaseCommand {
 
     @CommandLine.Option(names = {"-f", "--follow"}, description = "Polls for new log events")
     protected boolean follow;
 
     @Override
-    public Integer call() throws Exception {
+    public int runCommand() throws Exception {
 
         Client client = Clients.builder().build();
-        ConsoleOutput output = standardOptions.getEnvironment().getConsoleOutput();
+        ConsoleOutput output = getConsoleOutput();
 
         // At most 1 hour back
         Instant since = Instant.now().minus(1, ChronoUnit.HOURS);

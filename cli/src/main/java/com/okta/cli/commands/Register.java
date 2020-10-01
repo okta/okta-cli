@@ -27,14 +27,9 @@ import com.okta.cli.console.Prompter;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-import java.util.concurrent.Callable;
-
 @Command(name = "register",
          description = "Sign up for a new Okta account")
-public class Register implements Callable<Integer> {
-
-    @CommandLine.Mixin
-    protected OktaCli.StandardOptions standardOptions;
+public class Register extends BaseCommand {
 
     @CommandLine.Option(names = "--email", description = "Email used when registering a new Okta account")
     protected String email;
@@ -51,9 +46,10 @@ public class Register implements Callable<Integer> {
     public Register() {}
 
     private Register(OktaCli.StandardOptions standardOptions) {
-        this.standardOptions = standardOptions;
+        super(standardOptions);
     }
 
+    // TODO, these registration bit needs to be refactor out into a service, so that this stanardOptions object does NOT need to be passed around
     public static void requireRegistration(OktaCli.StandardOptions standardOptions) throws Exception {
         if (!new DefaultSdkConfigurationService().isConfigured()) {
             ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
@@ -68,20 +64,20 @@ public class Register implements Callable<Integer> {
     }
 
     @Override
-    public Integer call() throws Exception {
+    public int runCommand() throws Exception {
 
         CliRegistrationQuestions registrationQuestions = registrationQuestions();
 
         SetupService setupService = new DefaultSetupService(null);
         OrganizationResponse orgResponse = setupService.createOktaOrg(registrationQuestions,
-                                   standardOptions.getEnvironment().getOktaPropsFile(),
-                                   standardOptions.getEnvironment().isDemo(),
-                                   standardOptions.getEnvironment().isInteractive());
+                                   getEnvironment().getOktaPropsFile(),
+                                   getEnvironment().isDemo(),
+                                   getEnvironment().isInteractive());
 
         String identifier = orgResponse.getId();
         setupService.verifyOktaOrg(identifier,
                 registrationQuestions,
-                standardOptions.getEnvironment().getOktaPropsFile());
+                getEnvironment().getOktaPropsFile());
 
         return 0;
 
@@ -94,7 +90,7 @@ public class Register implements Callable<Integer> {
 
     private class CliRegistrationQuestions implements RegistrationQuestions {
 
-        private final Prompter prompter = standardOptions.getEnvironment().prompter();
+        private final Prompter prompter = getPrompter();
 
         @Override
         public boolean isOverwriteConfig() {
