@@ -20,9 +20,9 @@ VERSION="0.7.0"
 LINUX_DIST="https://github.com/oktadeveloper/okta-cli/releases/download/okta-cli-tools-${VERSION}/okta-cli-linux-${VERSION}-x86_64.zip"
 DARWIN_DIST="https://github.com/oktadeveloper/okta-cli/releases/download/okta-cli-tools-${VERSION}/okta-cli-macos-${VERSION}-x86_64.zip"
 
-function echoerr { echo "$@" 1>&2; }
+echoerr() { echo "$@" 1>&2; }
 
-function download {
+download() {
 
   if [ "$(uname)" == "Darwin" ]; then
     OS=darwin
@@ -54,7 +54,7 @@ function download {
   echo $INSTALL_DIR/okta
 }
 
-function install {
+install() {
 
   DOWNLOAD_LOCATION=$1
 
@@ -84,7 +84,7 @@ function install {
   fi
 }
 
-function updateBashPath {
+updateBashPath() {
   { # try
     grep -q 'export PATH=$HOME/bin:$PATH' ~/.bashrc || echo -e '\nexport PATH=$HOME/bin:$PATH' >> ~/.bashrc
   } || { # catch
@@ -94,7 +94,7 @@ function updateBashPath {
   }
 }
 
-function updateZshPath {
+updateZshPath() {
   { # try
     grep -q 'export PATH=$HOME/bin:$PATH' ~/.zshrc || echo -e '\nexport PATH=$HOME/bin:$PATH' >> ~/.zshrc
   } || { # catch
