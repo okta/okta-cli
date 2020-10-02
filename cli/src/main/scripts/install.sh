@@ -17,23 +17,12 @@
 
 set -e
 VERSION="0.7.0"
-LINUX_DIST="https://github.com/oktadeveloper/okta-cli/releases/download/okta-cli-tools-${VERSION}/okta-cli-linux-${VERSION}-x86_64.zip"
+LINUX_DIST="https://github.com/oktadeveloper/okta-cli/releases/download/okta-cli-tools-${VERSION}/okta-cli-linux-${VERSION}-x86_64.tar.gz"
 DARWIN_DIST="https://github.com/oktadeveloper/okta-cli/releases/download/okta-cli-tools-${VERSION}/okta-cli-macos-${VERSION}-x86_64.zip"
 
 function echoerr { echo "$@" 1>&2; }
 
 function download {
-
-  if [ "$(uname)" == "Darwin" ]; then
-    OS=darwin
-    URL=$DARWIN_DIST
-  elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    OS=linux
-    URL=$LINUX_DIST
-  else
-    echoerr "This installer is only supported on Linux and MacOS"
-    exit 1
-  fi
 
   ARCH="$(uname -m)"
   if [ "$ARCH" == "x86_64" ]; then
@@ -44,10 +33,30 @@ function download {
   fi
 
   INSTALL_DIR=$(mktemp -d "${TMPDIR:-/tmp}/okta.XXXXXXXXX")
-  if [ $(command -v curl) ]; then
-    curl -L "$URL" | funzip > $INSTALL_DIR/okta
+
+  if [ "$(uname)" == "Darwin" ]; then
+    OS=darwin
+    URL=$DARWIN_DIST
+
+    if [ $(command -v curl) ]; then
+      curl -L "$URL" | funzip > $INSTALL_DIR/okta
+    else
+      wget -O- "$URL" | funzip > $INSTALL_DIR/okta
+    fi
+
+  elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    OS=linux
+    URL=$LINUX_DIST
+
+    if [ $(command -v curl) ]; then
+      curl -L "$URL" | tar -zxC $INSTALL_DIR/
+    else
+      wget -O- "$URL" | tar -zxC $INSTALL_DIR/
+    fi
+
   else
-    wget -O- "$URL" | funzip > $INSTALL_DIR/okta
+    echoerr "This installer is only supported on Linux and MacOS"
+    exit 1
   fi
 
   chmod 755 $INSTALL_DIR/okta
