@@ -25,9 +25,9 @@ import com.okta.cli.common.model.SamplesListings;
 import com.okta.cli.common.service.ClientConfigurationException;
 import com.okta.cli.common.service.DefaultInterpolator;
 import com.okta.cli.common.service.DefaultSampleConfigParser;
-import com.okta.cli.common.service.DefaultSamplesService;
 import com.okta.cli.common.service.DefaultSdkConfigurationService;
 import com.okta.cli.common.service.DefaultSetupService;
+import com.okta.cli.common.service.DefaultStartRestClient;
 import com.okta.cli.common.service.TarballExtractor;
 import com.okta.cli.console.ConsoleOutput;
 import com.okta.cli.console.PromptOption;
@@ -91,7 +91,7 @@ public class Start extends BaseCommand {
         // other, get the list of samples from start.okta.dev and let the user pick them
         } else {
             // get list of samples
-            List<PromptOption<SamplesListings.OktaSample>> sampleOptions = new DefaultSamplesService().listSamples().stream()
+            List<PromptOption<SamplesListings.OktaSample>> sampleOptions = new DefaultStartRestClient().listSamples().stream()
                     .map(sample -> PromptOption.of(sample.getDescription(), sample))
                     .collect(Collectors.toList());
 

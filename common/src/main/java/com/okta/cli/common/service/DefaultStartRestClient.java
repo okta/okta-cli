@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.okta.cli.common.RestException;
 import com.okta.cli.common.model.ErrorResponse;
+import com.okta.cli.common.model.SamplesListings;
+import com.okta.cli.common.model.VersionInfo;
 import com.okta.commons.lang.ApplicationInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.Header;
@@ -33,10 +35,11 @@ import org.apache.http.impl.client.HttpClients;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class HttpRestClient implements RestClient {
+public class DefaultStartRestClient implements RestClient, StartRestClient {
 
     /**
      * The base URL of the service used to create a new Okta account.
@@ -50,8 +53,18 @@ public class HttpRestClient implements RestClient {
             .map(e -> e.getKey() + "/" + e.getValue())
             .collect(Collectors.joining(" "));
 
-    private ObjectMapper objectMapper = new ObjectMapper()
+    private final ObjectMapper objectMapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    @Override
+    public VersionInfo getVersionInfo() throws IOException, RestException {
+        return get("/versions/cli", VersionInfo.class);
+    }
+
+    @Override
+    public List<SamplesListings.OktaSample> listSamples() throws IOException, RestException {
+        return get("/samples", SamplesListings.class).getItems();
+    }
 
     @Override
     public <T> T get(String url, Class<T> responseType) throws RestException, IOException {
