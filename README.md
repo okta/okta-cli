@@ -33,7 +33,7 @@ alias okta="flatpak run com.okta.developer.CLI"
 **Linux and macOS:**
 
 ```bash
-curl https://raw.githubusercontent.com/oktadeveloper/okta-cli/master/cli/src/main/scripts/install.sh | sh
+curl https://raw.githubusercontent.com/oktadeveloper/okta-cli/master/cli/src/main/scripts/install.sh | bash
 ```
 
 **Windows (via Chocolatey)**
