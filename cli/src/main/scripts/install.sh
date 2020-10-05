@@ -24,10 +24,12 @@ echoerr() { echo "$@" 1>&2; }
 
 download() {
 
-  if [ "$(uname)" == "Darwin" ]; then
+  # shellcheck disable=SC2003
+  if [[ "$(uname)" == "Darwin" ]]; then
     OS=darwin
     URL=$DARWIN_DIST
-  elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+  elif [[ "$(expr substr "$(uname -s)" 1 5)" == "Linux" ]]; then
+    # shellcheck disable=SC2034
     OS=linux
     URL=$LINUX_DIST
   else
@@ -44,14 +46,14 @@ download() {
   fi
 
   INSTALL_DIR=$(mktemp -d "${TMPDIR:-/tmp}/okta.XXXXXXXXX")
-  if [ $(command -v curl) ]; then
-    curl -L "$URL" | funzip > $INSTALL_DIR/okta
+  if [ "$(command -v curl)" ]; then
+    curl -L "${URL}" | funzip > "${INSTALL_DIR}/okta"
   else
-    wget -O- "$URL" | funzip > $INSTALL_DIR/okta
+    wget -O- "${URL}" | funzip > "${INSTALL_DIR}/okta"
   fi
 
-  chmod 755 $INSTALL_DIR/okta
-  echo $INSTALL_DIR/okta
+  chmod 755 "${INSTALL_DIR}/okta"
+  echo "${INSTALL_DIR}/okta"
 }
 
 install() {
@@ -59,8 +61,8 @@ install() {
   DOWNLOAD_LOCATION=$1
 
   { # try
-    mkdir -p $HOME/bin &&
-    mv -f $DOWNLOAD_LOCATION $HOME/bin
+    mkdir -p "${HOME}/bin" &&
+    mv -f "${DOWNLOAD_LOCATION}" "${HOME}/bin"
 
   } || { # catch
      echoerr
@@ -74,8 +76,8 @@ install() {
 
   PATH_UPDATED=false
   if [[ ! "$LOCATION" == *"$HOME/bin/okta:"* ]]; then
-    [ -f $HOME/.bashrc ] && updateBashPath && PATH_UPDATED=true
-    [ -f $HOME/.zshrc ] && updateZshPath && PATH_UPDATED=true
+    [ -f "${HOME}/.bashrc" ] && updateBashPath && PATH_UPDATED=true
+    [ -f "${HOME}/.zshrc" ] && updateZshPath && PATH_UPDATED=true
 
     if [[ ! "$PATH_UPDATED" == "true" ]]; then
       echoerr "Failed to add \$HOME/bin/okta to your path"
@@ -86,29 +88,35 @@ install() {
 
 updateBashPath() {
   { # try
+    # shellcheck disable=SC2016
     grep -q 'export PATH=$HOME/bin:$PATH' ~/.bashrc || echo -e '\nexport PATH=$HOME/bin:$PATH' >> ~/.bashrc
   } || { # catch
     echoerr
+    # shellcheck disable=SC2016
     echoerr 'Failed add $HOME/bin to PATH.  Update your ~/.bashrc will by running the following command:'
+    # shellcheck disable=SC2016
     echoerr '  export PATH=$HOME/bin:$PATH >> ~/.bashrc'
   }
 }
 
 updateZshPath() {
   { # try
+    # shellcheck disable=SC2016
     grep -q 'export PATH=$HOME/bin:$PATH' ~/.zshrc || echo -e '\nexport PATH=$HOME/bin:$PATH' >> ~/.zshrc
   } || { # catch
     echoerr
+    # shellcheck disable=SC2016
     echoerr 'Failed add $HOME/bin to PATH.  Update your ~/.zshrc will by running the following command:'
+    # shellcheck disable=SC2016
     echoerr '  export PATH=$HOME/bin:$PATH >> ~/.zshrc'
   }
 }
 
 DOWNLOAD_LOCATION=$(download)
-install $DOWNLOAD_LOCATION
-export PATH=$HOME/bin:$PATH
+install "${DOWNLOAD_LOCATION}"
+export PATH=${HOME}/bin:${PATH}
 
 # test the CLI
 LOCATION=$(command -v okta)
-echo "Okta CLI installed to $LOCATION, open a new terminal to use it!"
+echo "Okta CLI installed to ${LOCATION}, open a new terminal to use it!"
 okta --version

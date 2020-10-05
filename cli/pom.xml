@@ -119,6 +119,21 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>dev.dimlight</groupId>
+                    <artifactId>shellcheck-maven-plugin</artifactId>
+                    <version>0.1.0</version>
+                    <configuration>
+                        <failBuildIfWarnings>true</failBuildIfWarnings>
+                        <sourceLocations>
+                            <sourceLocation>${project.basedir}/src/main/scripts</sourceLocation>
+                        </sourceLocations>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
 <!--            <plugin>-->
 <!--                <groupId>org.codehaus.mojo</groupId>-->
@@ -269,6 +284,19 @@
                         <phase>pre-integration-test</phase>
                         <goals>
                             <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>dev.dimlight</groupId>
+                <artifactId>shellcheck-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>simple-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
