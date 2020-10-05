@@ -39,7 +39,9 @@ class DefaultOrganizationCreatorTest implements WireMockSupport {
                       "firstName": "Joe",
                       "lastName": "Coder",
                       "email": "joe.coder@example.com",
-                      "organization": "Test co"
+                      "organization": "Test co",
+                      "country": "United States",
+                      "state": "CA"
                     }
                     """))
                 .withHeader("Content-Type", equalTo("application/json"))

@@ -95,16 +95,21 @@ public class DefaultSetupService implements SetupService {
         try (ProgressBar progressBar = ProgressBar.create(interactive)) {
 
             if (!Strings.isEmpty(clientConfiguration.getBaseUrl())) {
-                progressBar.info("An existing Okta Organization (" + clientConfiguration.getBaseUrl() + ") was found in "+ oktaPropsFile.getAbsolutePath());
+                progressBar.info(
+                        "An existing Okta Organization (" + clientConfiguration.getBaseUrl() +
+                        ") was found in "+ oktaPropsFile.getAbsolutePath()
+                );
 
                 if (!registrationQuestions.isOverwriteConfig()) {
                     throw new ClientConfigurationException("User canceled");
                 }
 
                 Instant instant = Instant.now();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern( "uuuuMMdd'T'HHmm" ).withZone(ZoneId.of("UTC"));
+                DateTimeFormatter formatter =
+                        DateTimeFormatter.ofPattern( "uuuuMMdd'T'HHmm" ).withZone(ZoneId.of("UTC"));
 
-                File backupFile = new File(oktaPropsFile.getParent(), oktaPropsFile.getName() + "." + formatter.format(instant));
+                File backupFile = new File(oktaPropsFile.getParent(),
+                        oktaPropsFile.getName() + "." + formatter.format(instant));
                 Files.copy(oktaPropsFile.toPath(), backupFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 progressBar.info("Configuration file backed: "+ backupFile.getAbsolutePath());
             }

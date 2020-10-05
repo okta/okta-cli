@@ -52,14 +52,15 @@ import java.util.stream.Collectors;
 
 import static com.okta.cli.common.service.SampleConfigParser.SAMPLE_CONFIG_PATH;
 
-@CommandLine.Command(name = "start",
-                     description = "Creates an Okta Sample Application")
+@CommandLine.Command(name = "start", description = "Creates an Okta Sample Application")
 public class Start extends BaseCommand {
 
     @CommandLine.Parameters(description = "Name of sample", arity = "0..1")
     private String sampleName;
 
-    @CommandLine.Option(names = {"--branch", "-b"}, description = "GitHub branch to use", hidden = true, defaultValue = "master")
+    @CommandLine.Option(
+        names = {"--branch", "-b"}, description = "GitHub branch to use", hidden = true, defaultValue = "master"
+    )
     private String branchName;
 
     @Override
@@ -95,10 +96,12 @@ public class Start extends BaseCommand {
                     .map(sample -> PromptOption.of(sample.getDescription(), sample))
                     .collect(Collectors.toList());
 
-            Assert.notEmpty(sampleOptions, "Failed to get the list of example applications. Check your network connection and try to rerun this command.");
+            Assert.notEmpty(sampleOptions, "Failed to get the list of example applications. " +
+                    "Check your network connection and try to rerun this command.");
 
             // prompt for selection
-            SamplesListings.OktaSample sample = getPrompter().prompt("Select a sample", sampleOptions, sampleOptions.get(0));
+            SamplesListings.OktaSample sample =
+                    getPrompter().prompt("Select a sample", sampleOptions, sampleOptions.get(0));
 
             appName = "okta-" + sample.getName() + "-sample";
             projectDirectory = new File(appName).getCanonicalFile();

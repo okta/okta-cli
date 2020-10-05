@@ -15,6 +15,7 @@
  */
 package com.okta.cli.common.model;
 
+import com.okta.cli.common.service.OktaOrganizationCreator;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -26,4 +27,6 @@ public class OrganizationRequest {
     private String lastName;
     private String email;
     private String organization;
+    private String country = OktaOrganizationCreator.COUNTRY;
+    private String state = OktaOrganizationCreator.STATE;
 }

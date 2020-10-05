@@ -24,6 +24,10 @@ import java.io.IOException;
 
 public interface OktaOrganizationCreator {
 
+    // TODO - this is a requirement of the API endpoint. Might want to make better / configurable in the future
+    String COUNTRY = "United States";
+    String STATE = "CA";
+
     OrganizationResponse createNewOrg(OrganizationRequest orgRequest) throws IOException, RestException;
 
     OrganizationResponse verifyNewOrg(String identifier, String code) throws FactorVerificationException, IOException;
