@@ -42,7 +42,12 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                                         // PUT /api/v1/apps/test-app-id/groups/every1-id
                                         jsonRequest('{}'),
                                         //GET /api/v1/internal/apps/test-app-id/settings/clientcreds
-                                        jsonRequest('{ "client_id": "test-id" }')]
+                                        jsonRequest('{ "client_id": "test-id" }'),
+                                        // GET /api/v1/trustedOrigins
+                                        jsonRequest('[]'),
+                                        // POST /api/v1/trustedOrigins
+                                        jsonRequest('{}')
+        ]
 
         mockWebServer.with {
             responses.forEach { mockWebServer.enqueue(it) }
@@ -68,9 +73,14 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                                                             not(containsString("okta.oauth2.client-secret"))),
                                         null)
 
-            mockWebServer.takeRequest() // auth list request
-            mockWebServer.takeRequest() // check if app exists
+            verify(mockWebServer.takeRequest(), "GET", "/api/v1/authorizationServers")
+            verify(mockWebServer.takeRequest(), "GET", "/api/v1/apps?q=test-project")
             verifyRedirectUri(mockWebServer.takeRequest(), "http://localhost:8080/callback")
+            verify(mockWebServer.takeRequest(), "GET", "/api/v1/groups?q=everyone")
+            verify(mockWebServer.takeRequest(), "PUT", "/api/v1/apps/test-app-id/groups/every1-id")
+            verify(mockWebServer.takeRequest(), "GET", "/api/v1/internal/apps/test-app-id/settings/clientcreds")
+            verify(mockWebServer.takeRequest(), "GET", "/api/v1/trustedOrigins")
+            verifyTrustedOrigins(mockWebServer.takeRequest(), "http://localhost:8080/")
         }
     }
 
@@ -252,10 +262,21 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
         }
     }
 
+    private static void verify(RecordedRequest request, String method, String relativeUri) {
+        assertThat request.requestUrl.toString(), containsString(relativeUri)
+        assertThat request.method, equalTo(method)
+    }
+
     private static void verifyRedirectUri(RecordedRequest request, String... expectedRedirectUris) {
-        assertThat request.method, equalTo("POST")
+        verify(request, "POST", "/api/v1/apps")
         def body = new JsonSlurper().parse(request.getBody().inputStream())
         String[] redirectUris = body.settings.oauthClient.redirect_uris
         assertThat redirectUris, equalTo(expectedRedirectUris)
+    }
+
+    private static void verifyTrustedOrigins(RecordedRequest request, String expectedUri) {
+        verify(request, "POST", "/api/v1/trustedOrigins")
+        def body = new JsonSlurper().parse(request.getBody().inputStream())
+        assertThat body.origin, equalTo(expectedUri)
     }
 }

@@ -167,9 +167,10 @@ public class AppsCreate extends BaseCommand {
         List<String> postLogoutRedirectUris = getPostLogoutRedirectUris(redirectUris);
         Client client = Clients.builder().build();
         AuthorizationServer authorizationServer = getIssuer(client);
+        List<String> trustedOrigins = redirectUris.stream().map(URIs::baseUrlOf).collect(Collectors.toList());
 
         MutablePropertySource propertySource = new MapPropertySource();
-        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, authorizationServer.getIssuer(), authorizationServer.getId(), getEnvironment().isInteractive(), OpenIdConnectApplicationType.BROWSER, redirectUris, postLogoutRedirectUris);
+        new DefaultSetupService(null).createOidcApplication(propertySource, appName, baseUrl, null, authorizationServer.getIssuer(), authorizationServer.getId(), getEnvironment().isInteractive(), OpenIdConnectApplicationType.BROWSER, redirectUris, postLogoutRedirectUris, trustedOrigins);
 
         out.writeLine("Okta application configuration: ");
         out.bold("Issuer:    ");
