@@ -74,9 +74,9 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                                         null)
 
             verify(mockWebServer.takeRequest(), "GET", "/api/v1/authorizationServers")
-            verify(mockWebServer.takeRequest(), "GET", "/api/v1/apps?q=test-project")
+            verify(mockWebServer.takeRequest(), "GET", "/api/v1/apps", "q=test-project")
             verifyRedirectUri(mockWebServer.takeRequest(), "http://localhost:8080/callback")
-            verify(mockWebServer.takeRequest(), "GET", "/api/v1/groups?q=everyone")
+            verify(mockWebServer.takeRequest(), "GET", "/api/v1/groups", "q=everyone")
             verify(mockWebServer.takeRequest(), "PUT", "/api/v1/apps/test-app-id/groups/every1-id")
             verify(mockWebServer.takeRequest(), "GET", "/api/v1/internal/apps/test-app-id/settings/clientcreds")
             verify(mockWebServer.takeRequest(), "GET", "/api/v1/trustedOrigins")
@@ -262,14 +262,14 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
         }
     }
 
-    private static void verifyRedirectUri(RecordedRequest request, String... expectedRedirectUris) {
+    private void verifyRedirectUri(RecordedRequest request, String... expectedRedirectUris) {
         verify(request, "POST", "/api/v1/apps")
         def body = new JsonSlurper().parse(request.getBody().inputStream())
         String[] redirectUris = body.settings.oauthClient.redirect_uris
         assertThat redirectUris, equalTo(expectedRedirectUris)
     }
 
-    private static void verifyTrustedOrigins(RecordedRequest request, String expectedUri) {
+    private void verifyTrustedOrigins(RecordedRequest request, String expectedUri) {
         verify(request, "POST", "/api/v1/trustedOrigins")
         def body = new JsonSlurper().parse(request.getBody().inputStream())
         assertThat body.origin, equalTo(expectedUri)
