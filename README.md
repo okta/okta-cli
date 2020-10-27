@@ -108,3 +108,4 @@ Build with: `mvn clean install`
 **NOTE:** On IntelliJ (at least), you'll also need to add in the Lombok plugin to avoid compiler errors on getters and setters for data classes.
 
 You can then run the Okta cli with: `./cli/target/okta`
+test
