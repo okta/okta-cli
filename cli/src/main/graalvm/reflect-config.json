@@ -92,96 +92,10 @@
     "name": "com.fasterxml.jackson.databind.ser.Serializers[]"
   },
   {
-    "name": "com.okta.sdk.impl.cache.DefaultCacheManagerBuilder",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      }
-    ]
-  },
-  {
     "name": "com.okta.sdk.impl.client.DefaultClientBuilder",
     "fields": [
       {
         "name": "clientConfig"
-      }
-    ],
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      }
-    ]
-  },
-  {
-    "name": "com.okta.sdk.impl.ds.DiscriminatorConfig",
-    "allDeclaredFields": true,
-    "allDeclaredMethods": true,
-    "allDeclaredConstructors": true
-  },
-  {
-    "name": "com.okta.sdk.impl.ds.DiscriminatorConfig$ClassConfig",
-    "allDeclaredFields": true,
-    "allDeclaredMethods": true,
-    "allDeclaredConstructors": true
-  },
-  {
-    "name": "com.okta.sdk.impl.http.authc.SswsAuthenticator",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": [
-          "com.okta.sdk.authc.credentials.ClientCredentials"
-        ]
-      }
-    ]
-  },
-  {
-    "name": "com.okta.sdk.impl.resource.DefaultExtensibleResource",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": [
-          "com.okta.sdk.impl.ds.InternalDataStore",
-          "java.util.Map"
-        ]
-      }
-    ]
-  },
-  {
-    "name": "com.okta.sdk.impl.resource.DefaultVoidResource",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": [
-          "com.okta.sdk.impl.ds.InternalDataStore"
-        ]
-      }
-    ]
-  },
-  {
-    "name": "com.okta.sdk.impl.resource.application.DefaultApplicationList",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": [
-          "com.okta.sdk.impl.ds.InternalDataStore",
-          "java.util.Map",
-          "java.util.Map"
-        ]
-      }
-    ]
-  },
-  {
-    "name": "com.okta.sdk.impl.resource.application.DefaultOpenIdConnectApplication",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": [
-          "com.okta.sdk.impl.ds.InternalDataStore",
-          "java.util.Map"
-        ]
       }
     ]
   },

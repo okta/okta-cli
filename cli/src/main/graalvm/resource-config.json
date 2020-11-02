@@ -1,12 +1,6 @@
 {
   "resources":[
     {"pattern":"\\QMETA-INF/okta/version.properties\\E"},
-    {"pattern":"\\QMETA-INF/services/com.okta.sdk.http.UserAgentProvider\\E"},
-    {"pattern":"\\QMETA-INF/services/com.okta.sdk.impl.ds.ResourceFactoryConfig\\E"},
-    {"pattern":"\\QMETA-INF/services/com.okta.sdk.impl.http.RequestExecutorFactory\\E"},
-    {"pattern":"\\Qcom/okta/sdk/config/okta.properties\\E"},
-    {"pattern":"\\Qcom/okta/sdk/resource/discrimination.json\\E"},
-    {"pattern":"\\Qcom/okta/sdk/version.properties\\E"},
     {"pattern":"\\Qmozilla/public-suffix-list.txt\\E"},
     {"pattern":"\\Qorg/apache/http/client/version.properties\\E"},
     {"pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"}
