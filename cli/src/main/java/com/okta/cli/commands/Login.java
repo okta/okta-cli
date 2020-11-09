@@ -46,7 +46,7 @@ public class Login extends BaseCommand {
                 ConfigurationValidator.assertOrgUrl(orgUrl);
             }
 
-            System.out.println("Enter your Okta API token, for more information see: https://bit.ly/get-okta-api-token");
+            out.writeLine("Enter your Okta API token, for more information see: https://bit.ly/get-okta-api-token");
             String apiToken = getPrompter().promptUntilValue(null, "Okta API token");
             ConfigurationValidator.assertApiToken(apiToken);
 
