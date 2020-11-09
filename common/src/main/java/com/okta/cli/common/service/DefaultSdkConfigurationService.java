@@ -28,6 +28,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermission;
 import java.security.AccessController;
@@ -88,15 +89,18 @@ public class DefaultSdkConfigurationService implements SdkConfigurationService {
             yaml.dump(rootProps, writer);
         }
 
-        // ensure only the current user has access to this file, for systems with permissive umasks
-        Files.setPosixFilePermissions(parentDir.toPath(), Set.of(
-                PosixFilePermission.OWNER_READ,
-                PosixFilePermission.OWNER_WRITE,
-                PosixFilePermission.OWNER_EXECUTE));
+        Set<String> supportedViews = FileSystems.getDefault().supportedFileAttributeViews();
+        if (supportedViews.contains("posix")) {
+            // ensure only the current user has access to this file, for systems with permissive umasks
+            Files.setPosixFilePermissions(parentDir.toPath(), Set.of(
+                    PosixFilePermission.OWNER_READ,
+                    PosixFilePermission.OWNER_WRITE,
+                    PosixFilePermission.OWNER_EXECUTE));
 
-        Files.setPosixFilePermissions(oktaPropsFile.toPath(), Set.of(
-                PosixFilePermission.OWNER_READ,
-                PosixFilePermission.OWNER_WRITE));
+            Files.setPosixFilePermissions(oktaPropsFile.toPath(), Set.of(
+                    PosixFilePermission.OWNER_READ,
+                    PosixFilePermission.OWNER_WRITE));
+        }
     }
 
     DefaultClientBuilder clientBuilder() {

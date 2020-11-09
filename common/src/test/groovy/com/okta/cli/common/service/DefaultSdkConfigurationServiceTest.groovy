@@ -20,6 +20,7 @@ import com.okta.sdk.impl.client.DefaultClientBuilder
 import com.okta.sdk.impl.config.ClientConfiguration
 import org.testng.annotations.Test
 
+import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.attribute.PosixFilePermission
 
@@ -55,12 +56,14 @@ class DefaultSdkConfigurationServiceTest {
                         orgUrl: "https://okta.example.com",
                         token: "an-api-token"]]])
 
-        assertThat Files.getPosixFilePermissions(configFile.toPath()), is([PosixFilePermission.OWNER_READ,
-                                                                           PosixFilePermission.OWNER_WRITE] as Set)
-        assertThat Files.getPosixFilePermissions(configFile.getParentFile().toPath()), is([
-                                                                                        PosixFilePermission.OWNER_READ,
-                                                                                        PosixFilePermission.OWNER_WRITE,
-                                                                                        PosixFilePermission.OWNER_EXECUTE] as Set)
+        if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) {
+            assertThat Files.getPosixFilePermissions(configFile.toPath()), is([PosixFilePermission.OWNER_READ,
+                                                                               PosixFilePermission.OWNER_WRITE] as Set)
+            assertThat Files.getPosixFilePermissions(configFile.getParentFile().toPath()), is([
+                                                                                            PosixFilePermission.OWNER_READ,
+                                                                                            PosixFilePermission.OWNER_WRITE,
+                                                                                            PosixFilePermission.OWNER_EXECUTE] as Set)
+        }
     }
 
     private static DefaultSdkConfigurationService configurationService(ClientConfiguration clientConfig) {
