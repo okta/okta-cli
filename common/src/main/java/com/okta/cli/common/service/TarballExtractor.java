@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
 import java.nio.file.attribute.PosixFilePermission;
@@ -44,6 +45,8 @@ public class TarballExtractor implements Extractor {
     public void extract(String uri, File targetDirectory) throws IOException {
         try (TarArchiveInputStream zipStream = new TarArchiveInputStream(new GzipCompressorInputStream(get(uri)))) {
             TarArchiveEntry entry;
+
+            Set<String> supportedViews = FileSystems.getDefault().supportedFileAttributeViews();
 
             while ((entry = zipStream.getNextTarEntry()) != null) {
                 if (!zipStream.canReadEntryData(entry)) {
@@ -66,7 +69,10 @@ public class TarballExtractor implements Extractor {
                     try (OutputStream o = Files.newOutputStream(destFile.toPath())) {
                         IOUtils.copy(zipStream, o);
                     }
-                    Files.setPosixFilePermissions(destFile.toPath(), permissionsFromMode(mode));
+
+                    if (supportedViews.contains("posix")) {
+                        Files.setPosixFilePermissions(destFile.toPath(), permissionsFromMode(mode));
+                    }
                     Files.setLastModifiedTime(destFile.toPath(), FileTime.from(entry.getLastModifiedDate().toInstant()));
                 }
             }
