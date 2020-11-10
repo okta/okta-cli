@@ -16,29 +16,13 @@
 package com.okta.cli.test
 
 import com.okta.commons.lang.Classes
-import org.hamcrest.Description
-import org.hamcrest.Matcher
-import org.hamcrest.MatcherAssert
-import org.hamcrest.Matchers
-import org.hamcrest.TypeSafeMatcher
+import org.hamcrest.*
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.FileSystems
-import java.nio.file.FileVisitResult
-import java.nio.file.FileVisitor
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.PathMatcher
-import java.nio.file.Paths
-import java.nio.file.SimpleFileVisitor
+import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 import java.time.Duration
-import java.util.concurrent.Callable
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
+import java.util.concurrent.*
 import java.util.stream.Collectors
 
 class CommandRunner {
@@ -91,12 +75,16 @@ class CommandRunner {
     }
 
     static boolean isIde() {
-        return System.getProperty("java.class.path").contains("idea_rt.jar") && Classes.isAvailable("com.okta.cli.OktaCli")
+        return false && System.getProperty("java.class.path").contains("idea_rt.jar") && Classes.isAvailable("com.okta.cli.OktaCli")
     }
 
     Result runProcess(String[] envVars, String[] args, List<String> input) {
 
-        String command = [getCli(homeDir), "-Duser.home=${homeDir}", "-Dokta.testing.disableHttpsCheck=true", args].flatten().join(" ")
+        String homeDirString = escapePath(homeDir.absolutePath)
+
+        String command = [getCli(homeDir), "-Duser.home=${homeDirString}", "-Dokta.testing.disableHttpsCheck=true", args].flatten().join(" ")
+
+        println("command: " + command)
 
         def sout = new StringBuilder()
         def serr = new StringBuilder()
@@ -196,11 +184,31 @@ class CommandRunner {
 
         String cli = System.getProperty("okta-cli-test.path")
         if (cli == null || cli.isBlank()) {
-            return new File("../cli/target/okta").absolutePath
+            File defaultExec = isWindows() ?
+                    new File("../cli/target/okta.exe") :
+                    new File("../cli/target/okta")
+            defaultExec = defaultExec.absoluteFile.canonicalFile
+            return defaultExec
         }
 
         // setting the home directory is tricky, so fitler it into the command
-        return cli.replaceAll("##user.home##", homeDir.absolutePath)
+        return cli.replaceAll("##user.home##", escapePath(homeDir.absolutePath))
+    }
+
+    private static boolean isWindows() {
+        return System.getProperty("os.name").startsWith("Windows")
+    }
+
+    private static String escapePath(String file) {
+        return ifWindows(file, { return it.replaceAll("\\\\", "\\\\") })
+    }
+
+    static <T> T ifWindows(T originalValue, Closure<T> closure) {
+        if (isWindows()) {
+            return closure.call(originalValue)
+        } else {
+            return originalValue
+        }
     }
 
     static File jarFile() {
