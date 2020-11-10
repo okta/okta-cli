@@ -192,7 +192,7 @@ class CommandRunner {
         }
 
         // setting the home directory is tricky, so fitler it into the command
-        return cli.replaceAll("##user.home##", escapePath(homeDir.absolutePath))
+        return cli.replace("##user.home##", escapePath(homeDir.absolutePath))
     }
 
     private static boolean isWindows() {
@@ -200,7 +200,7 @@ class CommandRunner {
     }
 
     private static String escapePath(String file) {
-        return ifWindows(file, { return it.replaceAll("\\\\", "\\\\") })
+        return ifWindows(file, { return it.replace("\\", "\\\\") })
     }
 
     static <T> T ifWindows(T originalValue, Closure<T> closure) {
