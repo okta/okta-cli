@@ -37,7 +37,7 @@ class AppsIT implements MockWebSupport {
             responses.forEach { mockWebServer.enqueue(it) }
 
             def result = new CommandRunner()
-                    .withSdkConfig(mockWebServer.url("/").toString())
+                    .withSdkConfig(url(mockWebServer,"/"))
                     .runCommand("-Dokta.testing.disableHttpsCheck=true", "apps")
 
             assertThat result, resultMatches(0, allOf(containsString("app-id-1\tApp 1"),

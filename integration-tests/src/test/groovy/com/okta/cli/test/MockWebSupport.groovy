@@ -52,4 +52,7 @@ trait MockWebSupport {
                 .setHeader("Content-Type", "application/json")
     }
 
+    String url(MockWebServer server, String path) {
+        return "http://localhost:${server.port}${path}"
+    }
 }

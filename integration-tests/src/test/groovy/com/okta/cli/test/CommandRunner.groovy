@@ -67,7 +67,7 @@ class CommandRunner {
     }
 
     Result runCommandWithInput(List<String> input, String... args) {
-        String[] envVars = ["HOME=${homeDir}", "OKTA_CLI_BASE_URL=${regServiceUrl}"]
+        String[] envVars = ["HOME=${escapePath(homeDir.absolutePath)}", "OKTA_CLI_BASE_URL=${regServiceUrl}"]
 
         return (isIde()) // if intellij
             ? runInIsolatedClassloader(envVars, args, input)

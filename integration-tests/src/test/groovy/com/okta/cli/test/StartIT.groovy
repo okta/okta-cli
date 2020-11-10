@@ -44,7 +44,7 @@ class StartIT implements MockWebSupport, CreateAppSupport {
 
         MockWebServer mockWebServer = createMockServer()
 
-        def orgUrl = mockWebServer.url("/").url()
+        def orgUrl = url(mockWebServer, "/")
 
         List<MockResponse> responses = [
                 // reg requests
@@ -53,8 +53,8 @@ class StartIT implements MockWebSupport, CreateAppSupport {
 
                 // list samples
                 jsonRequest([items: [
-                        [name: "project-a", description: "a test description", tarballUrl: mockWebServer.url("/tarball/okta-project-a-sample").url()],
-                        [name: "test-project", description: "test description", tarballUrl: mockWebServer.url("/tarball/okta-test-project-sample").url()]
+                        [name: "project-a", description: "a test description", tarballUrl: url(mockWebServer, "/tarball/okta-project-a-sample")],
+                        [name: "test-project", description: "test description", tarballUrl: url(mockWebServer, "/tarball/okta-test-project-sample")]
                 ]]),
 
                 // download project zip
@@ -65,7 +65,7 @@ class StartIT implements MockWebSupport, CreateAppSupport {
 
                 // Setting up OIDC app
                 // GET /api/v1/authorizationServers
-                jsonRequest('[{ "id": "test-as", "name": "test-as-name", "issuer": "' + mockWebServer.url("/") + '/oauth2/test-as" }]'),
+                jsonRequest('[{ "id": "test-as", "name": "test-as-name", "issuer": "' + url(mockWebServer, '/oauth2/test-as') + '}]'),
                 // GET /api/v1/apps?q=integration-tests
                 jsonRequest('[]'),
                 // POST /api/v1/apps
@@ -92,7 +92,7 @@ class StartIT implements MockWebSupport, CreateAppSupport {
                     "2"
             ]
 
-            def result = new CommandRunner(mockWebServer.url("/").toString()).runCommandWithInput(input, "--verbose", "start")
+            def result = new CommandRunner(url(mockWebServer, "/")).runCommandWithInput(input, "--verbose", "start")
             assertThat result, resultMatches(0, allOf(
                         // registration
                         containsString("An email has been sent to you with a verification code."),

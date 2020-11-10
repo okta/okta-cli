@@ -24,6 +24,7 @@ import static com.okta.cli.test.CommandRunner.resultMatches
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.allOf
 import static org.hamcrest.Matchers.containsString
+import static org.hamcrest.Matchers.greaterThan
 
 class LogsIT implements MockWebSupport {
 
@@ -34,20 +35,20 @@ class LogsIT implements MockWebSupport {
             jsonRequest( [
                 [ published: "2020-01-12T12:30:15.100Z", uuid: "event-id-1", severity: "INFO", displayMessage: "entry - 1", outcome: [result: "SUCCESS"] ],
                 [ published: "2020-01-12T12:30:15.110Z", uuid: "event-id-2", severity: "WARN", displayMessage: "entry - 2", outcome: [result: "DENY"] ]
-            ]).setHeader("link", "<${mockWebServer.url('/api/v1/logs?after=4562789006123_1')}>; rel=\"next\""),
-            jsonRequest( [] ).setHeader("link", "<${mockWebServer.url('/api/v1/logs?after=4562789006123_1')}>; rel=\"next\"") ]
+            ]).setHeader("link", "<${url(mockWebServer, '/api/v1/logs?after=4562789006123_1')}>; rel=\"next\""),
+            jsonRequest( [] ).setHeader("link", "<${url(mockWebServer, '/api/v1/logs?after=4562789006123_1')}>; rel=\"next\"") ]
 
         mockWebServer.with {
             responses.forEach { mockWebServer.enqueue(it) }
 
             def result = new CommandRunner()
-                    .withSdkConfig(mockWebServer.url("/").toString())
+                    .withSdkConfig(url(mockWebServer,"/"))
                     .runCommand("-Dokta.testing.disableHttpsCheck=true", "logs", "--color=never")
 
             assertThat result, resultMatches(0, allOf(
                         containsString("Time                      Severity  Status     Message"),
-                        containsString("2020-01-12T12:30:15.100Z  INFO      SUCCESS    entry - 1  ${mockWebServer.url("/api/v1/logs?filter=uuid+eq+%22event-id-1%22")}"),
-                        containsString("2020-01-12T12:30:15.110Z  WARN      DENY       entry - 2  ${mockWebServer.url("/api/v1/logs?filter=uuid+eq+%22event-id-2%22")}")
+                        containsString("2020-01-12T12:30:15.100Z  INFO      SUCCESS    entry - 1  ${url(mockWebServer,  "/api/v1/logs?filter=uuid+eq+%22event-id-1%22")}"),
+                        containsString("2020-01-12T12:30:15.110Z  WARN      DENY       entry - 2  ${url(mockWebServer, "/api/v1/logs?filter=uuid+eq+%22event-id-2%22")}")
                     ),
                     null)
         }
@@ -60,24 +61,24 @@ class LogsIT implements MockWebSupport {
                 jsonRequest( [
                         [ published: "2020-01-12T12:30:15.100Z", uuid: "event-id-1", severity: "INFO", displayMessage: "entry - 1", outcome: [result: "SUCCESS"] ],
                         [ published: "2020-01-12T12:30:15.110Z", uuid: "event-id-2", severity: "WARN", displayMessage: "entry - 2", outcome: [result: "DENY"] ]
-                ]).setHeader("link", "<${mockWebServer.url('/api/v1/logs?after=4562789006123_1')}>; rel=\"next\""),
-                jsonRequest( [] ).setHeader("link", "<${mockWebServer.url('/api/v1/logs?after=4562789006123_1')}>; rel=\"next\""),
+                ]).setHeader("link", "<${url(mockWebServer, '/api/v1/logs?after=4562789006123_1')}>; rel=\"next\""),
+                jsonRequest( [] ).setHeader("link", "<${url(mockWebServer, '/api/v1/logs?after=4562789006123_1')}>; rel=\"next\""),
                 jsonRequest( [
                         [ published: "2020-01-12T12:30:15.260Z", uuid: "event-id-3", severity: "INFO", displayMessage: "entry - 3", outcome: [result: "SUCCESS"] ]
-        ]).setHeader("link", "<${mockWebServer.url('/api/v1/logs?after=4562789006123_1')}>; rel=\"next\"")]
+        ]).setHeader("link", "<${url(mockWebServer, '/api/v1/logs?after=4562789006123_1')}>; rel=\"next\"")]
 
         mockWebServer.with {
             responses.forEach { mockWebServer.enqueue(it) }
 
             def result = new CommandRunner()
-                    .withSdkConfig(mockWebServer.url("/").toString())
+                    .withSdkConfig(url(mockWebServer,"/"))
                     .runCommand("-Dokta.testing.disableHttpsCheck=true", "logs", "--color=never", "-f")
 
-            assertThat result, resultMatches(143, allOf(
+            assertThat result, resultMatches(greaterThan(0), allOf(
                     containsString("Time                      Severity  Status     Message"),
-                    containsString("2020-01-12T12:30:15.100Z  INFO      SUCCESS    entry - 1  ${mockWebServer.url("/api/v1/logs?filter=uuid+eq+%22event-id-1%22")}"),
-                    containsString("2020-01-12T12:30:15.110Z  WARN      DENY       entry - 2  ${mockWebServer.url("/api/v1/logs?filter=uuid+eq+%22event-id-2%22")}"),
-                    containsString("2020-01-12T12:30:15.260Z  INFO      SUCCESS    entry - 3  ${mockWebServer.url("/api/v1/logs?filter=uuid+eq+%22event-id-3%22")}")
+                    containsString("2020-01-12T12:30:15.100Z  INFO      SUCCESS    entry - 1  ${url(mockWebServer, "/api/v1/logs?filter=uuid+eq+%22event-id-1%22")}"),
+                    containsString("2020-01-12T12:30:15.110Z  WARN      DENY       entry - 2  ${url(mockWebServer, "/api/v1/logs?filter=uuid+eq+%22event-id-2%22")}"),
+                    containsString("2020-01-12T12:30:15.260Z  INFO      SUCCESS    entry - 3  ${url(mockWebServer, "/api/v1/logs?filter=uuid+eq+%22event-id-3%22")}")
             ),
                     null)
         }
