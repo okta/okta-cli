@@ -50,7 +50,7 @@ class RegisterIT implements MockWebSupport {
                     "123456"
             ]
 
-            def result = new CommandRunner(mockWebServer.url("/").toString()).runCommandWithInput(input, "register")
+            def result = new CommandRunner(mockWebServer.url("/").toString()).runCommandWithInput(input, "register", "--verbose")
             assertThat result, resultMatches(0, allOf(containsString("An email has been sent to you with a verification code."), containsString("Verification code")), emptyString())
 
 
