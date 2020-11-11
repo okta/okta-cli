@@ -67,11 +67,10 @@ class CommandRunner {
     }
 
     Result runCommandWithInput(List<String> input, String... args) {
-        String[] envVars = ["HOME=${escapePath(homeDir.absolutePath)}", "OKTA_CLI_BASE_URL=${regServiceUrl}"]
 
         return (isIde()) // if intellij
-            ? runInIsolatedClassloader(envVars, args, input)
-            : runProcess(envVars, args, input)
+            ? runInIsolatedClassloader([] as String[], args, input)
+            : runProcess([] as String[], args, input)
     }
 
     static boolean isIde() {
@@ -82,13 +81,14 @@ class CommandRunner {
 
         String homeDirString = escapePath(homeDir.absolutePath)
 
-        String command = [getCli(homeDir), "-Duser.home=${homeDirString}", "-Dokta.testing.disableHttpsCheck=true", args].flatten().join(" ")
+        List<String> command = [getCli(homeDir), "-Duser.home=${homeDirString}", "-Dokta.testing.disableHttpsCheck=true", "-Dokta.cli.baseUrl=${regServiceUrl}"]
+        command.addAll(args)
 
-        println("command: " + command)
+        String cmd = command.join(" ")
 
         def sout = new StringBuilder()
         def serr = new StringBuilder()
-        def process = Runtime.getRuntime().exec(command, envVars, workingDir)
+        def process = Runtime.getRuntime().exec(cmd, null, workingDir)
         process.consumeProcessOutput(sout, serr)
 
         Thread.sleep(100)
@@ -108,7 +108,7 @@ class CommandRunner {
         System.out.flush()
         System.err.flush()
 
-        return new Result(process.exitValue(), command, envVars, sout.toString(), serr.toString(), workingDir, homeDir)
+        return new Result(process.exitValue(), cmd, envVars, sout.toString(), serr.toString(), workingDir, homeDir)
     }
 
     Result runInIsolatedClassloader(String[] envVars, String[] args, List<String> input) {
@@ -179,7 +179,7 @@ class CommandRunner {
 
     static String getCli(File homeDir) {
 //        String javaExec = new File(System.getProperty("java.home"), "bin/java").absolutePath
-//        String jarFile = new File("../cli/target/okta-cli-0.2.1-SNAPSHOT.jar").absolutePath
+//        String jarFile = new File("../cli/target/okta-cli-0.7.1-SNAPSHOT.jar").absolutePath
 //        String cli = "${javaExec} -Duser.home=##user.home## -jar ${jarFile}"
 
         String cli = System.getProperty("okta-cli-test.path")
@@ -188,7 +188,7 @@ class CommandRunner {
                     new File("../cli/target/okta.exe") :
                     new File("../cli/target/okta")
             defaultExec = defaultExec.absoluteFile.canonicalFile
-            return defaultExec
+            return escapePath(defaultExec.absolutePath)
         }
 
         // setting the home directory is tricky, so fitler it into the command
