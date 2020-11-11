@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.okta.commons.lang.Collections.isEmpty;
+
 class DefaultOidcAppCreator implements OidcAppCreator {
 
     @Override
@@ -52,7 +54,7 @@ class DefaultOidcAppCreator implements OidcAppCreator {
                     .setApplicationType(OpenIdConnectApplicationType.WEB);
 
             List<String> logoutRedirectUris = getOrDefaultWebBasedPostLogoutRedirectUris(postLogoutRedirectUris, redirectUris);
-            if (!logoutRedirectUris.isEmpty()) {
+            if (!isEmpty(logoutRedirectUris)) {
                 oauthClient.setPostLogoutRedirectUris(logoutRedirectUris);
             }
 
@@ -89,10 +91,10 @@ class DefaultOidcAppCreator implements OidcAppCreator {
                             .setOAuthClient(oauthClient))
                     .setLabel(oidcAppName)
                     .setCredentials(client.instantiate(OAuthApplicationCredentials.class)
-                            .setOAuthClient(client.instantiate(ApplicationCredentialsOAuthClient.class)
-                            .setTokenEndpointAuthMethod(OAuthEndpointAuthenticationMethod.NONE)));
+                        .setOAuthClient(client.instantiate(ApplicationCredentialsOAuthClient.class)
+                                .setTokenEndpointAuthMethod(OAuthEndpointAuthenticationMethod.NONE)));
 
-            if (!postLogoutRedirectUris.isEmpty()) {
+            if (!isEmpty(postLogoutRedirectUris)) {
                 oauthClient.setPostLogoutRedirectUris(postLogoutRedirectUris);
             }
 
@@ -121,7 +123,7 @@ class DefaultOidcAppCreator implements OidcAppCreator {
                     .setApplicationType(OpenIdConnectApplicationType.BROWSER);
 
             List<String> logoutRedirectUris = getOrDefaultWebBasedPostLogoutRedirectUris(postLogoutRedirectUris, redirectUris);
-            if (!logoutRedirectUris.isEmpty()) {
+            if (!isEmpty(logoutRedirectUris)) {
                 oauthClient.setPostLogoutRedirectUris(logoutRedirectUris);
             }
 
@@ -191,7 +193,7 @@ class DefaultOidcAppCreator implements OidcAppCreator {
 
     private List<String> getOrDefaultWebBasedPostLogoutRedirectUris(List<String> postLogoutRedirectUris, List<String> redirectUris) {
 
-        if (com.okta.commons.lang.Collections.isEmpty(postLogoutRedirectUris)) {
+        if (isEmpty(postLogoutRedirectUris)) {
                 // default to using the redirect URIs base URL
                 return redirectUris.stream()
                         .map(redirectUri -> {
