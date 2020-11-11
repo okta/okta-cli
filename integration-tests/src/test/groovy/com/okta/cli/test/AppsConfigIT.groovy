@@ -43,7 +43,7 @@ class AppsConfigIT implements MockWebSupport {
             responses.forEach { mockWebServer.enqueue(it) }
 
             def result = new CommandRunner()
-                    .withSdkConfig(mockWebServer.url("/").toString())
+                    .withSdkConfig(url(mockWebServer,"/"))
                     .runCommand( "apps", "config", "--app", "test-app")
 
             assertThat result, resultMatches(0, allOf(containsString("Name:          test-app-name"),

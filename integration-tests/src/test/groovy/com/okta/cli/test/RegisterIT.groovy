@@ -50,7 +50,7 @@ class RegisterIT implements MockWebSupport {
                     "123456"
             ]
 
-            def result = new CommandRunner(mockWebServer.url("/").toString()).runCommandWithInput(input, "register")
+            def result = new CommandRunner(url(mockWebServer, "/")).runCommandWithInput(input, "register", "--verbose")
             assertThat result, resultMatches(0, allOf(containsString("An email has been sent to you with a verification code."), containsString("Verification code")), emptyString())
 
 
@@ -91,7 +91,7 @@ class RegisterIT implements MockWebSupport {
                     "123456"
             ]
 
-            CommandRunner runner = new CommandRunner(mockWebServer.url("/").toString())
+            CommandRunner runner = new CommandRunner(url(mockWebServer, "/"))
                     .withHomeDirectory {
                         File oktaYaml = new File(it, ".okta/okta.yaml")
                         oktaYaml.getParentFile().mkdirs()
@@ -176,7 +176,7 @@ okta:
                     "654321"
             ]
 
-            def result = new CommandRunner(mockWebServer.url("/").toString()).runCommandWithInput(input, "register")
+            def result = new CommandRunner(url(mockWebServer, "/")).runCommandWithInput(input, "register")
             assertThat result, resultMatches(0, allOf(containsString("An email has been sent to you with a verification code."), containsString("Verification code")), emptyString())
 
             RecordedRequest request = mockWebServer.takeRequest()

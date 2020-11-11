@@ -32,7 +32,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
         MockWebServer mockWebServer = createMockServer()
         List<MockResponse> responses = [
                                         // GET /api/v1/authorizationServers
-                                        jsonRequest('[{ "id": "test-as", "name": "test-as-name", "issuer": "' + mockWebServer.url("/") + '/oauth2/test-as" }]'),
+                                        jsonRequest('[{ "id": "test-as", "name": "test-as-name", "issuer": "' + url(mockWebServer,"/") + '/oauth2/test-as" }]'),
                                         // GET /api/v1/apps?q=integration-tests
                                         jsonRequest('[]'),
                                         // POST /api/v1/apps
@@ -60,7 +60,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             ]
 
             def result = new CommandRunner()
-                    .withSdkConfig(mockWebServer.url("/").toString())
+                    .withSdkConfig(url(mockWebServer,"/"))
                     .runCommandWithInput(input,"--color=never", "apps", "create")
 
 
@@ -69,7 +69,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                                                             containsString("Enter your Post Logout Redirect URI [http://localhost:8080/]:"),
                                                             containsString("Okta application configuration:"),
                                                             containsString("Client ID: test-id"),
-                                                            containsString("Issuer:    ${mockWebServer.url("/")}/oauth2/test-as"),
+                                                            containsString("Issuer:    ${url(mockWebServer,"/")}/oauth2/test-as"),
                                                             not(containsString("okta.oauth2.client-secret"))),
                                         null)
 
@@ -89,7 +89,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
         MockWebServer mockWebServer = createMockServer()
         List<MockResponse> responses = [
                                         // GET /api/v1/authorizationServers
-                                        jsonRequest('[{ "id": "test-as", "name": "test-as-name", "issuer": "' + mockWebServer.url("/") + '/oauth2/test-as" }]'),
+                                        jsonRequest('[{ "id": "test-as", "name": "test-as-name", "issuer": "' + url(mockWebServer,"/") + '/oauth2/test-as" }]'),
                                         // GET /api/v1/apps?q=integration-tests
                                         jsonRequest('[]'),
                                         // POST /api/v1/apps
@@ -112,7 +112,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             ]
 
             def result = new CommandRunner()
-                    .withSdkConfig(mockWebServer.url("/").toString())
+                    .withSdkConfig(url(mockWebServer,"/"))
                     .runCommandWithInput(input,"--color=never", "apps", "create")
 
 
@@ -121,7 +121,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                                                             containsString("okta.oauth2.client-id: test-id"),
                                                             containsString("Enter your Redirect URI [localhost:/callback]:"),
                                                             containsString("Enter your Post Logout Redirect URI [localhost:/]:"),
-                                                            containsString("okta.oauth2.issuer: ${mockWebServer.url("/")}/oauth2/test-as"),
+                                                            containsString("okta.oauth2.issuer: ${url(mockWebServer,"/")}/oauth2/test-as"),
                                                             not(containsString("okta.oauth2.client-secret"))),
                                                         null)
 
@@ -136,7 +136,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
         MockWebServer mockWebServer = createMockServer()
         List<MockResponse> responses = [
                                         // GET /api/v1/authorizationServers
-                                        jsonRequest('[{ "id": "test-as", "name": "test-as-name", "issuer": "' + mockWebServer.url("/") + '/oauth2/test-as" }]'),
+                                        jsonRequest('[{ "id": "test-as", "name": "test-as-name", "issuer": "' + url(mockWebServer,"/") + '/oauth2/test-as" }]'),
                                         // GET /api/v1/apps?q=integration-tests
                                         jsonRequest('[]'),
                                         // POST /api/v1/apps
@@ -160,7 +160,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             ]
 
             def result = new CommandRunner()
-                    .withSdkConfig(mockWebServer.url("/").toString())
+                    .withSdkConfig(url(mockWebServer,"/"))
                     .runCommandWithInput(input,"--color=never", "apps", "create")
 
             assertThat result, resultMatches(0, allOf(
@@ -182,7 +182,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
         MockWebServer mockWebServer = createMockServer()
         List<MockResponse> responses = [
                                         // GET /api/v1/authorizationServers
-                                        jsonRequest('[{ "id": "test-as", "name": "test-as-name", "issuer": "' + mockWebServer.url("/") + '/oauth2/test-as" }]'),
+                                        jsonRequest('[{ "id": "test-as", "name": "test-as-name", "issuer": "' + url(mockWebServer,"/") + '/oauth2/test-as" }]'),
                                         // GET /api/v1/apps?q=integration-tests
                                         jsonRequest('[]'),
                                         // POST /api/v1/apps
@@ -205,7 +205,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             ]
 
             def result = new CommandRunner()
-                    .withSdkConfig(mockWebServer.url("/").toString())
+                    .withSdkConfig(url(mockWebServer,"/"))
                     .runCommandWithInput(input,"--verbose", "--color=never", "apps", "create")
 
             assertThat result, resultMatches(0, allOf(
@@ -221,7 +221,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
         MockWebServer mockWebServer = createMockServer()
         List<MockResponse> responses = [
                                         // GET /api/v1/authorizationServers
-                                        jsonRequest('[{ "id": "test-as", "name": "test-as-name", "issuer": "' + mockWebServer.url("/") + '/oauth2/test-as" }]'),
+                                        jsonRequest('[{ "id": "test-as", "name": "test-as-name", "issuer": "' + url(mockWebServer,"/") + '/oauth2/test-as" }]'),
                                         // GET /api/v1/apps?q=integration-tests
                                         jsonRequest('[]'),
                                         // POST /api/v1/apps
@@ -245,7 +245,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             ]
 
             def result = new CommandRunner()
-                    .withSdkConfig(mockWebServer.url("/").toString())
+                    .withSdkConfig(url(mockWebServer,"/"))
                     .runCommandWithInput(input, "--color=never", "apps", "create", "spring-boot")
 
             assertThat result, resultMatches(0, allOf(

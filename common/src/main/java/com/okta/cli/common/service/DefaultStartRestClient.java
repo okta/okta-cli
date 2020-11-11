@@ -135,6 +135,9 @@ public class DefaultStartRestClient implements RestClient, StartRestClient {
     }
 
     private String getApiBaseUrl() {
-        return System.getenv().getOrDefault("OKTA_CLI_BASE_URL", DEFAULT_API_BASE_URL);
+        // Resolve baseURL via ENV Var, System property, and fallback to the default
+        return System.getenv().getOrDefault("OKTA_CLI_BASE_URL",
+                System.getProperties().getProperty("okta.cli.baseUrl",
+                    DEFAULT_API_BASE_URL));
     }
 }
