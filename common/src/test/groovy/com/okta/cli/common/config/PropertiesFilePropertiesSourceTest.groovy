@@ -81,6 +81,33 @@ class PropertiesFilePropertiesSourceTest {
         MatcherAssert.assertThat result, is("expected-value")
     }
 
+    @Test
+    void addPropertiesWithNull() {
+        File configFile = writeFile([
+                "spring.foo": "bar",
+                "spring.fooBar": "expected-value",
+                "spring.numbers.one": "1",
+                "spring.numbers.two": "two"],
+                "addPropertiesWithNull")
+
+        Map<String, String> newProps = [
+                "spring.foo": "bar-new",
+                "null-value": null,
+                "a-new-key": "a-new-value"
+        ]
+
+        Map<String, String> expectedMergedResult = [
+                "spring.foo": "bar-new",
+                "spring.fooBar": "expected-value",
+                "spring.numbers.one": "1",
+                "spring.numbers.two": "two",
+                "a-new-key": "a-new-value"
+        ]
+
+        new PropertiesFilePropertiesSource(configFile).addProperties(newProps)
+        assertThat readFromFile(configFile), is(expectedMergedResult)
+    }
+
     static File writeFile(Map data, String testName) {
         File tempFile = File.createTempFile(testName, "test.properties")
         tempFile.withWriter {
