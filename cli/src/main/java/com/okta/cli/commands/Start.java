@@ -45,6 +45,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -124,6 +125,7 @@ public class Start extends BaseCommand {
                 appName,
                 null,
                 null,
+                Collections.emptySet(),
                 authorizationServer.getIssuer(),
                 authorizationServer.getId(),
                 true,

@@ -23,16 +23,21 @@ import com.okta.cli.common.model.OrganizationResponse;
 import com.okta.cli.common.model.RegistrationQuestions;
 import com.okta.cli.common.progressbar.ProgressBar;
 import com.okta.commons.configcheck.ConfigurationValidator;
+import com.okta.commons.lang.Collections;
 import com.okta.commons.lang.Strings;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
 import com.okta.sdk.impl.config.ClientConfiguration;
+import com.okta.sdk.impl.resource.DefaultGroupBuilder;
 import com.okta.sdk.resource.ExtensibleResource;
 import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
+import com.okta.sdk.resource.group.Group;
+import com.okta.sdk.resource.group.GroupList;
 import com.okta.sdk.resource.role.Scope;
 import com.okta.sdk.resource.role.ScopeType;
 import com.okta.sdk.resource.trusted.origin.TrustedOrigin;
 import com.okta.sdk.resource.trusted.origin.TrustedOriginList;
+import com.okta.sdk.resource.user.User;
 
 import java.io.File;
 import java.io.IOException;
@@ -162,6 +167,7 @@ public class DefaultSetupService implements SetupService {
                                       String oidcAppName,
                                       String orgUrl,
                                       String groupClaimName,
+                                      Set<String> groupsToCreate,
                                       String issuerUri,
                                       String authorizationServerId,
                                       boolean interactive,
@@ -213,9 +219,16 @@ public class DefaultSetupService implements SetupService {
                 progressBar.info("Created OIDC application, client-id: " + clientCredsResponse.getString("client_id"));
 
                 if (!Strings.isEmpty(groupClaimName)) {
-
                     progressBar.info("Creating Authorization Server claim '" + groupClaimName + "':");
                     authorizationServerService.createGroupClaim(client, groupClaimName, authorizationServerId);
+                }
+
+                if (!Collections.isEmpty(groupsToCreate)) {
+                    User user = client.getUser("me"); // The user the owns the api token
+                    progressBar.info("Adding user '" + user.getProfile().getLogin() + "' to groups: " + groupsToCreate);
+                    groupsToCreate.forEach(groupName -> {
+                        createAndAssignGroup(client, user, groupName, progressBar);
+                    });
                 }
 
                 // configure trusted origins
@@ -226,12 +239,32 @@ public class DefaultSetupService implements SetupService {
         }
     }
 
+    private void createAndAssignGroup(Client client, User user, String groupName, ProgressBar progressBar) {
+
+        GroupList groups  = client.listGroups(groupName, null);
+        Group group = groups.stream()
+                .filter(it -> it.getProfile().getName().equals(groupName))
+                .findFirst()
+                .map(it -> {
+                    // a bit of abuse for map(), but it removes the need for a few other branches
+                    progressBar.info("Existing group '" + groupName + "' found");
+                    return it;
+                })
+                .orElseGet(() -> {
+                    progressBar.info("Creating group: " + groupName);
+                    return new DefaultGroupBuilder()
+                            .setName(groupName)
+                            .buildAndCreate(client);
+                });
+
+        user.addToGroup(group.getId());
+    }
+
     private void configureTrustedOrigins(Client client, List<String> trustedOrigins) {
         // Configure CORS if needed
-        if (!com.okta.commons.lang.Collections.isEmpty(trustedOrigins)) {
+        if (!Collections.isEmpty(trustedOrigins)) {
 
             TrustedOriginList origins = client.listOrigins();
-
 
             List<Scope> scopes = List.of(
                 client.instantiate(Scope.class).setType(ScopeType.CORS),

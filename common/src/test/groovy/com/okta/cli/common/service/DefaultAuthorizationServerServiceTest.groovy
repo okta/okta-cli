@@ -36,7 +36,7 @@ class DefaultAuthorizationServerServiceTest {
         ExtensibleResource conditions = mock(ExtensibleResource)
         RequestBuilder requestBuilder = mock(RequestBuilder)
         when(existingClaimsResource.get("items")).thenReturn([[name: "test-claim"]])
-        Client client = mockClient(existingClaimsResource, createdClaimsResource, conditions, requestBuilder)
+        Client client = mockClient(existingClaimsResource, createdClaimsResource, createdClaimsResource, conditions, requestBuilder)
 
         configureService.createGroupClaim(client, "test-claim", "test-auth-id")
         verifyNoInteractions(createdClaimsResource)
@@ -46,20 +46,22 @@ class DefaultAuthorizationServerServiceTest {
     void createClaimTest() {
         DefaultAuthorizationServerService configureService = new DefaultAuthorizationServerService()
         ExtensibleResource existingClaimsResource = mockExistingClaims()
-        ExtensibleResource createdClaimsResource = mock(ExtensibleResource)
+        ExtensibleResource createdClaimsResourceAccess = mock(ExtensibleResource)
+        ExtensibleResource createdClaimsResourceId = mock(ExtensibleResource)
         ExtensibleResource conditions = mock(ExtensibleResource)
-        Client client = mockClient(existingClaimsResource, createdClaimsResource, conditions)
+        Client client = mockClient(existingClaimsResource, createdClaimsResourceAccess, createdClaimsResourceId, conditions)
 
         configureService.createGroupClaim(client, "test-claim", "test-auth-id")
-        verifyResource("test-claim", createdClaimsResource, conditions)
+        verifyResource("test-claim", createdClaimsResourceAccess, conditions, "RESOURCE")
+        verifyResource("test-claim", createdClaimsResourceId, conditions, "IDENTITY")
     }
 
-    static void verifyResource(String groupClaimName, ExtensibleResource claimResource, ExtensibleResource conditions) {
-        verify(conditions).put("scopes", [])
+    static void verifyResource(String groupClaimName, ExtensibleResource claimResource, ExtensibleResource conditions, String claimType) {
+        verify(conditions, times(2)).put("scopes", []) // reused for access and Id tokens in this test
         verify(claimResource).put("conditions", conditions)
         verify(claimResource).put("name", groupClaimName)
         verify(claimResource).put("status", "ACTIVE")
-        verify(claimResource).put("claimType", "RESOURCE")
+        verify(claimResource).put("claimType", claimType)
         verify(claimResource).put("valueType", "GROUPS")
         verify(claimResource).put("value", ".*")
         verify(claimResource).put("alwaysIncludeInToken", true)
@@ -67,17 +69,19 @@ class DefaultAuthorizationServerServiceTest {
     }
 
     static Client mockClient(ExtensibleResource existingClaimResource,
-                             ExtensibleResource createClaimResource,
+                             ExtensibleResource createdClaimsResourceAccess,
+                             ExtensibleResource createdClaimsResourceId,
                              ExtensibleResource conditions,
                              RequestBuilder getClaimsRequestBuilder = mock(RequestBuilder),
                              RequestBuilder createClaimsRequestBuilder = mock(RequestBuilder)) {
         Client client = mock(Client)
-        when(client.instantiate(ExtensibleResource)).thenReturn(createClaimResource, conditions)
+        when(client.instantiate(ExtensibleResource)).thenReturn(createdClaimsResourceAccess, conditions, createdClaimsResourceId, conditions)
         when(client.http()).thenReturn(getClaimsRequestBuilder, createClaimsRequestBuilder)
 
         when(getClaimsRequestBuilder.get(anyString(), eq(ExtensibleResource))).thenReturn(existingClaimResource)
 
-        when(createClaimsRequestBuilder.setBody(createClaimResource)).thenReturn(createClaimsRequestBuilder)
+        when(createClaimsRequestBuilder.setBody(createdClaimsResourceAccess)).thenReturn(createClaimsRequestBuilder)
+        when(createClaimsRequestBuilder.setBody(createdClaimsResourceId)).thenReturn(createClaimsRequestBuilder)
 
         return client
     }
