@@ -39,11 +39,16 @@ public class PropertiesFilePropertiesSource extends WrappedMutablePropertiesSour
     }
 
     @Override
-    public void addProperties(Map<String, String> properties) throws IOException {
+    public void addProperties(Map<String, String> newProperties) throws IOException {
 
         Properties existingProps = new Properties();
         existingProps.putAll(getProperties());
-        existingProps.putAll(properties);
+
+        // Java Properties cannot handle null values (or keys) so filter them out
+        newProperties.entrySet().stream()
+                .filter(entry -> entry.getKey() != null)
+                .filter(entry -> entry.getValue() != null)
+                .forEach(entry -> existingProps.put(entry.getKey(), entry.getValue()));
 
         try (Writer writer = fileWriter(propertiesFile)) {
             existingProps.store(writer, null);
