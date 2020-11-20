@@ -16,7 +16,7 @@
 #
 
 set -e
-VERSION="0.7.0"
+VERSION="0.7.1"
 LINUX_DIST="https://github.com/oktadeveloper/okta-cli/releases/download/okta-cli-tools-${VERSION}/okta-cli-linux-${VERSION}-x86_64.zip"
 DARWIN_DIST="https://github.com/oktadeveloper/okta-cli/releases/download/okta-cli-tools-${VERSION}/okta-cli-macos-${VERSION}-x86_64.zip"
 
