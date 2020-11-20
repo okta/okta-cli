@@ -34,6 +34,7 @@ jobs:
       REPO_SLUG: ${{ github.repository }}
       BRANCH: ${{ github.head_ref }}
       RUN_IT: true
+      OKTA_ITS_TIMEOUT: PT45s
     steps:
       - uses: actions/checkout@v2
 
