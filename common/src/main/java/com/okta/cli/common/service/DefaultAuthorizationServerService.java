@@ -52,21 +52,26 @@ public class DefaultAuthorizationServerService implements AuthorizationServerSer
         // first check if the claim exists
         if (!containsGroupClaim(client, groupClaimName, authorizationServerId)) {
             // create the group claim
-            ExtensibleResource claimResource = client.instantiate(ExtensibleResource.class);
-            claimResource.put("name", groupClaimName);
-            claimResource.put("status", "ACTIVE");
-            claimResource.put("claimType", "RESOURCE");
-            claimResource.put("valueType", "GROUPS");
-            claimResource.put("value", ".*");
-            claimResource.put("alwaysIncludeInToken", true);
-            claimResource.put("group_filter_type", "REGEX");
-            ExtensibleResource conditions = client.instantiate(ExtensibleResource.class);
-            conditions.put("scopes", Collections.emptyList());
-            claimResource.put("conditions", conditions);
-
-            client.http()
-                    .setBody(claimResource)
-                    .post("/api/v1/authorizationServers/" + authorizationServerId + "/claims", ExtensibleResource.class);
+            createClaim(client, groupClaimName, authorizationServerId, "RESOURCE");
+            createClaim(client, groupClaimName, authorizationServerId, "IDENTITY");
         }
+    }
+
+    private void createClaim(Client client, String groupClaimName, String authorizationServerId, String claimType) {
+        ExtensibleResource claimResource = client.instantiate(ExtensibleResource.class);
+        claimResource.put("name", groupClaimName);
+        claimResource.put("status", "ACTIVE");
+        claimResource.put("claimType", claimType);
+        claimResource.put("valueType", "GROUPS");
+        claimResource.put("value", ".*");
+        claimResource.put("alwaysIncludeInToken", true);
+        claimResource.put("group_filter_type", "REGEX");
+        ExtensibleResource conditions = client.instantiate(ExtensibleResource.class);
+        conditions.put("scopes", Collections.emptyList());
+        claimResource.put("conditions", conditions);
+
+        client.http()
+                .setBody(claimResource)
+                .post("/api/v1/authorizationServers/" + authorizationServerId + "/claims", ExtensibleResource.class);
     }
 }

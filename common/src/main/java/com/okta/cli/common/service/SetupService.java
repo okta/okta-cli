@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public interface SetupService {
 
@@ -40,42 +41,46 @@ public interface SetupService {
                                        String oidcAppName,
                                        String orgUrl,
                                        String groupClaimName,
+                                       Set<String> groupsToCreate,
                                        String issuerUri,
                                        String authorizationServerId,
                                        boolean interactive,
                                        OpenIdConnectApplicationType appType) throws IOException {
-        createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, issuerUri, authorizationServerId, interactive, appType, Collections.emptyList());
+        createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, groupsToCreate, issuerUri, authorizationServerId, interactive, appType, Collections.emptyList());
     }
 
     default void createOidcApplication(MutablePropertySource propertySource,
                                        String oidcAppName,
                                        String orgUrl,
                                        String groupClaimName,
+                                       Set<String> groupsToCreate,
                                        String issuerUri,
                                        String authorizationServerId,
                                        boolean interactive,
                                        OpenIdConnectApplicationType appType,
                                        List<String> redirectUris) throws IOException {
-        createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, issuerUri, authorizationServerId, interactive, appType, redirectUris, Collections.emptyList());
+        createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, groupsToCreate, issuerUri, authorizationServerId, interactive, appType, redirectUris, Collections.emptyList());
     }
 
     default void createOidcApplication(MutablePropertySource propertySource,
                                        String oidcAppName,
                                        String orgUrl,
                                        String groupClaimName,
+                                       Set<String> groupsToCreate,
                                        String issuerUri,
                                        String authorizationServerId,
                                        boolean interactive,
                                        OpenIdConnectApplicationType appType,
                                        List<String> redirectUris,
                                        List<String> postLogoutRedirectUris) throws IOException {
-        createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, issuerUri, authorizationServerId, interactive, appType, redirectUris, postLogoutRedirectUris, Collections.emptyList());
+        createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, groupsToCreate, issuerUri, authorizationServerId, interactive, appType, redirectUris, postLogoutRedirectUris, Collections.emptyList());
     }
 
     void createOidcApplication(MutablePropertySource propertySource,
                                String oidcAppName,
                                String orgUrl,
                                String groupClaimName,
+                               Set<String> groupsToCreate,
                                String issuerUri,
                                String authorizationServerId,
                                boolean interactive,

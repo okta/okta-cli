@@ -27,10 +27,15 @@ import com.okta.sdk.client.Clients
 import com.okta.sdk.impl.config.ClientConfiguration
 import com.okta.sdk.resource.ExtensibleResource
 import com.okta.sdk.resource.application.OpenIdConnectApplicationType
+import com.okta.sdk.resource.group.Group
+import com.okta.sdk.resource.group.GroupList
+import com.okta.sdk.resource.group.GroupProfile
 import com.okta.sdk.resource.role.Scope
 import com.okta.sdk.resource.role.ScopeType
 import com.okta.sdk.resource.trusted.origin.TrustedOrigin
 import com.okta.sdk.resource.trusted.origin.TrustedOriginList
+import com.okta.sdk.resource.user.User
+import com.okta.sdk.resource.user.UserProfile
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
 import org.powermock.api.mockito.PowerMockito
@@ -128,8 +133,7 @@ class DefaultSetupServiceTest {
         when(propertySource.getProperty("okta.oauth2.client-id")).thenReturn("existing-client-id")
 
         DefaultSetupService setupService = setupService()
-
-        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
+        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
 
         // verify nothing happened
         PowerMockito.verifyNoMoreInteractions(setupService.organizationCreator,
@@ -160,7 +164,7 @@ class DefaultSetupServiceTest {
         when(resource.getString("client_secret")).thenReturn("test-client-secret")
         when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName, ["https://test.example.com/callback", "https://test.example.com/callback2"], ["https://test.example.com/logout", "https://test.example.com/logout2"])).thenReturn(resource)
 
-        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB, ["https://test.example.com/callback", "https://test.example.com/callback2"], ["https://test.example.com/logout", "https://test.example.com/logout2"])
+        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB, ["https://test.example.com/callback", "https://test.example.com/callback2"], ["https://test.example.com/logout", "https://test.example.com/logout2"])
 
         ArgumentCaptor<Map> mapCapture = ArgumentCaptor.forClass(Map)
         verify(propertySource).addProperties(mapCapture.capture())
@@ -196,7 +200,7 @@ class DefaultSetupServiceTest {
         when(resource.getString("client_secret")).thenReturn("test-client-secret")
         when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName, [], [])).thenReturn(resource)
 
-        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
+        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
 
         ArgumentCaptor<Map> mapCapture = ArgumentCaptor.forClass(Map)
         verify(propertySource).addProperties(mapCapture.capture())
@@ -214,6 +218,15 @@ class DefaultSetupServiceTest {
     void createOidcApplicationWithGroupClaim() {
 
         MutablePropertySource propertySource = mock(MutablePropertySource)
+        User user = mock(User)
+        UserProfile userProfile = mock(UserProfile)
+        GroupList emptyGroupsList = mock(GroupList)
+        GroupList group2Search = mock(GroupList)
+        Group group1 = mock(Group)
+        GroupProfile group1Profile = mock(GroupProfile)
+        Group group2 = mock(Group)
+        GroupProfile group2Profile = mock(GroupProfile)
+        List<Group> queriedGroups = [group2]
         String oidcAppName = "test-app-name"
         String orgUrl = "https://org.example.com"
         String groupClaimName = "test-group-claim"
@@ -225,6 +238,20 @@ class DefaultSetupServiceTest {
         Client client = mock(Client)
         when(clientBuilder.build()).thenReturn(client)
         when(Clients.builder()).thenReturn(clientBuilder)
+        when(client.getUser("me")).thenReturn(user)
+        when(user.getProfile()).thenReturn(userProfile)
+        when(userProfile.getLogin()).thenReturn("test@example.com")
+        when(client.listGroups("group-one", null)).thenReturn(emptyGroupsList)
+        when(client.listGroups("group-two", null)).thenReturn(group2Search)
+        when(client.instantiate(Group)).thenReturn(group1)
+        when(client.instantiate(GroupProfile)).thenReturn(group1Profile)
+        when(client.createGroup(group1)).thenReturn(group1)
+        when(group1.getId()).thenReturn("g-1")
+        when(group1.getProfile()).thenReturn(group1Profile)
+        when(group2.getProfile()).thenReturn(group2Profile)
+        when(group2Profile.getName()).thenReturn("group-two")
+        when(group2.getId()).thenReturn("g-2")
+        when(group2Search.stream()).thenReturn(queriedGroups.stream())
 
         DefaultSetupService setupService = setupService()
         ExtensibleResource resource = mock(ExtensibleResource)
@@ -232,7 +259,7 @@ class DefaultSetupServiceTest {
         when(resource.getString("client_secret")).thenReturn("test-client-secret")
         when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName, [], [])).thenReturn(resource)
 
-        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
+        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, ["group-one", "group-two"] as Set, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
 
         ArgumentCaptor<Map> mapCapture = ArgumentCaptor.forClass(Map)
         verify(propertySource).addProperties(mapCapture.capture())
@@ -243,6 +270,12 @@ class DefaultSetupServiceTest {
         ])
 
         verify(setupService.authorizationServerService).createGroupClaim(client, groupClaimName, authorizationServerId)
+
+        ArgumentCaptor<Group> groupCapture = ArgumentCaptor.forClass(Group)
+        verify(client).createGroup(groupCapture.capture())
+        assertThat groupCapture.getAllValues(), is([group1])
+        verify(user).addToGroup("g-1")
+        verify(user).addToGroup("g-2")
     }
 
     @Test
