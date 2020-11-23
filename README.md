@@ -40,7 +40,7 @@ curl https://raw.githubusercontent.com/oktadeveloper/okta-cli/master/cli/src/mai
 **Windows (via Chocolatey)**
 
 ```bash
-choco install okta --version=0.7.0
+choco install okta --version=0.7.1
 ```
 
 **Manual Installs**
