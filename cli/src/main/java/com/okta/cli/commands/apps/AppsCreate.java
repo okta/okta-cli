@@ -100,6 +100,7 @@ public class AppsCreate extends BaseCommand {
         WebAppTemplate appTemplate = prompter.promptIfEmpty(webAppTemplate, "Type of Application", Arrays.asList(WebAppTemplate.values()), WebAppTemplate.GENERIC);
 
         List<String> redirectUris = getRedirectUris(Map.of("Spring Security", "http://localhost:8080/login/oauth2/code/okta",
+                                                   "Quarkus OIDC", "http://localhost:8080/",
                                                    "JHipster", "http://localhost:8080/login/oauth2/code/oidc"),
                                             appTemplate.getDefaultRedirectUri());
         List<String> postLogoutRedirectUris = getPostLogoutRedirectUris(redirectUris);
@@ -110,7 +111,7 @@ public class AppsCreate extends BaseCommand {
         Set<String> groupsToCreate = appTemplate.getGroupsToCreate();
 
         MutablePropertySource propertySource = appCreationMixin.getPropertySource(appTemplate.getDefaultConfigFileName());
-        new DefaultSetupService(appTemplate.getSpringPropertyKey()).createOidcApplication(propertySource, appName, baseUrl, groupClaimName, groupsToCreate, issuer.getIssuer(), issuer.getId(), true, OpenIdConnectApplicationType.WEB, redirectUris, postLogoutRedirectUris);
+        new DefaultSetupService(appTemplate.getOidcProperties()).createOidcApplication(propertySource, appName, baseUrl, groupClaimName, groupsToCreate, issuer.getIssuer(), issuer.getId(), true, OpenIdConnectApplicationType.WEB, redirectUris, postLogoutRedirectUris);
 
         out.writeLine("Okta application configuration has been written to: " + propertySource.getName());
 
@@ -154,7 +155,7 @@ public class AppsCreate extends BaseCommand {
         AuthorizationServer issuer = getIssuer(client);
 
         MutablePropertySource propertySource = appCreationMixin.getPropertySource(appTemplate.getDefaultConfigFileName());
-        new DefaultSetupService(appTemplate.getSpringPropertyKey()).createOidcApplication(propertySource, appName, baseUrl, null, Collections.emptySet(), issuer.getIssuer(), issuer.getId(), getEnvironment().isInteractive(), OpenIdConnectApplicationType.SERVICE);
+        new DefaultSetupService(appTemplate.getOidcProperties()).createOidcApplication(propertySource, appName, baseUrl, null, Collections.emptySet(), issuer.getIssuer(), issuer.getId(), getEnvironment().isInteractive(), OpenIdConnectApplicationType.SERVICE);
 
         out.writeLine("Okta application configuration has been written to: " + propertySource.getName());
 
@@ -246,6 +247,7 @@ public class AppsCreate extends BaseCommand {
         // web
         OKTA_SPRING_BOOT("okta-spring-boot", AppType.WEB, WebAppTemplate.OKTA_SPRING_BOOT),
         SPRING_BOOT("spring-boot", AppType.WEB, WebAppTemplate.SPRING_BOOT),
+        Quarkus("quarkus", AppType.WEB, WebAppTemplate.QUARKUS),
         JHIPSTER("jhipster", AppType.WEB, WebAppTemplate.JHIPSTER),
         GENERIC_WEB("web", AppType.WEB, WebAppTemplate.GENERIC),
         // service

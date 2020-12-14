@@ -18,6 +18,7 @@ package com.okta.cli.common.service
 import com.okta.cli.common.FactorVerificationException
 import com.okta.cli.common.config.MutablePropertySource
 import com.okta.cli.common.model.ErrorResponse
+import com.okta.cli.common.model.OidcProperties
 import com.okta.cli.common.model.OrganizationRequest
 import com.okta.cli.common.model.OrganizationResponse
 import com.okta.cli.common.model.RegistrationQuestions
@@ -279,24 +280,6 @@ class DefaultSetupServiceTest {
     }
 
     @Test
-    void propertyNameTest() {
-        def setupService1 = setupService()
-        assertThat setupService1.getIssuerUriPropertyName(), is("okta.oauth2.issuer")
-        assertThat setupService1.getClientIdPropertyName(), is("okta.oauth2.client-id")
-        assertThat setupService1.getClientSecretPropertyName(), is("okta.oauth2.client-secret")
-
-        def setupService2 = setupService("okta")
-        assertThat setupService2.getIssuerUriPropertyName(), is("spring.security.oauth2.client.provider.okta.issuer-uri")
-        assertThat setupService2.getClientIdPropertyName(), is("spring.security.oauth2.client.registration.okta.client-id")
-        assertThat setupService2.getClientSecretPropertyName(), is("spring.security.oauth2.client.registration.okta.client-secret")
-
-        def setupService3 = setupService("oidc")
-        assertThat setupService3.getIssuerUriPropertyName(), is("spring.security.oauth2.client.provider.oidc.issuer-uri")
-        assertThat setupService3.getClientIdPropertyName(), is("spring.security.oauth2.client.registration.oidc.client-id")
-        assertThat setupService3.getClientSecretPropertyName(), is("spring.security.oauth2.client.registration.oidc.client-secret")
-    }
-
-    @Test
     void configureTrustedOriginTest_null() {
 
         Client client = mock(Client)
@@ -413,14 +396,14 @@ class DefaultSetupServiceTest {
         verifyNoMoreInteractions(client)
     }
 
-    private static DefaultSetupService setupService(String springPropertyKey = null) {
+    private static DefaultSetupService setupService(OidcProperties oidcProperties = OidcProperties.oktaEnv()) {
         OktaOrganizationCreator organizationCreator = mock(OktaOrganizationCreator)
         SdkConfigurationService sdkConfigurationService = mock(SdkConfigurationService)
         OidcAppCreator oidcAppCreator = mock(OidcAppCreator)
         AuthorizationServerService authServerService = mock(AuthorizationServerService)
         when(sdkConfigurationService.loadUnvalidatedConfiguration()).thenReturn(new ClientConfiguration())
 
-        DefaultSetupService setupService = new DefaultSetupService(sdkConfigurationService, organizationCreator, oidcAppCreator, authServerService, springPropertyKey)
+        DefaultSetupService setupService = new DefaultSetupService(sdkConfigurationService, organizationCreator, oidcAppCreator, authServerService, oidcProperties)
 
         return setupService
     }
