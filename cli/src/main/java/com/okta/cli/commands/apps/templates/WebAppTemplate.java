@@ -31,7 +31,7 @@ public enum WebAppTemplate implements PromptOption<WebAppTemplate> {
     SPRING_BOOT("Spring Boot", OidcProperties.spring("okta"), "src/main/resources/application.properties", "http://localhost:8080/login/oauth2/code/okta", null),
     JHIPSTER("JHipster", OidcProperties.oktaEnv(), ".okta.env", "http://localhost:8080/login/oauth2/code/oidc", "groups", Set.of("ROLE_USER", "ROLE_ADMIN")),
     QUARKUS("Quarkus", OidcProperties.quarkus(OpenIdConnectApplicationType.WEB), "src/main/resources/application.properties", "http://localhost:8080/", null),
-    GENERIC("Other", null, ".okta.env", "http://localhost:8080/callback", null);
+    GENERIC("Other", OidcProperties.oktaEnv(), ".okta.env", "http://localhost:8080/callback", null);
 
     private static final Map<String, WebAppTemplate> nameToTemplateMap = Arrays.stream(values()).collect(Collectors.toMap(it -> it.friendlyName, it -> it));
 

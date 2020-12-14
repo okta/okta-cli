@@ -1,6 +1,20 @@
+/*
+ * Copyright 2020-Present Okta, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.okta.cli.common.model;
 
-import com.okta.cli.common.URIs;
 import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
 
 import java.net.URI;
@@ -42,7 +56,6 @@ public abstract class OidcProperties {
     String clientId;
     String clientSecret;
     List<String> redirectUris;
-    List<String> postLogoutRedirectUris;
 
     OidcProperties(String issuerUriPropertyName, String clientIdPropertyName, String clientSecretPropertyName) {
         this.issuerUriPropertyName = issuerUriPropertyName;
@@ -66,19 +79,13 @@ public abstract class OidcProperties {
         this.redirectUris = redirectUris;
     }
 
-    public void setPostLogoutRedirectUris(List<String> postLogoutRedirectUris) {
-        this.postLogoutRedirectUris = postLogoutRedirectUris;
-    }
-
     abstract Map<String, String> getOidcClientProperties();
 
     public Map<String, String> getProperties() {
-        Map<String, String> properties = new HashMap<>(Map.of(
-                issuerUriPropertyName, issuerUri,
-                clientIdPropertyName, clientId,
-                clientSecretPropertyName, clientSecret
-        ));
-
+        Map<String, String> properties = new HashMap<>();
+        properties.put(issuerUriPropertyName, issuerUri);
+        properties.put(clientIdPropertyName, clientId);
+        properties.put(clientSecretPropertyName, clientSecret);
         properties.putAll(getOidcClientProperties());
 
         return properties;
@@ -132,7 +139,10 @@ public abstract class OidcProperties {
 
         @Override
         Map<String, String> getOidcClientProperties() {
-            String redirectUri = redirectUris.get(0);
+            String redirectUri = "/";
+            if (redirectUris != null && !redirectUris.isEmpty()) {
+                redirectUri = redirectUris.get(0);
+            }
 
             return Map.of(
                     "quarkus.oidc.application-type", applicationType,
