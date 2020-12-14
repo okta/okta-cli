@@ -15,6 +15,7 @@
  */
 package com.okta.cli.commands.apps.templates;
 
+import com.okta.cli.common.model.OidcProperties;
 import com.okta.cli.console.PromptOption;
 
 import java.util.Arrays;
@@ -23,25 +24,25 @@ import java.util.stream.Collectors;
 
 public enum ServiceAppTemplate implements PromptOption<ServiceAppTemplate> {
 
-    OKTA_SPRING_BOOT("Okta Spring Boot Starter", null,  "src/main/resources/application.properties"),
-    SPRING_BOOT("Spring Boot", "okta",  "src/main/resources/application.properties"),
-    JHIPSTER("JHipster", "oidc", ".okta.env"),
-    GENERIC("Other", null, ".okta.env");
+    OKTA_SPRING_BOOT("Okta Spring Boot Starter", OidcProperties.spring("okta"),  "src/main/resources/application.properties"),
+    SPRING_BOOT("Spring Boot", OidcProperties.spring("okta"),  "src/main/resources/application.properties"),
+    JHIPSTER("JHipster", OidcProperties.oktaEnv(), ".okta.env"),
+    GENERIC("Other", OidcProperties.oktaEnv(), ".okta.env");
 
     private static final Map<String, ServiceAppTemplate> nameToTemplateMap = Arrays.stream(values()).collect(Collectors.toMap(it -> it.friendlyName, it -> it));
 
     private final String friendlyName;
-    private final String springPropertyKey;
+    private final OidcProperties oidcProperties;
     private final String defaultConfigFileName;
 
-    ServiceAppTemplate(String friendlyName, String springPropertyKey, String defaultConfigFileName) {
+    ServiceAppTemplate(String friendlyName, OidcProperties oidcProperties, String defaultConfigFileName) {
         this.friendlyName = friendlyName;
-        this.springPropertyKey = springPropertyKey;
+        this.oidcProperties = oidcProperties;
         this.defaultConfigFileName = defaultConfigFileName;
     }
 
-    public String getSpringPropertyKey() {
-        return springPropertyKey;
+    public OidcProperties getOidcProperties() {
+        return oidcProperties;
     }
 
     public String getDefaultConfigFileName() {
