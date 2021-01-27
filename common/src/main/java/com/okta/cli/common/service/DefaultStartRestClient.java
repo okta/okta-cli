@@ -16,6 +16,7 @@
 package com.okta.cli.common.service;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.okta.cli.common.RestException;
 import com.okta.cli.common.model.ErrorResponse;
@@ -35,6 +36,7 @@ import org.apache.http.impl.client.HttpClients;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -95,6 +97,37 @@ public class DefaultStartRestClient implements RestClient, StartRestClient {
         }
     }
 
+    @Override
+    public void post(String url, Object body) throws RestException, IOException {
+        String postBody = objectMapper.writeValueAsString(body);
+        postBody = "{\"userProfile\" :" + postBody + "}";
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpPost post = new HttpPost(url);
+
+            post.setEntity(new StringEntity(postBody, StandardCharsets.UTF_8));
+            post.setHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON);
+            post.setHeader(HttpHeaders.ACCEPT, APPLICATION_JSON);
+            post.setHeader(HttpHeaders.USER_AGENT, USER_AGENT_STRING);
+
+            HttpResponse response = httpClient.execute(post);
+
+            Header contentTypeHeader = response.getFirstHeader(HttpHeaders.CONTENT_TYPE);
+            if (contentTypeHeader == null || !contentTypeHeader.getValue().contains(APPLICATION_JSON)) {
+                log.warn("Content-Type header was NOT set to {}, parsing the response may fail", APPLICATION_JSON);
+            }
+
+            InputStream content = response.getEntity().getContent();
+            int httpStatus = response.getStatusLine().getStatusCode();
+
+            if (httpStatus != 200) {
+                log.debug("Registration failed with HTTP status: {}", httpStatus);
+                throw new RestException(constructErrorResponse(content));
+            }
+        }
+    }
+
+    @Override
     public <T> T post(String url, Object body, Class<T> responseType) throws RestException, IOException {
         String postBody = objectMapper.writeValueAsString(body);
         return post(url, postBody, responseType);
@@ -139,5 +172,22 @@ public class DefaultStartRestClient implements RestClient, StartRestClient {
         return System.getenv().getOrDefault("OKTA_CLI_BASE_URL",
                 System.getProperties().getProperty("okta.cli.baseUrl",
                     DEFAULT_API_BASE_URL));
+    }
+
+    private ErrorResponse constructErrorResponse(InputStream content) throws IOException {
+        JsonNode errorJsonNode = objectMapper.reader().readTree(content);
+        ErrorResponse errorResponse = new ErrorResponse()
+                .setError(errorJsonNode.get("errorCode").toString())
+                .setMessage(errorJsonNode.get("errorSummary").toString());
+
+        JsonNode errorCausesArrayNode = errorJsonNode.get("errorCauses");
+        List<String> causes = new ArrayList<>();
+        for (JsonNode errorCauseNode : errorCausesArrayNode) {
+            for (JsonNode cause : errorCauseNode) {
+                causes.add(cause.asText());
+            }
+        }
+        errorResponse.setCauses(causes);
+        return errorResponse;
     }
 }

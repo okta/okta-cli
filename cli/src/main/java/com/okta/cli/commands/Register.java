@@ -43,6 +43,9 @@ public class Register extends BaseCommand {
     @CommandLine.Option(names = "--company", description = "Company / organization used when registering a new Okta account")
     protected String company;
 
+    @CommandLine.Option(names = "--country", description = "Country used when registering a new Okta account")
+    protected String country;
+
     public Register() {}
 
     private Register(OktaCli.StandardOptions standardOptions) {
@@ -103,7 +106,8 @@ public class Register extends BaseCommand {
                     .setFirstName(prompter.promptUntilValue(firstName, "First name"))
                     .setLastName(prompter.promptUntilValue(lastName, "Last name"))
                     .setEmail(prompter.promptUntilValue(email, "Email address"))
-                    .setOrganization(prompter.promptUntilValue(company, "Company"));
+                    .setOrganization(prompter.promptUntilValue(company, "Company"))
+                    .setCountry(prompter.promptUntilValue(country, "Country"));
         }
 
         @Override

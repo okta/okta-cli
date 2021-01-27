@@ -39,7 +39,8 @@ class DefaultOrganizationCreatorTest implements WireMockSupport {
                       "firstName": "Joe",
                       "lastName": "Coder",
                       "email": "joe.coder@example.com",
-                      "organization": "Test co"
+                      "organization": "Test co",
+                      "country": "Country"
                     }
                     """))
                 .withHeader("Content-Type", equalTo("application/json"))
@@ -60,7 +61,8 @@ class DefaultOrganizationCreatorTest implements WireMockSupport {
             .setEmail("joe.coder@example.com")
             .setOrganization("Test co")
             .setFirstName("Joe")
-            .setLastName("Coder"))
+            .setLastName("Coder")
+            .setCountry("Country"))
 
         assertThat response.orgUrl, is("https://okta.example.com")
         assertThat response.apiToken, is("an-api-token-here")

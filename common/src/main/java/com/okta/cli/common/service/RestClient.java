@@ -18,10 +18,14 @@ package com.okta.cli.common.service;
 import com.okta.cli.common.RestException;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 public interface RestClient {
 
     <T> T get(String url, Class<T> type) throws RestException, IOException;
+
+    void post(String url, Object body) throws RestException, IOException;
 
     <T> T post(String url, Object body, Class<T> responseType) throws RestException, IOException;
 

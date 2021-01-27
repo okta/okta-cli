@@ -41,6 +41,7 @@ import com.okta.sdk.resource.user.User;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
@@ -116,6 +117,17 @@ public class DefaultSetupService implements SetupService {
 
             // resolve the request (potentially prompt for input) before starting the progress bar
             OrganizationRequest organizationRequest = registrationQuestions.getOrganizationRequest();
+
+            //progressBar.info("Registering new Okta Organization.");
+
+            try {
+                organizationCreator.registerNewOrg(organizationRequest);
+                //progressBar.info("Registration complete.");
+            } catch (RestException | URISyntaxException e) {
+                throw new ClientConfigurationException("Failed to register Okta Organization. You can register " +
+                        "manually by going to https://developer.okta.com/signup");
+            }
+
             progressBar.start("Creating new Okta Organization, this may take a minute:");
 
             try {

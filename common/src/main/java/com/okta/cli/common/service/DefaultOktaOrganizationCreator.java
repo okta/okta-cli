@@ -27,6 +27,12 @@ public class DefaultOktaOrganizationCreator implements OktaOrganizationCreator {
     private final RestClient restClient = new DefaultStartRestClient();
 
     @Override
+    public void registerNewOrg(OrganizationRequest orgRequest) throws IOException, RestException {
+
+        restClient.post("https://okta-devok12.okta.com/api/v1/registration/reg405abrRAkn0TRf5d6/register", orgRequest);
+    }
+
+    @Override
     public OrganizationResponse createNewOrg(OrganizationRequest orgRequest) throws RestException, IOException {
 
         return restClient.post("/create", orgRequest, OrganizationResponse.class);

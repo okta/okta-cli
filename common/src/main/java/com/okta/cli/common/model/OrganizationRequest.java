@@ -26,4 +26,5 @@ public class OrganizationRequest {
     private String lastName;
     private String email;
     private String organization;
+    private String country;
 }

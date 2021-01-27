@@ -21,8 +21,11 @@ import com.okta.cli.common.model.OrganizationRequest;
 import com.okta.cli.common.model.OrganizationResponse;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 public interface OktaOrganizationCreator {
+
+    void registerNewOrg(OrganizationRequest orgRequest) throws IOException, RestException, URISyntaxException;
 
     OrganizationResponse createNewOrg(OrganizationRequest orgRequest) throws IOException, RestException;
 
