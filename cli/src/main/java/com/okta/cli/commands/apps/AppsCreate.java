@@ -101,7 +101,7 @@ public class AppsCreate extends BaseCommand {
 
         List<String> redirectUris = getRedirectUris(Map.of("Spring Security", "http://localhost:8080/login/oauth2/code/okta",
                                                    "JHipster", "http://localhost:8080/login/oauth2/code/oidc"),
-                                            appTemplate.getDefaultRedirectUri());
+                                            appTemplate.getDefaultRedirectUris());
         List<String> postLogoutRedirectUris = getPostLogoutRedirectUris(redirectUris);
         Client client = Clients.builder().build();
         AuthorizationServer issuer = getIssuer(client);
@@ -202,29 +202,33 @@ public class AppsCreate extends BaseCommand {
         }
     }
 
-    private List<String> getRedirectUris(Map<String, String> commonExamples, String defaultRedirectUri) {
+    private List<String> getRedirectUris(Map<String, String> commonExamples, List<String> defaultRedirectUris) {
         Prompter prompter = getPrompter();
 
         StringBuilder redirectUriPrompt = new StringBuilder("Redirect URI\nCommon defaults:\n");
         commonExamples.forEach((key, value) -> {
-                redirectUriPrompt.append(" ").append(key).append(" - ").append(value).append("\n");
+            redirectUriPrompt.append(" ").append(key).append(" - ").append(value).append("\n");
         });
-        redirectUriPrompt.append("Enter your Redirect URI");
+        redirectUriPrompt.append("Enter your Redirect URI(s)");
 
-        String result = prompter.promptIfEmpty(appCreationMixin.redirectUri, redirectUriPrompt.toString(), defaultRedirectUri).trim();
+        String redirectUrisString = String.join(", ", defaultRedirectUris);
+        String result = prompter.promptIfEmpty(appCreationMixin.redirectUri, redirectUriPrompt.toString(), redirectUrisString).trim();
         return split(result);
+    }
+
+    private List<String> getRedirectUris(Map<String, String> commonExamples, String defaultRedirectUri) {
+        return getRedirectUris(commonExamples, Collections.singletonList(defaultRedirectUri));
     }
 
     private List<String> getPostLogoutRedirectUris(List<String> redirectUris) {
         Prompter prompter = getPrompter();
 
         Assert.notEmpty(redirectUris, "Redirect Uris cannot be empty");
-        String defaultPostLogoutUri = redirectUris.stream()
-                .findFirst()
+        String defaultPostLogoutUris = redirectUris.stream()
                 .map(URIs::baseUrlOf)
-                .get();
+                .collect(Collectors.joining(", "));
 
-        String result = prompter.promptIfEmpty(appCreationMixin.redirectUri, "Enter your Post Logout Redirect URI", defaultPostLogoutUri).trim();
+        String result = prompter.promptIfEmpty(appCreationMixin.redirectUri, "Enter your Post Logout Redirect URI(s)", defaultPostLogoutUris).trim();
         return split(result);
     }
 

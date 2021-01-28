@@ -65,8 +65,8 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
 
 
             assertThat result, resultMatches(0, allOf(
-                                                            containsString("Enter your Redirect URI [http://localhost:8080/callback]:"),
-                                                            containsString("Enter your Post Logout Redirect URI [http://localhost:8080/]:"),
+                                                            containsString("Enter your Redirect URI(s) [http://localhost:8080/callback]:"),
+                                                            containsString("Enter your Post Logout Redirect URI(s) [http://localhost:8080/]:"),
                                                             containsString("Okta application configuration:"),
                                                             containsString("Client ID: test-id"),
                                                             containsString("Issuer:    ${url(mockWebServer,"/")}/oauth2/test-as"),
@@ -75,7 +75,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
 
             verify(mockWebServer.takeRequest(), "GET", "/api/v1/authorizationServers")
             verify(mockWebServer.takeRequest(), "GET", "/api/v1/apps", "q=test-project")
-            verifyRedirectUri(mockWebServer.takeRequest(), "http://localhost:8080/callback")
+            verifyRedirectUri(mockWebServer.takeRequest(), ["http://localhost:8080/callback"])
             verify(mockWebServer.takeRequest(), "GET", "/api/v1/groups", "q=everyone")
             verify(mockWebServer.takeRequest(), "PUT", "/api/v1/apps/test-app-id/groups/every1-id")
             verify(mockWebServer.takeRequest(), "GET", "/api/v1/internal/apps/test-app-id/settings/clientcreds")
@@ -119,15 +119,15 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             assertThat result, resultMatches(0, allOf(
                                                             containsString("Okta application configuration:"),
                                                             containsString("okta.oauth2.client-id: test-id"),
-                                                            containsString("Enter your Redirect URI [localhost:/callback]:"),
-                                                            containsString("Enter your Post Logout Redirect URI [localhost:/]:"),
+                                                            containsString("Enter your Redirect URI(s) [localhost:/callback]:"),
+                                                            containsString("Enter your Post Logout Redirect URI(s) [localhost:/]:"),
                                                             containsString("okta.oauth2.issuer: ${url(mockWebServer,"/")}/oauth2/test-as"),
                                                             not(containsString("okta.oauth2.client-secret"))),
                                                         null)
 
             mockWebServer.takeRequest() // auth list request
             mockWebServer.takeRequest() // check if app exists
-            verifyRedirectUri(mockWebServer.takeRequest(), "localhost:/callback")
+            verifyRedirectUri(mockWebServer.takeRequest(), ["localhost:/callback"])
         }
     }
 
@@ -166,14 +166,63 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             assertThat result, resultMatches(0, allOf(
                                                             containsString("Created OIDC application, client-id: test-id"),
                                                             containsString("Okta application configuration has been written to"),
-                                                            containsString("Enter your Redirect URI [http://localhost:8080/callback]:"),
-                                                            containsString("Enter your Post Logout Redirect URI [http://localhost:8080/]:"),
+                                                            containsString("Enter your Redirect URI(s) [http://localhost:8080/callback]:"),
+                                                            containsString("Enter your Post Logout Redirect URI(s) [http://localhost:8080/]:"),
                                                             containsString(".okta.env")),
                                                         null)
 
             mockWebServer.takeRequest() // auth list request
             mockWebServer.takeRequest() // check if app exists
-            verifyRedirectUri(mockWebServer.takeRequest(), "http://localhost:8080/callback")
+            verifyRedirectUri(mockWebServer.takeRequest(), ["http://localhost:8080/callback"])
+        }
+    }
+
+    @Test
+    void createWebAppMultipleRedirect() {
+        MockWebServer mockWebServer = createMockServer()
+        List<MockResponse> responses = [
+                // GET /api/v1/authorizationServers
+                jsonRequest('[{ "id": "test-as", "name": "test-as-name", "issuer": "' + url(mockWebServer,"/") + '/oauth2/test-as" }]'),
+                // GET /api/v1/apps?q=integration-tests
+                jsonRequest('[]'),
+                // POST /api/v1/apps
+                jsonRequest('{ "id": "test-app-id", "label": "test-app-name" }'),
+                // GET /api/v1/groups?q=everyone
+                jsonRequest("[${everyoneGroup()}]"),
+                // PUT /api/v1/apps/test-app-id/groups/every1-id
+                jsonRequest('{}'),
+                //GET /api/v1/internal/apps/test-app-id/settings/clientcreds
+                jsonRequest('{ "client_id": "test-id", "client_secret": "test-secret" }')]
+
+        mockWebServer.with {
+            responses.forEach { mockWebServer.enqueue(it) }
+
+            List<String> input = [
+                    "", // default of "test-project"
+                    "", //  default "web" type of app choice
+                    "", // generic OIDC app
+                    "http://localhost:8080/callback, http://localhost:8888/callback", // redirect uris
+                    "",  // default post logout redirect "http://localhost:8080/, http://localhost:8888/"
+                    "", // generic OIDC app
+            ]
+
+            def result = new CommandRunner()
+                    .withSdkConfig(url(mockWebServer,"/"))
+                    .runCommandWithInput(input,"--color=never", "apps", "create")
+
+            assertThat result, resultMatches(0, allOf(
+                    containsString("Created OIDC application, client-id: test-id"),
+                    containsString("Okta application configuration has been written to"),
+                    containsString("Enter your Redirect URI(s) [http://localhost:8080/callback]:"),
+                    containsString("Enter your Post Logout Redirect URI(s) [http://localhost:8080/, http://localhost:8888/]:"),
+                    containsString(".okta.env")),
+                    null)
+
+            mockWebServer.takeRequest() // auth list request
+            mockWebServer.takeRequest() // check if app exists
+            verifyRedirectUri(mockWebServer.takeRequest(),
+                              ["http://localhost:8080/callback", "http://localhost:8888/callback"],
+                              ["http://localhost:8080/", "http://localhost:8888/"])
         }
     }
 
@@ -251,22 +300,27 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             assertThat result, resultMatches(0, allOf(
                                                             containsString("Created OIDC application, client-id: test-id"),
                                                             containsString("Okta application configuration has been written to"),
-                                                            containsString("Enter your Redirect URI [http://localhost:8080/login/oauth2/code/okta]:"),
-                                                            containsString("Enter your Post Logout Redirect URI [http://localhost:8080/]:"),
+                                                            containsString("Enter your Redirect URI(s) [http://localhost:8080/login/oauth2/code/okta]:"),
+                                                            containsString("Enter your Post Logout Redirect URI(s) [http://localhost:8080/]:"),
                                                             containsString("application.properties")),
                                                         null)
 
             mockWebServer.takeRequest() // auth list request
             mockWebServer.takeRequest() // check if app exists
-            verifyRedirectUri(mockWebServer.takeRequest(), "http://localhost:8080/login/oauth2/code/okta")
+            verifyRedirectUri(mockWebServer.takeRequest(), ["http://localhost:8080/login/oauth2/code/okta"])
         }
     }
 
-    private void verifyRedirectUri(RecordedRequest request, String... expectedRedirectUris) {
+    private void verifyRedirectUri(RecordedRequest request, List<String> expectedRedirectUris, List<String> expectedPostLogoutRedirectUris = null) {
         verify(request, "POST", "/api/v1/apps")
-        def body = new JsonSlurper().parse(request.getBody().inputStream())
-        String[] redirectUris = body.settings.oauthClient.redirect_uris
+        def body = new JsonSlurper().parseText(request.getBody().readUtf8())
+        List<String> redirectUris = body.settings.oauthClient.redirect_uris
         assertThat redirectUris, equalTo(expectedRedirectUris)
+
+        if (expectedPostLogoutRedirectUris != null) {
+            List<String> postLogoutUris = body.settings.oauthClient.post_logout_redirect_uris
+            assertThat postLogoutUris, equalTo(expectedPostLogoutRedirectUris)
+        }
     }
 
     private void verifyTrustedOrigins(RecordedRequest request, String expectedUri) {
