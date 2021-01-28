@@ -98,8 +98,6 @@ public class OktaCli implements Runnable {
 
         private final static Environment environment = new Environment();
 
-        private boolean verbose = false;
-
         @Option(names = "--color", hidden = true) // gnu tools use --color=always,never,auto (for not just support always and never)
         public void setColor(ColorOptions color) {
             environment.setConsoleColors(color == ColorOptions.always);
@@ -112,14 +110,14 @@ public class OktaCli implements Runnable {
 
         @Option(names = "--verbose", description = "Verbose logging")
         public void setVerbose(boolean verbose) {
-            this.verbose = verbose;
+            this.environment.setVerbose(verbose);
             if (verbose) {
                 System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
             }
         }
 
         public boolean isVerbose() {
-            return verbose;
+            return getEnvironment().isVerbose();
         }
 
         @Option(names = "-D", hidden = true, description = "Set Java System Property key value pairs", paramLabel = "<key=value>")

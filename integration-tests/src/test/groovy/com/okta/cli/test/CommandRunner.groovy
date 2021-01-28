@@ -73,6 +73,7 @@ class CommandRunner {
             : runProcess([] as String[], args, input)
     }
 
+    // TODO: this only works some time, consider removing this
     static boolean isIde() {
         return false && System.getProperty("java.class.path").contains("idea_rt.jar") && Classes.isAvailable("com.okta.cli.OktaCli")
     }

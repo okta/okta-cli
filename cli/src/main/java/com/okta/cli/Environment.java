@@ -34,6 +34,8 @@ public class Environment {
 
     private boolean interactive = true;
 
+    private boolean verbose = false;
+
     private boolean consoleColors = true;
 
     public boolean isInteractive() {
@@ -48,6 +50,14 @@ public class Environment {
     public Environment setConsoleColors(boolean consoleColors) {
         this.consoleColors = consoleColors;
         return this;
+    }
+
+    public boolean isVerbose() {
+        return verbose;
+    }
+
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
     }
 
     public File workingDirectory() {

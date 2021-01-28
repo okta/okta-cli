@@ -18,6 +18,10 @@ package com.okta.cli.test
 import groovy.json.JsonOutput
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
+
+import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.equalTo
 
 trait MockWebSupport {
 
@@ -55,4 +59,11 @@ trait MockWebSupport {
     String url(MockWebServer server, String path) {
         return "http://localhost:${server.port}${path}"
     }
+
+    void verify(RecordedRequest request, String method, String relativeUri, String query = null) {
+        assertThat request.requestUrl.uri().getPath(), equalTo(relativeUri)
+        assertThat request.requestUrl.uri().getQuery(), equalTo(query)
+        assertThat request.method, equalTo(method)
+    }
+
 }
