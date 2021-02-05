@@ -101,7 +101,8 @@ public class AppsCreate extends BaseCommand {
         WebAppTemplate appTemplate = prompter.promptIfEmpty(webAppTemplate, "Type of Application", Arrays.asList(WebAppTemplate.values()), WebAppTemplate.GENERIC);
 
         List<String> redirectUris = getRedirectUris(Map.of("Spring Security", "http://localhost:8080/login/oauth2/code/okta",
-                                                   "JHipster", "http://localhost:8080/login/oauth2/code/oidc"),
+                                                    "Quarkus OIDC", "http://localhost:8080/",
+                                                    "JHipster", "http://localhost:8080/login/oauth2/code/oidc"),
                                             appTemplate.getDefaultRedirectUris());
         List<String> postLogoutRedirectUris = getPostLogoutRedirectUris(redirectUris);
         Client client = Clients.builder().build();
@@ -251,6 +252,7 @@ public class AppsCreate extends BaseCommand {
         // web
         OKTA_SPRING_BOOT("okta-spring-boot", AppType.WEB, WebAppTemplate.OKTA_SPRING_BOOT),
         SPRING_BOOT("spring-boot", AppType.WEB, WebAppTemplate.SPRING_BOOT),
+        QUARKUS("quarkus", AppType.WEB, WebAppTemplate.QUARKUS),
         JHIPSTER("jhipster", AppType.WEB, WebAppTemplate.JHIPSTER),
         GENERIC_WEB("web", AppType.WEB, WebAppTemplate.GENERIC),
         // service

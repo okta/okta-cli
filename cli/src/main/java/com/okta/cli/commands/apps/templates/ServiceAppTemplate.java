@@ -27,6 +27,7 @@ public enum ServiceAppTemplate implements PromptOption<ServiceAppTemplate> {
     OKTA_SPRING_BOOT("Okta Spring Boot Starter", OidcProperties.spring("okta"),  "src/main/resources/application.properties"),
     SPRING_BOOT("Spring Boot", OidcProperties.spring("okta"),  "src/main/resources/application.properties"),
     JHIPSTER("JHipster", OidcProperties.oktaEnv(), ".okta.env"),
+    QUARKUS("Quarkus", OidcProperties.quarkus(), "src/main/resources/application.properties"),
     GENERIC("Other", OidcProperties.oktaEnv(), ".okta.env");
 
     private static final Map<String, ServiceAppTemplate> nameToTemplateMap = Arrays.stream(values()).collect(Collectors.toMap(it -> it.friendlyName, it -> it));

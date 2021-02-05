@@ -15,6 +15,9 @@
  */
 package com.okta.cli.common.model;
 
+import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
+
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +38,14 @@ public abstract class OidcProperties {
 
     public static SpringOidcProperties spring(String tenantId) {
         return new SpringOidcProperties(tenantId);
+    }
+
+    public static QuarkusOidcProperties quarkus() {
+        return quarkus(OpenIdConnectApplicationType.SERVICE);
+    }
+
+    public static QuarkusOidcProperties quarkus(OpenIdConnectApplicationType applicationType) {
+        return new QuarkusOidcProperties(applicationType);
     }
 
     public final String issuerUriPropertyName;
@@ -109,4 +120,35 @@ public abstract class OidcProperties {
             return Collections.emptyMap();
         }
     }
+
+    public static class QuarkusOidcProperties extends OidcProperties {
+        public final String applicationType;
+
+        public QuarkusOidcProperties(OpenIdConnectApplicationType applicationType) {
+            super(
+                    "quarkus.oidc.auth-server-url",
+                    "quarkus.oidc.client-id",
+                    "quarkus.oidc.credentials.secret"
+            );
+            if (applicationType == OpenIdConnectApplicationType.WEB) {
+                this.applicationType = "web-app";
+            } else {
+                this.applicationType = "service";
+            }
+        }
+
+        @Override
+        Map<String, String> getOidcClientProperties() {
+            String redirectUri = "/";
+            if (redirectUris != null && !redirectUris.isEmpty()) {
+                redirectUri = redirectUris.get(0);
+            }
+
+            return Map.of(
+                    "quarkus.oidc.application-type", applicationType,
+                    "quarkus.oidc.authentication.redirect-path", URI.create(redirectUri).getPath()
+            );
+        }
+    }
+
 }

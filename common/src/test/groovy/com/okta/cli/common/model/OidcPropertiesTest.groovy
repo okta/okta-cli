@@ -38,5 +38,31 @@ class OidcPropertiesTest {
         assertThat oidcProperties3.issuerUriPropertyName, is("spring.security.oauth2.client.provider.oidc.issuer-uri")
         assertThat oidcProperties3.clientIdPropertyName, is("spring.security.oauth2.client.registration.oidc.client-id")
         assertThat oidcProperties3.clientSecretPropertyName, is("spring.security.oauth2.client.registration.oidc.client-secret")
+
+        def oidcProperties4 = OidcProperties.quarkus()
+        assertThat oidcProperties4.issuerUriPropertyName, is("quarkus.oidc.auth-server-url")
+        assertThat oidcProperties4.clientIdPropertyName, is("quarkus.oidc.client-id")
+        assertThat oidcProperties4.clientSecretPropertyName, is("quarkus.oidc.credentials.secret")
+    }
+
+    @Test
+    void quarkusOidcProperties() {
+        def oidcProperties = OidcProperties.quarkus()
+        oidcProperties.setIssuerUri("http://example.org")
+        oidcProperties.setClientId("aClientId")
+        oidcProperties.setClientSecret("aClientSecret")
+
+        oidcProperties.setRedirectUris(List.of("http://localhost:8080/"))
+        def clientProperties1 = oidcProperties.getProperties()
+        assertThat clientProperties1.get("quarkus.oidc.authentication.redirect-path"), is("/")
+
+        oidcProperties.setRedirectUris(List.of("http://localhost:8080/web-app"))
+        def clientProperties2 = oidcProperties.getProperties()
+        assertThat clientProperties2.get("quarkus.oidc.authentication.redirect-path"), is("/web-app")
+
+        oidcProperties.setRedirectUris(List.of("http://localhost:8080/login/oauth2/code/oidc"))
+        def clientProperties3 = oidcProperties.getProperties()
+        assertThat clientProperties3.get("quarkus.oidc.authentication.redirect-path"), is("/login/oauth2/code/oidc")
+
     }
 }

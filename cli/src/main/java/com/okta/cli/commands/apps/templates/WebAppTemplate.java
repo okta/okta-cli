@@ -17,6 +17,7 @@ package com.okta.cli.commands.apps.templates;
 
 import com.okta.cli.common.model.OidcProperties;
 import com.okta.cli.console.PromptOption;
+import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,6 +37,7 @@ public enum WebAppTemplate implements PromptOption<WebAppTemplate> {
                     "http://localhost:8761/login/oauth2/code/oidc"),
             "groups",
             Set.of("ROLE_USER", "ROLE_ADMIN")),
+    QUARKUS("Quarkus", OidcProperties.quarkus(OpenIdConnectApplicationType.WEB), "src/main/resources/application.properties", "http://localhost:8080/", null),
     GENERIC("Other", OidcProperties.oktaEnv(), ".okta.env", "http://localhost:8080/callback", null);
 
     private static final Map<String, WebAppTemplate> nameToTemplateMap = Arrays.stream(values()).collect(Collectors.toMap(it -> it.friendlyName, it -> it));
