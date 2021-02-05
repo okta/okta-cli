@@ -40,6 +40,21 @@ class LoginIT implements MockWebSupport{
     }
 
     @Test
+    void loginTrimInputTest() {
+
+        List<String> input = [
+                "  https://okta.example.com ",
+                " test-token \t "
+        ]
+
+        def result = new CommandRunner().runCommandWithInput(input, "login")
+        assertThat result, resultMatches(0, allOf(containsString("Okta Org URL:"), containsString("Enter your Okta API token")), emptyString())
+
+        File oktaConfigFile = new File(result.homeDir, ".okta/okta.yaml")
+        assertThat oktaConfigFile, new OktaConfigMatcher("https://okta.example.com", "test-token")
+    }
+
+    @Test
     void invalidOrgUrl() {
         List<String> input = [ "http://require-tls.example.com" ]
         def result = new CommandRunner().runCommandWithInput(input, "login")

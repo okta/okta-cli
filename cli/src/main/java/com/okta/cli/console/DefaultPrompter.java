@@ -47,7 +47,7 @@ public class DefaultPrompter implements Prompter, Closeable {
     private String prompt() {
         out.flush();
         try {
-            return consoleReader.readLine();
+            return Strings.trimWhitespace(consoleReader.readLine());
         } catch (IOException e) {
             throw new PrompterException("Failed to read console input", e);
         }

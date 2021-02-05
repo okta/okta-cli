@@ -54,6 +54,18 @@ class DefaultPrompterTest {
     }
 
     @Test
+    void trimInput() {
+        ConsoleOutput out = mock(ConsoleOutput)
+
+        expectInput(" test-result \t ")
+        DefaultPrompter prompter = new DefaultPrompter(out)
+        String result = prompter.prompt("hello")
+
+        assertThat(result, equalTo("test-result"))
+        verify(out).write("hello: ")
+    }
+
+    @Test
     void promptWithOptions_noDefault() {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
