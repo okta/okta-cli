@@ -18,6 +18,7 @@ package com.okta.cli.common.service;
 import com.okta.cli.common.FactorVerificationException;
 import com.okta.cli.common.RestException;
 import com.okta.cli.common.config.MutablePropertySource;
+import com.okta.cli.common.model.OidcProperties;
 import com.okta.cli.common.model.OrganizationRequest;
 import com.okta.cli.common.model.OrganizationResponse;
 import com.okta.cli.common.model.RegistrationQuestions;
@@ -46,10 +47,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -63,27 +61,27 @@ public class DefaultSetupService implements SetupService {
 
     private final AuthorizationServerService authorizationServerService;
 
-    private final String springPropertyKey;
+    private final OidcProperties oidcProperties;
 
 
-    public DefaultSetupService(String springPropertyKey) {
+    public DefaultSetupService(OidcProperties oidcProperties) {
         this(new DefaultSdkConfigurationService(),
                 new DefaultOktaOrganizationCreator(),
                 new DefaultOidcAppCreator(),
                 new DefaultAuthorizationServerService(),
-                springPropertyKey);
+                oidcProperties);
     }
 
     public DefaultSetupService(SdkConfigurationService sdkConfigurationService,
                                OktaOrganizationCreator organizationCreator,
                                OidcAppCreator oidcAppCreator, 
                                AuthorizationServerService authorizationServerService,
-                               String springPropertyKey) {
+                               OidcProperties oidcProperties) {
         this.sdkConfigurationService = sdkConfigurationService;
         this.organizationCreator = organizationCreator;
         this.oidcAppCreator = oidcAppCreator;
         this.authorizationServerService = authorizationServerService;
-        this.springPropertyKey = springPropertyKey;
+        this.oidcProperties = oidcProperties;
     }
 
     @Override
@@ -177,7 +175,7 @@ public class DefaultSetupService implements SetupService {
                                       List<String> trustedOrigins) throws IOException {
 
         // Create new Application
-        String clientId = propertySource.getProperty(getClientIdPropertyName());
+        String clientId = propertySource.getProperty(oidcProperties.clientIdPropertyName);
 
         try (ProgressBar progressBar = ProgressBar.create(interactive)) {
             if (!ConfigurationValidator.validateClientId(clientId).isValid()) {
@@ -209,12 +207,12 @@ public class DefaultSetupService implements SetupService {
                     issuerUri = orgUrl + "/oauth2/" + authorizationServerId;
                 }
 
-                Map<String, String> newProps = new HashMap<>();
-                newProps.put(getIssuerUriPropertyName(), issuerUri);
-                newProps.put(getClientIdPropertyName(), clientCredsResponse.getString("client_id"));
-                newProps.put(getClientSecretPropertyName(), clientCredsResponse.getString("client_secret"));
+                oidcProperties.setIssuerUri(issuerUri);
+                oidcProperties.setClientId(clientCredsResponse.getString("client_id"));
+                oidcProperties.setClientSecret(clientCredsResponse.getString("client_secret"));
+                oidcProperties.setRedirectUris(redirectUris);
 
-                propertySource.addProperties(newProps);
+                propertySource.addProperties(oidcProperties.getProperties());
 
                 progressBar.info("Created OIDC application, client-id: " + clientCredsResponse.getString("client_id"));
 
@@ -300,23 +298,5 @@ public class DefaultSetupService implements SetupService {
                 );
             });
         }
-    }
-
-    private String getIssuerUriPropertyName() {
-        return Optional.ofNullable(springPropertyKey)
-                .map(id -> "spring.security.oauth2.client.provider." + id + ".issuer-uri")
-                .orElse("okta.oauth2.issuer");
-    }
-
-    private String getClientIdPropertyName() {
-        return Optional.ofNullable(springPropertyKey)
-                .map(id -> "spring.security.oauth2.client.registration." + id + ".client-id")
-                .orElse("okta.oauth2.client-id");
-    }
-
-    private String getClientSecretPropertyName() {
-        return Optional.ofNullable(springPropertyKey)
-                .map(id -> "spring.security.oauth2.client.registration." + id + ".client-secret")
-                .orElse("okta.oauth2.client-secret");
     }
 }
