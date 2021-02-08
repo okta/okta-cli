@@ -101,7 +101,7 @@ public class AppsCreate extends BaseCommand {
         WebAppTemplate appTemplate = prompter.promptIfEmpty(webAppTemplate, "Type of Application", Arrays.asList(WebAppTemplate.values()), WebAppTemplate.GENERIC);
 
         List<String> redirectUris = getRedirectUris(Map.of("Spring Security", "http://localhost:8080/login/oauth2/code/okta",
-                                                    "Quarkus OIDC", "http://localhost:8080/",
+                                                    "Quarkus OIDC", "http://localhost:8080/callback",
                                                     "JHipster", "http://localhost:8080/login/oauth2/code/oidc"),
                                             appTemplate.getDefaultRedirectUris());
         List<String> postLogoutRedirectUris = getPostLogoutRedirectUris(redirectUris);
