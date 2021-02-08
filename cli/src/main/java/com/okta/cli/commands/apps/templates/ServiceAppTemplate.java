@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
 
 public enum ServiceAppTemplate implements PromptOption<ServiceAppTemplate> {
 
-    OKTA_SPRING_BOOT("Okta Spring Boot Starter", OidcProperties.spring("okta"),  "src/main/resources/application.properties"),
+    OKTA_SPRING_BOOT("Okta Spring Boot Starter", OidcProperties.oktaEnv(),  "src/main/resources/application.properties"),
     SPRING_BOOT("Spring Boot", OidcProperties.spring("okta"),  "src/main/resources/application.properties"),
-    JHIPSTER("JHipster", OidcProperties.oktaEnv(), ".okta.env"),
+    JHIPSTER("JHipster", OidcProperties.spring("oidc"), ".okta.env"),
     QUARKUS("Quarkus", OidcProperties.quarkus(), "src/main/resources/application.properties"),
     GENERIC("Other", OidcProperties.oktaEnv(), ".okta.env");
 
