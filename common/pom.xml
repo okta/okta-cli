@@ -47,6 +47,12 @@
         </dependency>
 
         <dependency>
+            <groupId>nu.studer</groupId>
+            <artifactId>java-ordered-properties</artifactId>
+            <version>1.0.4</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
