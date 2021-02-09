@@ -16,10 +16,15 @@
 package com.okta.cli.common.model;
 
 import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,9 +32,34 @@ import static java.lang.String.format;
 
 public abstract class OidcProperties {
 
+    public static final Logger logger = LoggerFactory.getLogger(OidcProperties.class);
 
     public static OktaEnvOidcProperties oktaEnv() {
         return new OktaEnvOidcProperties();
+    }
+
+    public static OidcProperties jhipster(OpenIdConnectApplicationType applicationType) {
+
+        File currentDir = new File(System.getProperty("user.dir")).getAbsoluteFile();
+
+        // jhipster is a generator, so the underlying project could be spring, quarkus, or something else
+        // attempt to figure out the delegate but fallback to the default spring impl
+        if (currentDir.exists()) {
+            File packageJsonFile = new File(currentDir, "package.json");
+            if (packageJsonFile.exists()) {
+                try {
+                    String packageJson = Files.readString(packageJsonFile.toPath());
+                    if (packageJson.contains("generator-jhipster-quarkus")) {
+                        return quarkus(applicationType);
+                    } // add other JHipster implementations here
+
+                } catch (IOException e) {
+                    // log the error, fallback to spring impl
+                    logger.warn("Failed to parse: {}", packageJsonFile.getAbsolutePath(), e);
+                }
+            }
+        }
+        return spring("oidc");
     }
 
     public static SpringOidcProperties spring() {
@@ -82,7 +112,7 @@ public abstract class OidcProperties {
     abstract Map<String, String> getOidcClientProperties();
 
     public Map<String, String> getProperties() {
-        Map<String, String> properties = new HashMap<>();
+        Map<String, String> properties = new LinkedHashMap<>();
         properties.put(issuerUriPropertyName, issuerUri);
         properties.put(clientIdPropertyName, clientId);
         properties.put(clientSecretPropertyName, clientSecret);

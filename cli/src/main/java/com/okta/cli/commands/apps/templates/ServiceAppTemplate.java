@@ -17,6 +17,7 @@ package com.okta.cli.commands.apps.templates;
 
 import com.okta.cli.common.model.OidcProperties;
 import com.okta.cli.console.PromptOption;
+import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -26,7 +27,7 @@ public enum ServiceAppTemplate implements PromptOption<ServiceAppTemplate> {
 
     OKTA_SPRING_BOOT("Okta Spring Boot Starter", OidcProperties.oktaEnv(),  "src/main/resources/application.properties"),
     SPRING_BOOT("Spring Boot", OidcProperties.spring("okta"),  "src/main/resources/application.properties"),
-    JHIPSTER("JHipster", OidcProperties.spring("oidc"), ".okta.env"),
+    JHIPSTER("JHipster", OidcProperties.jhipster(OpenIdConnectApplicationType.SERVICE), ".okta.env"),
     QUARKUS("Quarkus", OidcProperties.quarkus(), "src/main/resources/application.properties"),
     GENERIC("Other", OidcProperties.oktaEnv(), ".okta.env");
 

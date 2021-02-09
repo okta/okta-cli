@@ -15,11 +15,15 @@
  */
 package com.okta.cli.common.model
 
+import com.okta.cli.common.RestoreSystemProperties
+import com.okta.sdk.resource.application.OpenIdConnectApplicationType
+import org.testng.annotations.Listeners
 import org.testng.annotations.Test
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.is
 
+@Listeners([RestoreSystemProperties])
 class OidcPropertiesTest {
 
     @Test
@@ -63,6 +67,95 @@ class OidcPropertiesTest {
         oidcProperties.setRedirectUris(List.of("http://localhost:8080/login/oauth2/code/oidc"))
         def clientProperties3 = oidcProperties.getProperties()
         assertThat clientProperties3.get("quarkus.oidc.authentication.redirect-path"), is("/login/oauth2/code/oidc")
+    }
 
+    @Test
+    void jhipsterQuarkusServicePropertiesDetectionTest() {
+
+        String packageJson ="""
+            "devDependencies": {
+                "generator-jhipster": "6.10.5",
+                "generator-jhipster-quarkus": "1.0.0",
+            }
+        """.stripLeading()
+
+        Map<String, String> expected = [
+            "quarkus.oidc.auth-server-url": "https://issuer.example.com",
+            "quarkus.oidc.client-id": "test-client-id",
+            "quarkus.oidc.credentials.secret": "test-client-secret",
+            "quarkus.oidc.authentication.redirect-path": "/login/oauth2/code/oidc",
+            "quarkus.oidc.application-type": "service"
+        ]
+
+        jhipsterPropertiesTest(packageJson, expected, OpenIdConnectApplicationType.SERVICE)
+    }
+
+    @Test
+    void jhipsterQuarkusPropertiesDetectionTest() {
+
+        String packageJson ="""
+            "devDependencies": {
+                "generator-jhipster": "6.10.5",
+                "generator-jhipster-quarkus": "1.0.0",
+            }
+        """.stripLeading()
+
+        Map<String, String> expected = [
+                "quarkus.oidc.auth-server-url": "https://issuer.example.com",
+                "quarkus.oidc.client-id": "test-client-id",
+                "quarkus.oidc.credentials.secret": "test-client-secret",
+                "quarkus.oidc.authentication.redirect-path": "/login/oauth2/code/oidc",
+                "quarkus.oidc.application-type": "web-app"
+        ]
+
+        jhipsterPropertiesTest(packageJson, expected)
+    }
+
+    @Test
+    void jhipsterSpringPropertiesDetectionTest() {
+
+        String packageJson ="""
+            "devDependencies": {
+                "generator-jhipster": "6.10.5"
+            }
+        """.stripLeading()
+
+        Map<String, String> expected = [
+            "spring.security.oauth2.client.provider.oidc.issuer-uri": "https://issuer.example.com",
+            "spring.security.oauth2.client.registration.oidc.client-id": "test-client-id",
+            "spring.security.oauth2.client.registration.oidc.client-secret": "test-client-secret"
+        ]
+
+        jhipsterPropertiesTest(packageJson, expected)
+    }
+
+    @Test
+    void jhipsterSpringPropertiesDetectionTest_noPackageJson() {
+        Map<String, String> expected = [
+                "spring.security.oauth2.client.provider.oidc.issuer-uri": "https://issuer.example.com",
+                "spring.security.oauth2.client.registration.oidc.client-id": "test-client-id",
+                "spring.security.oauth2.client.registration.oidc.client-secret": "test-client-secret"
+        ]
+
+        jhipsterPropertiesTest(null, expected)
+    }
+
+    private static jhipsterPropertiesTest(String packageJsonText, Map<String, String> expectedProperties, OpenIdConnectApplicationType appType = OpenIdConnectApplicationType.WEB) {
+        // set the current working directory to a test dir
+        File workingDir = File.createTempDir("jhipsterPropertiesDetectionTest-", "-test")
+        System.setProperty("user.dir", workingDir.absolutePath)
+
+        if (packageJsonText != null) {
+            File packageJson = new File(workingDir, "package.json")
+            packageJson.write packageJsonText
+        }
+
+        OidcProperties props = OidcProperties.jhipster(appType)
+        props.setClientId("test-client-id")
+        props.setClientSecret("test-client-secret")
+        props.setIssuerUri("https://issuer.example.com")
+        props.setRedirectUris(["https://redirect1.example.com/login/oauth2/code/oidc", "https://redirect2.example.com/login/oauth2/code/oidc"])
+
+        assertThat(props.getProperties(), is(expectedProperties))
     }
 }

@@ -31,7 +31,7 @@ public enum WebAppTemplate implements PromptOption<WebAppTemplate> {
     OKTA_SPRING_BOOT("Okta Spring Boot Starter", OidcProperties.oktaEnv(), "src/main/resources/application.properties", "http://localhost:8080/login/oauth2/code/okta", null),
     SPRING_BOOT("Spring Boot", OidcProperties.spring("okta"), "src/main/resources/application.properties", "http://localhost:8080/login/oauth2/code/okta", null),
     JHIPSTER("JHipster",
-            OidcProperties.spring("oidc"),
+            OidcProperties.jhipster(OpenIdConnectApplicationType.WEB),
             ".okta.env",
             List.of("http://localhost:8080/login/oauth2/code/oidc",
                     "http://localhost:8761/login/oauth2/code/oidc"),
