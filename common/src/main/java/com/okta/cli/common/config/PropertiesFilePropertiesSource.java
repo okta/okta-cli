@@ -17,12 +17,12 @@ package com.okta.cli.common.config;
 
 import com.okta.sdk.impl.config.ResourcePropertiesSource;
 import com.okta.sdk.impl.io.FileResource;
+import nu.studer.java.util.OrderedProperties;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Map;
-import java.util.Properties;
 
 public class PropertiesFilePropertiesSource extends WrappedMutablePropertiesSource {
 
@@ -41,14 +41,15 @@ public class PropertiesFilePropertiesSource extends WrappedMutablePropertiesSour
     @Override
     public void addProperties(Map<String, String> newProperties) throws IOException {
 
-        Properties existingProps = new Properties();
-        existingProps.putAll(getProperties());
+        OrderedProperties existingProps = new OrderedProperties();
+        // Properties cannot handle null values, replace them with empty strings
+        getProperties().forEach((key, value) -> existingProps.setProperty(key, value != null ? value : ""));
 
-        // Java Properties cannot handle null values (or keys) so filter them out
+        // remove any new properties with an empty key or value
         newProperties.entrySet().stream()
                 .filter(entry -> entry.getKey() != null)
                 .filter(entry -> entry.getValue() != null)
-                .forEach(entry -> existingProps.put(entry.getKey(), entry.getValue()));
+                .forEach(entry -> existingProps.setProperty(entry.getKey(), entry.getValue()));
 
         try (Writer writer = fileWriter(propertiesFile)) {
             existingProps.store(writer, null);

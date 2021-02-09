@@ -108,6 +108,41 @@ class PropertiesFilePropertiesSourceTest {
         assertThat readFromFile(configFile), is(expectedMergedResult)
     }
 
+    @Test
+    void exitingPropertyWithEmptyValue() {
+        File configFile = writeFile([
+                "spring.foo": "bar",
+                "spring.fooBar": "expected-value",
+                "spring.numbers.one": "1",
+                "empty-value": "",
+                "spring.numbers.two": "two"],
+                "addPropertiesWithNull")
+
+        Map<String, String> newProps = [
+                "spring.foo": "bar-new",
+                "a-new-key": "a-new-value"
+        ]
+
+        Map<String, String> expectedMergedResult = [
+                "spring.foo": "bar-new",
+                "spring.fooBar": "expected-value",
+                "spring.numbers.one": "1",
+                "empty-value": "",
+                "spring.numbers.two": "two",
+                "a-new-key": "a-new-value"
+        ]
+
+        def propsSource = new PropertiesFilePropertiesSource(configFile)
+        def props = propsSource.getProperties()
+
+        // empty properties are loaded as null values
+        assertThat props.get("empty-value"), is(nullValue())
+
+        propsSource.addProperties(newProps)
+        assertThat readFromFile(configFile), is(expectedMergedResult)
+        // when written to file, the become empty strings
+    }
+
     static File writeFile(Map data, String testName) {
         File tempFile = File.createTempFile(testName, "test.properties")
         tempFile.withWriter {
