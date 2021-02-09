@@ -103,6 +103,8 @@ JVM will be selected automatically.
 
 You can also type: `sdk env` and the correct JVM will be used while in the project folder.
 
+Install Native Image with: `gu install native-image`
+
 Build with: `mvn clean install`
 
 **NOTE:** On IntelliJ (at least), you'll also need to add in the Lombok plugin to avoid compiler errors on getters and setters for data classes.
