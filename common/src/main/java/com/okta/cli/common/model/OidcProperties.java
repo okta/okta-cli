@@ -184,10 +184,17 @@ public abstract class OidcProperties {
                 redirectUri = redirectUris.get(0);
             }
 
-            return Map.of(
-                    "quarkus.oidc.application-type", applicationType,
-                    "quarkus.oidc.authentication.redirect-path", URI.create(redirectUri).getPath()
-            );
+            String redirectPath = URI.create(redirectUri).getPath();
+            Map<String, String> props = new LinkedHashMap<>();
+            props.put("quarkus.oidc.application-type", applicationType);
+            props.put("quarkus.oidc.authentication.redirect-path", redirectPath);
+
+            // detect if it's a JHipster app
+            if (redirectPath.endsWith("/login/oauth2/code/oidc")) {
+                props.put("jhipster.oidc.logout-url", issuerUri + "/v1/logout");
+            }
+
+            return props;
         }
     }
 
@@ -202,7 +209,21 @@ public abstract class OidcProperties {
 
         @Override
         Map<String, String> getOidcClientProperties() {
-            return Collections.emptyMap();
+            String redirectUri = "/";
+            if (redirectUris != null && !redirectUris.isEmpty()) {
+                redirectUri = redirectUris.get(0);
+            }
+
+            String redirectPath = URI.create(redirectUri).getPath();
+            // detect if it's a JHipster app
+            if (redirectPath.endsWith("/login/oauth2/code/oidc")) {
+                return Map.of(
+                    "micronaut.security.oauth2.callback-uri", "/login/oauth2/code{/provider}"
+                );
+            } else {
+                return Collections.emptyMap();
+            }
+
         }
     }
 }
