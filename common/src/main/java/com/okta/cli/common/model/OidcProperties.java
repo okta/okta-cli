@@ -51,6 +51,8 @@ public abstract class OidcProperties {
                     String packageJson = Files.readString(packageJsonFile.toPath());
                     if (packageJson.contains("generator-jhipster-quarkus")) {
                         return quarkus(applicationType);
+                    } else if (packageJson.contains("generator-jhipster-micronaut")) {
+                        return micronaut("oidc");
                     } // add other JHipster implementations here
 
                 } catch (IOException e) {
@@ -76,6 +78,14 @@ public abstract class OidcProperties {
 
     public static QuarkusOidcProperties quarkus(OpenIdConnectApplicationType applicationType) {
         return new QuarkusOidcProperties(applicationType);
+    }
+
+    public static MicronautOidcProperties micronaut() {
+        return micronaut("oidc");
+    }
+
+    public static MicronautOidcProperties micronaut(String tenantId) {
+        return new MicronautOidcProperties(tenantId);
     }
 
     public final String issuerUriPropertyName;
@@ -181,4 +191,18 @@ public abstract class OidcProperties {
         }
     }
 
+    public static class MicronautOidcProperties extends OidcProperties {
+        public MicronautOidcProperties(String tenantId) {
+            super(
+                format("micronaut.security.oauth2.clients.%s.openid.issuer", tenantId),
+                format("micronaut.security.oauth2.clients.%s.client-id", tenantId),
+                format("micronaut.security.oauth2.clients.%s.client-secret", tenantId)
+            );
+        }
+
+        @Override
+        Map<String, String> getOidcClientProperties() {
+            return Collections.emptyMap();
+        }
+    }
 }

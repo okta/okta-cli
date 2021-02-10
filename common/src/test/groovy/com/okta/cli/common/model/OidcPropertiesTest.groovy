@@ -140,6 +140,25 @@ class OidcPropertiesTest {
         jhipsterPropertiesTest(null, expected)
     }
 
+    @Test
+    void jhipsterMicronautPropertiesDetectionTest() {
+
+        String packageJson ="""
+            "devDependencies": {
+                "generator-jhipster": "6.10.5",
+                "generator-jhipster-micronaut": "0.8.0",
+            }
+        """.stripLeading()
+
+        Map<String, String> expected = [
+                "micronaut.security.oauth2.clients.oidc.openid.issuer": "https://issuer.example.com",
+                "micronaut.security.oauth2.clients.oidc.client-id": "test-client-id",
+                "micronaut.security.oauth2.clients.oidc.client-secret": "test-client-secret"
+        ]
+
+        jhipsterPropertiesTest(packageJson, expected)
+    }
+
     private static jhipsterPropertiesTest(String packageJsonText, Map<String, String> expectedProperties, OpenIdConnectApplicationType appType = OpenIdConnectApplicationType.WEB) {
         // set the current working directory to a test dir
         File workingDir = File.createTempDir("jhipsterPropertiesDetectionTest-", "-test")
