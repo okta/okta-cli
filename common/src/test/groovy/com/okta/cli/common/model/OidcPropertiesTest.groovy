@@ -84,7 +84,8 @@ class OidcPropertiesTest {
             "quarkus.oidc.client-id": "test-client-id",
             "quarkus.oidc.credentials.secret": "test-client-secret",
             "quarkus.oidc.authentication.redirect-path": "/login/oauth2/code/oidc",
-            "quarkus.oidc.application-type": "service"
+            "quarkus.oidc.application-type": "service",
+            "jhipster.oidc.logout-url": "https://issuer.example.com/v1/logout"
         ]
 
         jhipsterPropertiesTest(packageJson, expected, OpenIdConnectApplicationType.SERVICE)
@@ -105,7 +106,8 @@ class OidcPropertiesTest {
                 "quarkus.oidc.client-id": "test-client-id",
                 "quarkus.oidc.credentials.secret": "test-client-secret",
                 "quarkus.oidc.authentication.redirect-path": "/login/oauth2/code/oidc",
-                "quarkus.oidc.application-type": "web-app"
+                "quarkus.oidc.application-type": "web-app",
+                "jhipster.oidc.logout-url": "https://issuer.example.com/v1/logout"
         ]
 
         jhipsterPropertiesTest(packageJson, expected)
@@ -138,6 +140,26 @@ class OidcPropertiesTest {
         ]
 
         jhipsterPropertiesTest(null, expected)
+    }
+
+    @Test
+    void jhipsterMicronautPropertiesDetectionTest() {
+
+        String packageJson ="""
+            "devDependencies": {
+                "generator-jhipster": "6.10.5",
+                "generator-jhipster-micronaut": "0.8.0",
+            }
+        """.stripLeading()
+
+        Map<String, String> expected = [
+                "micronaut.security.oauth2.clients.oidc.openid.issuer": "https://issuer.example.com",
+                "micronaut.security.oauth2.clients.oidc.client-id": "test-client-id",
+                "micronaut.security.oauth2.clients.oidc.client-secret": "test-client-secret",
+                "micronaut.security.oauth2.callback-uri": "/login/oauth2/code{/provider}"
+        ]
+
+        jhipsterPropertiesTest(packageJson, expected)
     }
 
     private static jhipsterPropertiesTest(String packageJsonText, Map<String, String> expectedProperties, OpenIdConnectApplicationType appType = OpenIdConnectApplicationType.WEB) {

@@ -51,6 +51,8 @@ public abstract class OidcProperties {
                     String packageJson = Files.readString(packageJsonFile.toPath());
                     if (packageJson.contains("generator-jhipster-quarkus")) {
                         return quarkus(applicationType);
+                    } else if (packageJson.contains("generator-jhipster-micronaut")) {
+                        return micronaut("oidc");
                     } // add other JHipster implementations here
 
                 } catch (IOException e) {
@@ -76,6 +78,14 @@ public abstract class OidcProperties {
 
     public static QuarkusOidcProperties quarkus(OpenIdConnectApplicationType applicationType) {
         return new QuarkusOidcProperties(applicationType);
+    }
+
+    public static MicronautOidcProperties micronaut() {
+        return micronaut("oidc");
+    }
+
+    public static MicronautOidcProperties micronaut(String tenantId) {
+        return new MicronautOidcProperties(tenantId);
     }
 
     public final String issuerUriPropertyName;
@@ -174,11 +184,46 @@ public abstract class OidcProperties {
                 redirectUri = redirectUris.get(0);
             }
 
-            return Map.of(
-                    "quarkus.oidc.application-type", applicationType,
-                    "quarkus.oidc.authentication.redirect-path", URI.create(redirectUri).getPath()
-            );
+            String redirectPath = URI.create(redirectUri).getPath();
+            Map<String, String> props = new LinkedHashMap<>();
+            props.put("quarkus.oidc.application-type", applicationType);
+            props.put("quarkus.oidc.authentication.redirect-path", redirectPath);
+
+            // detect if it's a JHipster app
+            if (redirectPath.endsWith("/login/oauth2/code/oidc")) {
+                props.put("jhipster.oidc.logout-url", issuerUri + "/v1/logout");
+            }
+
+            return props;
         }
     }
 
+    public static class MicronautOidcProperties extends OidcProperties {
+        public MicronautOidcProperties(String tenantId) {
+            super(
+                format("micronaut.security.oauth2.clients.%s.openid.issuer", tenantId),
+                format("micronaut.security.oauth2.clients.%s.client-id", tenantId),
+                format("micronaut.security.oauth2.clients.%s.client-secret", tenantId)
+            );
+        }
+
+        @Override
+        Map<String, String> getOidcClientProperties() {
+            String redirectUri = "/";
+            if (redirectUris != null && !redirectUris.isEmpty()) {
+                redirectUri = redirectUris.get(0);
+            }
+
+            String redirectPath = URI.create(redirectUri).getPath();
+            // detect if it's a JHipster app
+            if (redirectPath.endsWith("/login/oauth2/code/oidc")) {
+                return Map.of(
+                    "micronaut.security.oauth2.callback-uri", "/login/oauth2/code{/provider}"
+                );
+            } else {
+                return Collections.emptyMap();
+            }
+
+        }
+    }
 }
