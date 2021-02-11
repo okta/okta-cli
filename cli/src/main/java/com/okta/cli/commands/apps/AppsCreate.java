@@ -98,21 +98,23 @@ public class AppsCreate extends BaseCommand {
         ConsoleOutput out = getConsoleOutput();
         Prompter prompter = getPrompter();
 
-        WebAppTemplate appTemplate = prompter.promptIfEmpty(webAppTemplate, "Type of Application", Arrays.asList(WebAppTemplate.values()), WebAppTemplate.GENERIC);
+        WebAppTemplate appTemplate = prompter.promptIfEmpty(webAppTemplate, "Type of Application", WebAppTemplate.values(), WebAppTemplate.GENERIC);
 
         List<String> redirectUris = getRedirectUris(Map.of("Spring Security", "http://localhost:8080/login/oauth2/code/okta",
                                                     "Quarkus OIDC", "http://localhost:8080/callback",
                                                     "JHipster", "http://localhost:8080/login/oauth2/code/oidc"),
                                             appTemplate.getDefaultRedirectUris());
-        List<String> postLogoutRedirectUris = getPostLogoutRedirectUris(redirectUris);
+        List<String> postLogoutRedirectUris = getPostLogoutRedirectUris(redirectUris, appTemplate.getDefaultPostLogoutEndpoint());
         Client client = Clients.builder().build();
         AuthorizationServer issuer = getIssuer(client);
         String baseUrl = getBaseUrl();
         String groupClaimName = appTemplate.getGroupsClaim();
         Set<String> groupsToCreate = appTemplate.getGroupsToCreate();
 
+        OidcProperties oidcProperties = appTemplate.getOidcProperties();
+
         MutablePropertySource propertySource = appCreationMixin.getPropertySource(appTemplate.getDefaultConfigFileName());
-        new DefaultSetupService(appTemplate.getOidcProperties()).createOidcApplication(propertySource, appName, baseUrl, groupClaimName, groupsToCreate, issuer.getIssuer(), issuer.getId(), true, OpenIdConnectApplicationType.WEB, redirectUris, postLogoutRedirectUris);
+        new DefaultSetupService(oidcProperties).createOidcApplication(propertySource, appName, baseUrl, groupClaimName, groupsToCreate, issuer.getIssuer(), issuer.getId(), true, OpenIdConnectApplicationType.WEB, redirectUris, postLogoutRedirectUris);
 
         out.writeLine("Okta application configuration has been written to: " + propertySource.getName());
 
@@ -149,7 +151,7 @@ public class AppsCreate extends BaseCommand {
         ConsoleOutput out = getConsoleOutput();
         Prompter prompter = getPrompter();
 
-        appTemplate = prompter.promptIfEmpty(appTemplate, "Framework of Application", Arrays.asList(ServiceAppTemplate.values()), ServiceAppTemplate.GENERIC);
+        appTemplate = prompter.promptIfEmpty(appTemplate, "Framework of Application", ServiceAppTemplate.values(), ServiceAppTemplate.GENERIC);
 
         String baseUrl = getBaseUrl();
         Client client = Clients.builder().build();
@@ -223,11 +225,15 @@ public class AppsCreate extends BaseCommand {
     }
 
     private List<String> getPostLogoutRedirectUris(List<String> redirectUris) {
+        return getPostLogoutRedirectUris(redirectUris, "/");
+    }
+
+    private List<String> getPostLogoutRedirectUris(List<String> redirectUris, String defaultPostLogoutUri) {
         Prompter prompter = getPrompter();
 
         Assert.notEmpty(redirectUris, "Redirect Uris cannot be empty");
         String defaultPostLogoutUris = redirectUris.stream()
-                .map(URIs::baseUrlOf)
+                .map(uri -> URIs.resolveUrl(uri, defaultPostLogoutUri))
                 .collect(Collectors.joining(", "));
 
         String result = prompter.promptIfEmpty(appCreationMixin.redirectUri, "Enter your Post Logout Redirect URI(s)", defaultPostLogoutUris).trim();

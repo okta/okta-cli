@@ -35,7 +35,11 @@ public final class URIs {
     }
 
     public static String baseUrlOf(String url) {
-        return URI.create(url).resolve("/").toString();
+        return resolveUrl(url, "/");
+    }
+
+    public static String resolveUrl(String url, String path) {
+        return URI.create(url).resolve(path).toString();
     }
 
     private static String dnsReverse(String host) {

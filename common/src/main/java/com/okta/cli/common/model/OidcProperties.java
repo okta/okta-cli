@@ -19,10 +19,7 @@ import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Files;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,32 +35,6 @@ public abstract class OidcProperties {
         return new OktaEnvOidcProperties();
     }
 
-    public static OidcProperties jhipster(OpenIdConnectApplicationType applicationType) {
-
-        File currentDir = new File(System.getProperty("user.dir")).getAbsoluteFile();
-
-        // jhipster is a generator, so the underlying project could be spring, quarkus, or something else
-        // attempt to figure out the delegate but fallback to the default spring impl
-        if (currentDir.exists()) {
-            File packageJsonFile = new File(currentDir, "package.json");
-            if (packageJsonFile.exists()) {
-                try {
-                    String packageJson = Files.readString(packageJsonFile.toPath());
-                    if (packageJson.contains("generator-jhipster-quarkus")) {
-                        return quarkus(applicationType);
-                    } else if (packageJson.contains("generator-jhipster-micronaut")) {
-                        return micronaut("oidc");
-                    } // add other JHipster implementations here
-
-                } catch (IOException e) {
-                    // log the error, fallback to spring impl
-                    logger.warn("Failed to parse: {}", packageJsonFile.getAbsolutePath(), e);
-                }
-            }
-        }
-        return spring("oidc");
-    }
-
     public static SpringOidcProperties spring() {
         return spring("oidc");
     }
@@ -72,20 +43,24 @@ public abstract class OidcProperties {
         return new SpringOidcProperties(tenantId);
     }
 
-    public static QuarkusOidcProperties quarkus() {
-        return quarkus(OpenIdConnectApplicationType.SERVICE);
+    public static QuarkusOidcProperties quarkus(OpenIdConnectApplicationType applicationType) {
+        return quarkus(applicationType, false);
     }
 
-    public static QuarkusOidcProperties quarkus(OpenIdConnectApplicationType applicationType) {
-        return new QuarkusOidcProperties(applicationType);
+    public static QuarkusOidcProperties quarkus(OpenIdConnectApplicationType applicationType, boolean jhipster) {
+        return new QuarkusOidcProperties(applicationType, jhipster);
     }
 
     public static MicronautOidcProperties micronaut() {
-        return micronaut("oidc");
+        return OidcProperties.micronaut(OpenIdConnectApplicationType.SERVICE);
     }
 
-    public static MicronautOidcProperties micronaut(String tenantId) {
-        return new MicronautOidcProperties(tenantId);
+    public static MicronautOidcProperties micronaut(OpenIdConnectApplicationType applicationType) {
+        return micronaut("oidc", applicationType);
+    }
+
+    public static MicronautOidcProperties micronaut(String tenantId, OpenIdConnectApplicationType applicationType) {
+        return new MicronautOidcProperties(tenantId, applicationType);
     }
 
     public final String issuerUriPropertyName;
@@ -96,6 +71,7 @@ public abstract class OidcProperties {
     String clientId;
     String clientSecret;
     List<String> redirectUris;
+    List<String> postLogoutUris;
 
     OidcProperties(String issuerUriPropertyName, String clientIdPropertyName, String clientSecretPropertyName) {
         this.issuerUriPropertyName = issuerUriPropertyName;
@@ -117,6 +93,10 @@ public abstract class OidcProperties {
 
     public void setRedirectUris(List<String> redirectUris) {
         this.redirectUris = redirectUris;
+    }
+
+    public void setPostLogoutUris(List<String> postLogoutUris) {
+        this.postLogoutUris = postLogoutUris;
     }
 
     abstract Map<String, String> getOidcClientProperties();
@@ -162,68 +142,74 @@ public abstract class OidcProperties {
     }
 
     public static class QuarkusOidcProperties extends OidcProperties {
-        public final String applicationType;
+        private final OpenIdConnectApplicationType applicationType;
+        private final boolean jhipster;
 
-        public QuarkusOidcProperties(OpenIdConnectApplicationType applicationType) {
+        public QuarkusOidcProperties(OpenIdConnectApplicationType applicationType, boolean jhipster) {
             super(
                     "quarkus.oidc.auth-server-url",
                     "quarkus.oidc.client-id",
                     "quarkus.oidc.credentials.secret"
             );
-            if (applicationType == OpenIdConnectApplicationType.WEB) {
-                this.applicationType = "web-app";
-            } else {
-                this.applicationType = "service";
-            }
+            this.applicationType = applicationType;
+            this.jhipster = jhipster;
         }
 
         @Override
         Map<String, String> getOidcClientProperties() {
-            String redirectUri = "/";
-            if (redirectUris != null && !redirectUris.isEmpty()) {
-                redirectUri = redirectUris.get(0);
+            if (applicationType == OpenIdConnectApplicationType.WEB) {
+                String redirectUri = "/";
+                if (redirectUris != null && !redirectUris.isEmpty()) {
+                    redirectUri = redirectUris.get(0);
+                }
+
+                Map<String, String> props = new LinkedHashMap<>();
+                props.put("quarkus.oidc.application-type", "web-app");
+                props.put("quarkus.oidc.authentication.redirect-path", URI.create(redirectUri).getPath());
+
+                if (jhipster) {
+                    // If we need other jhipster properties, it might be better to create a JHipsterOidcProperties that
+                    // wraps other implementations, and adds any needed properties like this
+                    props.put("jhipster.oidc.logout-url", issuerUri + "/v1/logout");
+                }
+                return props;
+            } else {
+                return Map.of("quarkus.oidc.application-type", "service");
             }
-
-            String redirectPath = URI.create(redirectUri).getPath();
-            Map<String, String> props = new LinkedHashMap<>();
-            props.put("quarkus.oidc.application-type", applicationType);
-            props.put("quarkus.oidc.authentication.redirect-path", redirectPath);
-
-            // detect if it's a JHipster app
-            if (redirectPath.endsWith("/login/oauth2/code/oidc")) {
-                props.put("jhipster.oidc.logout-url", issuerUri + "/v1/logout");
-            }
-
-            return props;
         }
     }
 
     public static class MicronautOidcProperties extends OidcProperties {
-        public MicronautOidcProperties(String tenantId) {
+
+        private final OpenIdConnectApplicationType applicationType;
+
+        public MicronautOidcProperties(String tenantId, OpenIdConnectApplicationType applicationType) {
             super(
                 format("micronaut.security.oauth2.clients.%s.openid.issuer", tenantId),
                 format("micronaut.security.oauth2.clients.%s.client-id", tenantId),
                 format("micronaut.security.oauth2.clients.%s.client-secret", tenantId)
             );
+            this.applicationType = applicationType;
         }
 
         @Override
         Map<String, String> getOidcClientProperties() {
-            String redirectUri = "/";
-            if (redirectUris != null && !redirectUris.isEmpty()) {
-                redirectUri = redirectUris.get(0);
-            }
-
-            String redirectPath = URI.create(redirectUri).getPath();
-            // detect if it's a JHipster app
-            if (redirectPath.endsWith("/login/oauth2/code/oidc")) {
+            if (applicationType == OpenIdConnectApplicationType.WEB) {
                 return Map.of(
-                    "micronaut.security.oauth2.callback-uri", "/login/oauth2/code{/provider}"
+                        "micronaut.security.oauth2.callback-uri", getFirstUriPath(redirectUris),
+                        "micronaut.security.endpoints.logout.path", getFirstUriPath(postLogoutUris)
                 );
             } else {
                 return Collections.emptyMap();
             }
+        }
 
+        private static String getFirstUriPath(List<String> uris) {
+            if (uris != null && !uris.isEmpty()) {
+                return URI.create(uris.get(0)).getPath();
+            }
+
+            return "/";
         }
     }
 }
