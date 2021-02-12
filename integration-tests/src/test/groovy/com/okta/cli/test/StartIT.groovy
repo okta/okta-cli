@@ -112,7 +112,8 @@ class StartIT implements MockWebSupport, CreateAppSupport {
         Buffer buffer = new Buffer()
         buffer.outputStream().with {
             TarArchiveOutputStream tar = new TarArchiveOutputStream(new GzipCompressorOutputStream(it))
-            def projectDir = new File("src/test/resources/samples/${name}").toPath()
+            String classesDir = getClass().getProtectionDomain().getCodeSource().getLocation().getFile()
+            def projectDir = new File(classesDir, "samples/${name}").toPath()
 
             Files.walkFileTree(projectDir, new SimpleFileVisitor<Path>() {
                 @Override
