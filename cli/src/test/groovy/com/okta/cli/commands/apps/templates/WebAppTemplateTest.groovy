@@ -38,12 +38,13 @@ class WebAppTemplateTest {
                 "quarkus.oidc.auth-server-url": "https://issuer.example.com",
                 "quarkus.oidc.client-id": "test-client-id",
                 "quarkus.oidc.credentials.secret": "test-client-secret",
-                "quarkus.oidc.authentication.redirect-path": "/login/oauth2/code/oidc",
                 "quarkus.oidc.application-type": "web-app",
-                "jhipster.oidc.logout-url": "https://issuer.example.com/v1/logout"
+                "quarkus.oidc.authentication.redirect-path": "/login/oauth2/code/oidc",
+                "jhipster.oidc.logout-url": "https://issuer.example.com/v1/logout",
         ]
 
-        jhipsterPropertiesTest(packageJson, expected)
+        WebAppTemplate template = jhipsterPropertiesTest(packageJson, expected)
+        assertThat(template.defaultRedirectUris, is(["http://localhost:8080/login/oauth2/code/oidc", "http://localhost:8761/login/oauth2/code/oidc"]))
     }
 
     @Test
@@ -61,7 +62,8 @@ class WebAppTemplateTest {
                 "spring.security.oauth2.client.registration.oidc.client-secret": "test-client-secret"
         ]
 
-        jhipsterPropertiesTest(packageJson, expected)
+        WebAppTemplate template = jhipsterPropertiesTest(packageJson, expected)
+        assertThat(template.defaultRedirectUris, is(["http://localhost:8080/login/oauth2/code/oidc", "http://localhost:8761/login/oauth2/code/oidc"]))
     }
 
     @Test
@@ -72,7 +74,8 @@ class WebAppTemplateTest {
                 "spring.security.oauth2.client.registration.oidc.client-secret": "test-client-secret"
         ]
 
-        jhipsterPropertiesTest(null, expected)
+        WebAppTemplate template = jhipsterPropertiesTest(null, expected)
+        assertThat(template.defaultRedirectUris, is(["http://localhost:8080/login/oauth2/code/oidc", "http://localhost:8761/login/oauth2/code/oidc"]))
     }
 
     @Test
@@ -89,14 +92,15 @@ class WebAppTemplateTest {
                 "micronaut.security.oauth2.clients.oidc.openid.issuer": "https://issuer.example.com",
                 "micronaut.security.oauth2.clients.oidc.client-id": "test-client-id",
                 "micronaut.security.oauth2.clients.oidc.client-secret": "test-client-secret",
-                "micronaut.security.oauth2.callback-uri": "/login/oauth2/code/oidc",
-                "micronaut.security.endpoints.logout.path": "/logout"
+                "micronaut.security.endpoints.logout.path": "/logout",
+                "micronaut.security.oauth2.callback-uri": "/oauth/callback/okta",
         ]
 
-        jhipsterPropertiesTest(packageJson, expected)
+        WebAppTemplate template = jhipsterPropertiesTest(packageJson, expected)
+        assertThat(template.defaultRedirectUris, is(["http://localhost:8080/oauth/callback/okta", "http://localhost:8761/oauth/callback/okta"]))
     }
 
-    private static jhipsterPropertiesTest(String packageJsonText, Map<String, String> expectedProperties, OpenIdConnectApplicationType appType = OpenIdConnectApplicationType.WEB) {
+    private WebAppTemplate jhipsterPropertiesTest(String packageJsonText, Map<String, String> expectedProperties, OpenIdConnectApplicationType appType = OpenIdConnectApplicationType.WEB) {
         // set the current working directory to a test dir
         File workingDir = File.createTempDir("jhipsterPropertiesDetectionTest-", "-test")
         System.setProperty("user.dir", workingDir.absolutePath)
@@ -106,13 +110,15 @@ class WebAppTemplateTest {
             packageJson.write packageJsonText
         }
 
-        OidcProperties props = WebAppTemplate.jhipster().getOidcProperties()
+        WebAppTemplate template = WebAppTemplate.jhipster()
+        OidcProperties props = template.getOidcProperties()
         props.setClientId("test-client-id")
         props.setClientSecret("test-client-secret")
         props.setIssuerUri("https://issuer.example.com")
-        props.setRedirectUris(["https://redirect1.example.com/login/oauth2/code/oidc", "https://redirect2.example.com/login/oauth2/code/oidc"])
-        props.setPostLogoutUris(["https://redirect1.example.com/logout", "https://redirect2.example.com/logout"])
+        props.setRedirectUris(template.defaultRedirectUris)
+        props.setPostLogoutUris(["http://localhost:8080/logout", "http://localhost:8761/logout"])
 
         assertThat(props.getProperties(), is(expectedProperties))
+        return template
     }
 }

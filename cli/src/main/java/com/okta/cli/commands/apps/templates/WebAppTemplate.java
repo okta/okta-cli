@@ -100,7 +100,7 @@ public class WebAppTemplate implements PromptOption<WebAppTemplate> {
 
         // defaults
         OidcProperties oidcProperties;
-        List<String> redirectUris = OKTA_SPRING_BOOT.defaultRedirectUris;
+        List<String> redirectUris;
         String defaultPostLogoutEndpoint = OKTA_SPRING_BOOT.defaultPostLogoutEndpoint;
         String defaultConfigFile = ".okta.env";
 
@@ -109,16 +109,18 @@ public class WebAppTemplate implements PromptOption<WebAppTemplate> {
         switch (JHipsterUtil.getGenerator()) {
             case QUARKUS: {
                 oidcProperties = OidcProperties.quarkus(OpenIdConnectApplicationType.WEB, true);
+                redirectUris = List.of("http://localhost:8080/login/oauth2/code/oidc", "http://localhost:8761/login/oauth2/code/oidc");
                 break;
             }
             case MICRONAUT: {
                 oidcProperties = OidcProperties.micronaut(OpenIdConnectApplicationType.WEB);
-                redirectUris = List.of("http://localhost:8080/oauth2/callback/oidc", "http://localhost:8761/oauth2/callback/oidc");
+                redirectUris = List.of("http://localhost:8080/oauth/callback/okta", "http://localhost:8761/oauth/callback/okta");
                 defaultPostLogoutEndpoint = "/logout";
                 break;
             }
             default: {
                 oidcProperties = OidcProperties.spring("oidc");
+                redirectUris = List.of("http://localhost:8080/login/oauth2/code/oidc", "http://localhost:8761/login/oauth2/code/oidc");
             }
         }
 
