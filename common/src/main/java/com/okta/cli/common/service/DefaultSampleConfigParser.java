@@ -27,8 +27,15 @@ import java.util.Map;
 
 public class DefaultSampleConfigParser implements SampleConfigParser {
 
+    private static final String DOC_URL = "https://github.com/okta/okta-cli/wiki/Create-an-Okta-Start-Sample";
 
     public OktaSampleConfig parseConfig(File configFile, Map<String, String> context) throws IOException {
+
+        if (!configFile.exists()) {
+            throw new IllegalArgumentException("A required Okta sample's config file could not be found in this " +
+                                               "project: '" + configFile + "', if you are creating a new sample, " +
+                                               "more information can be found here: " + DOC_URL);
+        }
 
         // NOTE this is not the most memory efficient way to do this, but this file is small
         // if we need something more complex we can do that later.
@@ -46,8 +53,7 @@ public class DefaultSampleConfigParser implements SampleConfigParser {
         // TODO improve validation of configuration
         if (config.getOAuthClient() == null) {
             throw new IllegalArgumentException("Sample configuration file: '" + configFile.getAbsoluteFile() +
-                                               "' must contain an 'oauthClient' element, see: " +
-                                               "https://github.com/oktadeveloper/okta-cli/wiki/Create-an-Okta-Start-Samples");
+                                               "' must contain an 'oauthClient' element, see: " + DOC_URL);
         }
         return config;
     }

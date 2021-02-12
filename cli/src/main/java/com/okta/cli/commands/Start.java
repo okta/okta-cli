@@ -20,6 +20,7 @@ import com.okta.cli.common.config.MapPropertySource;
 import com.okta.cli.common.config.MutablePropertySource;
 import com.okta.cli.common.model.AuthorizationServer;
 import com.okta.cli.common.model.FilterConfigBuilder;
+import com.okta.cli.common.model.OidcProperties;
 import com.okta.cli.common.model.OktaSampleConfig;
 import com.okta.cli.common.model.SamplesListings;
 import com.okta.cli.common.service.ClientConfigurationException;
@@ -120,7 +121,7 @@ public class Start extends BaseCommand {
         Client client = Clients.builder().build();
         AuthorizationServer authorizationServer = CommonAppsPrompts.getIssuer(client, getPrompter(), null);
         MutablePropertySource propertySource = new MapPropertySource();
-        new DefaultSetupService(null).createOidcApplication(
+        new DefaultSetupService(OidcProperties.oktaEnv()).createOidcApplication(
                 propertySource,
                 appName,
                 null,
