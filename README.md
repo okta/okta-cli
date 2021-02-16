@@ -18,7 +18,7 @@ If you are a Java developer using Apache Maven, also checkout the [Okta Maven Pl
 brew cask install oktadeveloper/tap/okta
 ```
 
-**Linux (via Flatpak)**
+**Linux (via Flatpak):**
 
 ```bash
 # Add Flathub repo
@@ -34,16 +34,16 @@ alias okta="flatpak run com.okta.developer.CLI"
 **Linux and macOS:**
 
 ```bash
-curl https://raw.githubusercontent.com/oktadeveloper/okta-cli/master/cli/src/main/scripts/install.sh | bash
+curl https://raw.githubusercontent.com/okta/okta-cli/master/cli/src/main/scripts/install.sh | bash
 ```
 
-**Windows (via Chocolatey)**
+**Windows (via Chocolatey):**
 
 ```bash
 choco install okta --version=0.7.1
 ```
 
-**Manual Installs**
+**Manual Installs:**
 
 Download the binary for your OS from the [releases](https://github.com/oktadeveloper/okta-cli/releases) page. Manually install it to a directory on your PATH. 
 
@@ -96,7 +96,7 @@ For more details on using bash completion see the [Picocli documentation](https:
 
 ## Contribute
 
-The easiest way to build the project is to use [sdkman]().
+The easiest way to build the project is to use [SDKMAN!](https://sdkman.io/)
 
 If you have `sdkman_auto_env=true` in your `~/.sdkman/etc/config`, then when you switch to the project folder, the correct
 JVM will be selected automatically.
