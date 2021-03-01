@@ -112,7 +112,7 @@ class StartIT implements MockWebSupport, CreateAppSupport {
         Buffer buffer = new Buffer()
         buffer.outputStream().with {
             TarArchiveOutputStream tar = new TarArchiveOutputStream(new GzipCompressorOutputStream(it))
-            tar.setLongFileMode(TarArchiveOutputStream.LONGFILE_TRUNCATE)
+            // tar.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX)
 
             String classesDir = getClass().getProtectionDomain().getCodeSource().getLocation().getFile()
             def projectDir = new File(classesDir, "samples/${name}").toPath()
