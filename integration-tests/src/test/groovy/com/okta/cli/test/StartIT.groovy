@@ -107,7 +107,7 @@ class StartIT implements MockWebSupport, CreateAppSupport {
         }
     }
 
-    private Buffer tarDir(String name = "test-project") {
+    private Buffer tarDir(String name = "test") {
 
         Buffer buffer = new Buffer()
         buffer.outputStream().with {
