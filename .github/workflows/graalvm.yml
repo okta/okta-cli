@@ -39,7 +39,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Set up GraalVM (Java 11)
-        uses: DeLaGuardo/setup-graalvm@8bbfe44e
+        uses: DeLaGuardo/setup-graalvm@3.1
         with:
           graalvm-version: '20.3.0.java11'
 
