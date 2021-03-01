@@ -36,7 +36,6 @@ import static org.hamcrest.Matchers.*
 
 class StartIT implements MockWebSupport, CreateAppSupport {
 
-    // TODO: currently broken, there is something the mock server needs to deal with
     @Test
     void regAndListSamples() {
         // Logger.getLogger(MockWebServer.class.getName()).setLevel(Level.INFO)
@@ -107,7 +106,7 @@ class StartIT implements MockWebSupport, CreateAppSupport {
         }
     }
 
-    private Buffer tarDir(String name = "test") {
+    private Buffer tarDir(String name = "test-project") {
 
         Buffer buffer = new Buffer()
         buffer.outputStream().with {
