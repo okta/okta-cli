@@ -38,7 +38,6 @@ class WebAppTemplateTest {
                 "quarkus.oidc.auth-server-url": "https://issuer.example.com",
                 "quarkus.oidc.client-id": "test-client-id",
                 "quarkus.oidc.credentials.secret": "test-client-secret",
-                "quarkus.oidc.application-type": "web-app",
                 "quarkus.oidc.authentication.redirect-path": "/login/oauth2/code/oidc",
                 "jhipster.oidc.logout-url": "https://issuer.example.com/v1/logout",
         ]

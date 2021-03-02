@@ -164,13 +164,14 @@ public abstract class OidcProperties {
                 }
 
                 Map<String, String> props = new LinkedHashMap<>();
-                props.put("quarkus.oidc.application-type", "web-app");
                 props.put("quarkus.oidc.authentication.redirect-path", URI.create(redirectUri).getPath());
 
                 if (jhipster) {
                     // If we need other jhipster properties, it might be better to create a JHipsterOidcProperties that
                     // wraps other implementations, and adds any needed properties like this
                     props.put("jhipster.oidc.logout-url", issuerUri + "/v1/logout");
+                } else {
+                    props.put("quarkus.oidc.application-type", "web-app");
                 }
                 return props;
             } else {
