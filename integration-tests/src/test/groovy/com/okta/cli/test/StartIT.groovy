@@ -29,6 +29,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
+import java.util.regex.Pattern
 
 import static com.okta.cli.test.CommandRunner.resultMatches
 import static org.hamcrest.MatcherAssert.assertThat
@@ -111,7 +112,6 @@ class StartIT implements MockWebSupport, CreateAppSupport {
         Buffer buffer = new Buffer()
         buffer.outputStream().with {
             TarArchiveOutputStream tar = new TarArchiveOutputStream(new GzipCompressorOutputStream(it))
-            // tar.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX)
 
             String classesDir = getClass().getProtectionDomain().getCodeSource().getLocation().getFile()
             def projectDir = new File(classesDir, "samples/${name}").toPath()
@@ -120,7 +120,11 @@ class StartIT implements MockWebSupport, CreateAppSupport {
                 @Override
                 FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
                     File file = path.toFile()
-                    ArchiveEntry entry = tar.createArchiveEntry(file, file.getPath().replaceAll(".*/samples/", ""))
+                    String regex = ".*/samples/"
+                    if (File.separator != "/") { // check for Windows
+                        regex = ".*\\\\samples\\\\"
+                    }
+                    ArchiveEntry entry = tar.createArchiveEntry(file, file.getPath().replaceAll(regex, ""))
                     tar.putArchiveEntry(entry)
                     new FileInputStream(file).with {
                         IOUtils.copy(it, tar)
