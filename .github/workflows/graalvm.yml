@@ -81,7 +81,7 @@ jobs:
 
       - name: Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools
         run: |
-          choco install visualstudio2017-workload-vctools --package-parameters "--no-includeRecommended"
+          choco install visualstudio2017-workload-vctools
 
       - name: Configure Pagefile
         uses: al-cheb/configure-pagefile-action@v1.2
