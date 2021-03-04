@@ -78,17 +78,20 @@ jobs:
       - name: Install native-image
         run: gu install native-image
         shell: cmd
-
-      - name: Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools
+        
+      - name: Install Visual Stuido
         run: |
           choco install chocolatey-visualstudio.extension --version 1.8.1
           choco install visualstudio2017buildtools --version 15.9.31.0
-          choco install visualstudio2017-workload-vctools
+          
+      - name: Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools
+        run: |
+          choco install visualstudio2017-workload-vctools --verbose
 
       - name: Configure Pagefile
         uses: al-cheb/configure-pagefile-action@v1.2
 
-      - name:
+      - name: Allocated PageFile
         run: |
           (Get-CimInstance Win32_PageFileUsage).AllocatedBaseSize
 
