@@ -86,7 +86,7 @@
         <dependency>
             <groupId>org.graalvm.nativeimage</groupId>
             <artifactId>svm</artifactId>
-            <version>20.3.0</version>
+            <version>20.3.1.2</version>
         </dependency>
 
         <dependency>
@@ -168,7 +168,7 @@
             <plugin>
                 <groupId>org.graalvm.nativeimage</groupId>
                 <artifactId>native-image-maven-plugin</artifactId>
-                <version>20.3.0</version>
+                <version>20.3.1.2</version>
                 <configuration>
                     <mainClass>com.okta.cli.OktaCli</mainClass>
                     <skip>false</skip>
