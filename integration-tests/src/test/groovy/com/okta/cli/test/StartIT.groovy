@@ -29,6 +29,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
+import java.util.regex.Pattern
 
 import static com.okta.cli.test.CommandRunner.resultMatches
 import static org.hamcrest.MatcherAssert.assertThat
@@ -36,8 +37,7 @@ import static org.hamcrest.Matchers.*
 
 class StartIT implements MockWebSupport, CreateAppSupport {
 
-    // TODO: currently broken, there is something the mock server needs to deal with
-    @Test(enabled = false)
+    @Test
     void regAndListSamples() {
         // Logger.getLogger(MockWebServer.class.getName()).setLevel(Level.INFO)
 
@@ -49,7 +49,7 @@ class StartIT implements MockWebSupport, CreateAppSupport {
         List<MockResponse> responses = [
                 // reg requests
                 jsonRequest('{ "orgUrl": "' + orgUrl + '", "email": "test-email@example.com", "id": "test-id" }'),
-                jsonRequest('{ "orgUrl": "' + orgUrl + '", "email": "test-email@example.com", "apiToken": "fake-test-token" }'),
+                jsonRequest('{ "orgUrl": "' + orgUrl + '", "email": "test-email@example.com", "apiToken": "fake-test-token", "updatePasswordUrl": "' + orgUrl + 'password-reset-link"}'),
 
                 // list samples
                 jsonRequest([items: [
@@ -65,7 +65,7 @@ class StartIT implements MockWebSupport, CreateAppSupport {
 
                 // Setting up OIDC app
                 // GET /api/v1/authorizationServers
-                jsonRequest('[{ "id": "test-as", "name": "test-as-name", "issuer": "' + url(mockWebServer, '/oauth2/test-as') + '}]'),
+                jsonRequest('[{ "id": "test-as", "name": "test-as-name", "issuer": "' + url(mockWebServer,"/") + '/oauth2/test-as" }]'),
                 // GET /api/v1/apps?q=integration-tests
                 jsonRequest('[]'),
                 // POST /api/v1/apps
@@ -99,9 +99,11 @@ class StartIT implements MockWebSupport, CreateAppSupport {
                         containsString("Verification code"),
                         containsString("Select a sample"),
                         containsString("a test description"),
-                        containsString("Select a sample")
+                        containsString("Change the directory:"),
+                        containsString("cd okta-test-project-sample"),
+                        containsString("Some simple directions")
                     ),
-                    emptyString())
+                    null)
         }
     }
 
@@ -110,13 +112,19 @@ class StartIT implements MockWebSupport, CreateAppSupport {
         Buffer buffer = new Buffer()
         buffer.outputStream().with {
             TarArchiveOutputStream tar = new TarArchiveOutputStream(new GzipCompressorOutputStream(it))
-            def projectDir = new File("src/test/resources/samples/${name}").toPath()
+
+            String classesDir = getClass().getProtectionDomain().getCodeSource().getLocation().getFile()
+            def projectDir = new File(classesDir, "samples/${name}").toPath()
 
             Files.walkFileTree(projectDir, new SimpleFileVisitor<Path>() {
                 @Override
                 FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
                     File file = path.toFile()
-                    ArchiveEntry entry = tar.createArchiveEntry(file, file.getPath().replaceAll(".*/samples/", ""))
+                    String regex = ".*/samples/"
+                    if (File.separator != "/") { // check for Windows
+                        regex = ".*\\\\samples\\\\"
+                    }
+                    ArchiveEntry entry = tar.createArchiveEntry(file, file.getPath().replaceAll(regex, ""))
                     tar.putArchiveEntry(entry)
                     new FileInputStream(file).with {
                         IOUtils.copy(it, tar)

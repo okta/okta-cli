@@ -17,20 +17,25 @@ package com.okta.cli.commands.apps.templates;
 
 import com.okta.cli.common.model.OidcProperties;
 import com.okta.cli.console.PromptOption;
+import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.List;
 
-public enum ServiceAppTemplate implements PromptOption<ServiceAppTemplate> {
+public class ServiceAppTemplate implements PromptOption<ServiceAppTemplate> {
 
-    OKTA_SPRING_BOOT("Okta Spring Boot Starter", OidcProperties.oktaEnv(),  "src/main/resources/application.properties"),
-    SPRING_BOOT("Spring Boot", OidcProperties.spring("okta"),  "src/main/resources/application.properties"),
-    JHIPSTER("JHipster", OidcProperties.spring("oidc"), ".okta.env"),
-    QUARKUS("Quarkus", OidcProperties.quarkus(), "src/main/resources/application.properties"),
-    GENERIC("Other", OidcProperties.oktaEnv(), ".okta.env");
+    public static final ServiceAppTemplate OKTA_SPRING_BOOT = new ServiceAppTemplate("Okta Spring Boot Starter", OidcProperties.oktaEnv(),  "src/main/resources/application.properties");
 
-    private static final Map<String, ServiceAppTemplate> nameToTemplateMap = Arrays.stream(values()).collect(Collectors.toMap(it -> it.friendlyName, it -> it));
+    public static final ServiceAppTemplate SPRING_BOOT = new ServiceAppTemplate("Spring Boot", OidcProperties.spring("okta"),  "src/main/resources/application.properties");
+
+    public static final ServiceAppTemplate JHIPSTER = jhipster();
+
+    public static final ServiceAppTemplate QUARKUS = new ServiceAppTemplate("Quarkus", OidcProperties.quarkus(OpenIdConnectApplicationType.SERVICE), "src/main/resources/application.properties");
+
+    public static final ServiceAppTemplate GENERIC = new ServiceAppTemplate("Other", OidcProperties.oktaEnv(), ".okta.env");
+
+    public static List<PromptOption<ServiceAppTemplate>> values() {
+        return List.of(OKTA_SPRING_BOOT, SPRING_BOOT, JHIPSTER, QUARKUS, GENERIC);
+    }
 
     private final String friendlyName;
     private final OidcProperties oidcProperties;
@@ -58,5 +63,28 @@ public enum ServiceAppTemplate implements PromptOption<ServiceAppTemplate> {
     @Override
     public ServiceAppTemplate value() {
         return this;
+    }
+
+    private static ServiceAppTemplate jhipster() {
+
+        // defaults
+        OidcProperties oidcProperties;
+        String defaultConfigFile = ".okta.env";
+
+        switch (JHipsterUtil.getGenerator()) {
+            case QUARKUS: {
+                oidcProperties = OidcProperties.quarkus(OpenIdConnectApplicationType.SERVICE, true);
+                break;
+            }
+            case MICRONAUT: {
+                oidcProperties = OidcProperties.micronaut(OpenIdConnectApplicationType.SERVICE);
+                break;
+            }
+            default: {
+                oidcProperties = OidcProperties.spring("oidc"); // default set of properties
+            }
+        }
+
+        return new ServiceAppTemplate("JHipster", oidcProperties, defaultConfigFile);
     }
 }

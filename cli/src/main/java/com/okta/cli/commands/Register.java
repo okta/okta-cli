@@ -16,6 +16,7 @@
 package com.okta.cli.commands;
 
 import com.okta.cli.OktaCli;
+import com.okta.cli.common.model.OidcProperties;
 import com.okta.cli.common.model.OrganizationRequest;
 import com.okta.cli.common.model.OrganizationResponse;
 import com.okta.cli.common.model.RegistrationQuestions;
@@ -68,7 +69,7 @@ public class Register extends BaseCommand {
 
         CliRegistrationQuestions registrationQuestions = registrationQuestions();
 
-        SetupService setupService = new DefaultSetupService(null);
+        SetupService setupService = new DefaultSetupService(OidcProperties.oktaEnv());
         OrganizationResponse orgResponse = setupService.createOktaOrg(registrationQuestions,
                                    getEnvironment().getOktaPropsFile(),
                                    getEnvironment().isDemo(),

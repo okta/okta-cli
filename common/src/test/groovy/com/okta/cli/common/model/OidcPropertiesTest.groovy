@@ -15,11 +15,15 @@
  */
 package com.okta.cli.common.model
 
+import com.okta.cli.common.RestoreSystemProperties
+import com.okta.sdk.resource.application.OpenIdConnectApplicationType
+import org.testng.annotations.Listeners
 import org.testng.annotations.Test
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.is
 
+@Listeners([RestoreSystemProperties])
 class OidcPropertiesTest {
 
     @Test
@@ -39,7 +43,7 @@ class OidcPropertiesTest {
         assertThat oidcProperties3.clientIdPropertyName, is("spring.security.oauth2.client.registration.oidc.client-id")
         assertThat oidcProperties3.clientSecretPropertyName, is("spring.security.oauth2.client.registration.oidc.client-secret")
 
-        def oidcProperties4 = OidcProperties.quarkus()
+        def oidcProperties4 = OidcProperties.quarkus(OpenIdConnectApplicationType.WEB)
         assertThat oidcProperties4.issuerUriPropertyName, is("quarkus.oidc.auth-server-url")
         assertThat oidcProperties4.clientIdPropertyName, is("quarkus.oidc.client-id")
         assertThat oidcProperties4.clientSecretPropertyName, is("quarkus.oidc.credentials.secret")
@@ -47,7 +51,7 @@ class OidcPropertiesTest {
 
     @Test
     void quarkusOidcProperties() {
-        def oidcProperties = OidcProperties.quarkus()
+        def oidcProperties = OidcProperties.quarkus(OpenIdConnectApplicationType.WEB)
         oidcProperties.setIssuerUri("http://example.org")
         oidcProperties.setClientId("aClientId")
         oidcProperties.setClientSecret("aClientSecret")
@@ -63,6 +67,5 @@ class OidcPropertiesTest {
         oidcProperties.setRedirectUris(List.of("http://localhost:8080/login/oauth2/code/oidc"))
         def clientProperties3 = oidcProperties.getProperties()
         assertThat clientProperties3.get("quarkus.oidc.authentication.redirect-path"), is("/login/oauth2/code/oidc")
-
     }
 }

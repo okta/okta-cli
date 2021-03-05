@@ -211,6 +211,7 @@ public class DefaultSetupService implements SetupService {
                 oidcProperties.setClientId(clientCredsResponse.getString("client_id"));
                 oidcProperties.setClientSecret(clientCredsResponse.getString("client_secret"));
                 oidcProperties.setRedirectUris(redirectUris);
+                oidcProperties.setPostLogoutUris(postLogoutRedirectUris);
 
                 propertySource.addProperties(oidcProperties.getProperties());
 
