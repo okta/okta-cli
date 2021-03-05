@@ -81,12 +81,12 @@ jobs:
 
       - name: Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools
         run: |
-          choco install visualstudio2017-workload-vctools
+          choco install visualstudio2017-workload-vctools --params "--no-update"
 
       - name: Configure Pagefile
         uses: al-cheb/configure-pagefile-action@v1.2
 
-      - name:
+      - name: Set Pagefile Config
         run: |
           (Get-CimInstance Win32_PageFileUsage).AllocatedBaseSize
 
