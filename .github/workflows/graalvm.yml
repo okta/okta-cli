@@ -61,7 +61,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest]
+        os: [windows-2016]
     env:
       REPO_SLUG: ${{ github.repository }}
       BRANCH: ${{ github.head_ref }}
@@ -86,7 +86,7 @@ jobs:
       - name: Configure Pagefile
         uses: al-cheb/configure-pagefile-action@v1.2
 
-      - name:
+      - name: Setup Pagefile
         run: |
           (Get-CimInstance Win32_PageFileUsage).AllocatedBaseSize
 
