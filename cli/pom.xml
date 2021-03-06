@@ -265,7 +265,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.2.7.RELEASE</version>
+                <version>2.4.3</version>
                 <configuration>
                     <mainClass>com.okta.cli.OktaCli</mainClass>
                 </configuration>
