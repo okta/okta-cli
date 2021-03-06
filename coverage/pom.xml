@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.okta.cli</groupId>
         <artifactId>okta-cli-tools</artifactId>
-        <version>0.8.0-SNAPSHOT</version>
+        <version>0.8.0</version>
     </parent>
 
     <artifactId>okta-cli-coverage</artifactId>
