@@ -2,7 +2,6 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.okta.cli/okta-cli?label=maven%20central%20[BETA]&style=plastic)](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.okta.cli%22%20a%3A%22okta-cli%22)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-
 Okta CLI
 ========
 
@@ -15,7 +14,19 @@ If you are a Java developer using Apache Maven, also checkout the [Okta Maven Pl
 **macOS (via [Homebrew](https://brew.sh/)):**
 
 ```bash
-brew cask install oktadeveloper/tap/okta
+brew install --cask oktadeveloper/tap/okta
+```
+
+To update to a new version:
+
+```
+brew reinstall okta
+```
+
+If you have issues getting the latest version, try untap and `brew install` again:
+
+```
+brew untap oktadeveloper/tap
 ```
 
 **Linux (via Flatpak):**
@@ -40,12 +51,12 @@ curl https://raw.githubusercontent.com/okta/okta-cli/master/cli/src/main/scripts
 **Windows (via Chocolatey):**
 
 ```bash
-choco install okta --version=0.7.1
+choco install okta --version=0.8.0
 ```
 
 **Manual Installs:**
 
-Download the binary for your OS from the [releases](https://github.com/oktadeveloper/okta-cli/releases) page. Manually install it to a directory on your PATH. 
+Download the binary for your OS from the [releases](https://github.com/okta/okta-cli/releases) page. Manually install it to a directory on your PATH. 
 
 ## Usage
 
