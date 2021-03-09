@@ -1,4 +1,4 @@
-[<img src="images/okta-cli.gif" align="right" width="100px"/>](https://devforum.okta.com/)
+[<img src="images/okta-cli.gif" align="right" width="128px"/>](https://devforum.okta.com/)
 [![Maven Central](https://img.shields.io/maven-central/v/com.okta.cli/okta-cli?label=maven%20central%20[BETA]&style=plastic)](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.okta.cli%22%20a%3A%22okta-cli%22)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
