@@ -106,7 +106,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
 
             List<String> input = [
                     "",  // default of "test-project"
-                    "3", //  "native" type of app choice
+                    "3", // "native" type of app choice
                     "",  // default callback "localhost:/callback"
                     "",  // default post logout redirect localhost:/
             ]
@@ -153,10 +153,10 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
 
             List<String> input = [
                     "", // generic OIDC app
-                    "", //  default "web" type of app choice
+                    "", // default "web" type of app choice
                     "", // default of "test-project"
                     "", // default callback "http://localhost:8080/callback"
-                    "",  // default post logout redirect http://localhost:8080/
+                    "", // default post logout redirect http://localhost:8080/
             ]
 
             def result = new CommandRunner()
@@ -202,7 +202,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                     "", //  default "web" type of app choice
                     "", // generic OIDC app
                     "http://localhost:8080/callback, http://localhost:8888/callback", // redirect uris
-                    "",  // default post logout redirect "http://localhost:8080/, http://localhost:8888/"
+                    "", // default post logout redirect "http://localhost:8080/, http://localhost:8888/"
                     "", // generic OIDC app
             ]
 
@@ -248,7 +248,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
 
             List<String> input = [
                     "",  // default of "test-project"
-                    "4", //  "native" type of app choice
+                    "4", // "native" type of app choice
                     "",  // default callback "localhost:/callback"
                     "",  // default post logout redirect
             ]
@@ -287,10 +287,10 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
 
             List<String> input = [
                     "", // generic OIDC app
-                    "", //  default "web" type of app choice
+                    "", // default "web" type of app choice
                     "", // default of "test-project"
                     "", // default callback "http://localhost:8080/login/oauth2/code/okta"
-                    "",  // default post logout redirect
+                    "", // default post logout redirect
             ]
 
             def result = new CommandRunner()
