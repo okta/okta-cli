@@ -61,7 +61,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2016]
+        os: [windows-latest]
     env:
       REPO_SLUG: ${{ github.repository }}
       BRANCH: ${{ github.head_ref }}
