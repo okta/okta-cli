@@ -84,6 +84,63 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
         }
     }
 
+    // This test is different from the previous one in that it runs `apps create spa`
+    @Test
+    void createAppSpa() {
+        MockWebServer mockWebServer = createMockServer()
+        List<MockResponse> responses = [
+                // GET /api/v1/authorizationServers
+                jsonRequest('[{ "id": "test-as", "name": "test-as-name", "issuer": "' + url(mockWebServer,"/") + '/oauth2/test-as" }]'),
+                // GET /api/v1/apps?q=integration-tests
+                jsonRequest('[]'),
+                // POST /api/v1/apps
+                jsonRequest('{ "id": "test-app-id", "label": "test-app-name" }'),
+                // GET /api/v1/groups?q=everyone
+                jsonRequest("[${everyoneGroup()}]"),
+                // PUT /api/v1/apps/test-app-id/groups/every1-id
+                jsonRequest('{}'),
+                //GET /api/v1/internal/apps/test-app-id/settings/clientcreds
+                jsonRequest('{ "client_id": "test-id" }'),
+                // GET /api/v1/trustedOrigins
+                jsonRequest('[]'),
+                // POST /api/v1/trustedOrigins
+                jsonRequest('{}')
+        ]
+
+        mockWebServer.with {
+            responses.forEach { mockWebServer.enqueue(it) }
+
+            List<String> input = [
+                    "",  // default of "test-project"
+                    "",  // default callback "http://localhost:8080/callback"
+                    "",  // default post logout redirect
+            ]
+
+            def result = new CommandRunner()
+                    .withSdkConfig(url(mockWebServer,"/"))
+                    .runCommandWithInput(input,"--color=never", "apps", "create", "spa")
+
+
+            assertThat result, resultMatches(0, allOf(
+                    containsString("Enter your Redirect URI(s) [http://localhost:8080/callback]:"),
+                    containsString("Enter your Post Logout Redirect URI(s) [http://localhost:8080/]:"),
+                    containsString("Okta application configuration:"),
+                    containsString("Client ID: test-id"),
+                    containsString("Issuer:    ${url(mockWebServer,"/")}/oauth2/test-as"),
+                    not(containsString("okta.oauth2.client-secret"))),
+                    null)
+
+            verify(mockWebServer.takeRequest(), "GET", "/api/v1/authorizationServers")
+            verify(mockWebServer.takeRequest(), "GET", "/api/v1/apps", "q=test-project")
+            verifyRedirectUri(mockWebServer.takeRequest(), ["http://localhost:8080/callback"])
+            verify(mockWebServer.takeRequest(), "GET", "/api/v1/groups", "q=everyone")
+            verify(mockWebServer.takeRequest(), "PUT", "/api/v1/apps/test-app-id/groups/every1-id")
+            verify(mockWebServer.takeRequest(), "GET", "/api/v1/internal/apps/test-app-id/settings/clientcreds")
+            verify(mockWebServer.takeRequest(), "GET", "/api/v1/trustedOrigins")
+            verifyTrustedOrigins(mockWebServer.takeRequest(), "http://localhost:8080/")
+        }
+    }
+
     @Test
     void createNativeApp() {
         MockWebServer mockWebServer = createMockServer()
@@ -124,6 +181,53 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                                                             containsString("okta.oauth2.issuer: ${url(mockWebServer,"/")}/oauth2/test-as"),
                                                             not(containsString("okta.oauth2.client-secret"))),
                                                         null)
+
+            mockWebServer.takeRequest() // auth list request
+            mockWebServer.takeRequest() // check if app exists
+            verifyRedirectUri(mockWebServer.takeRequest(), ["localhost:/callback"])
+        }
+    }
+
+    // This test is different from the previous one in that it runs `apps create native`
+    @Test
+    void createAppNative() {
+        MockWebServer mockWebServer = createMockServer()
+        List<MockResponse> responses = [
+                // GET /api/v1/authorizationServers
+                jsonRequest('[{ "id": "test-as", "name": "test-as-name", "issuer": "' + url(mockWebServer,"/") + '/oauth2/test-as" }]'),
+                // GET /api/v1/apps?q=integration-tests
+                jsonRequest('[]'),
+                // POST /api/v1/apps
+                jsonRequest('{ "id": "test-app-id", "label": "test-app-name" }'),
+                // GET /api/v1/groups?q=everyone
+                jsonRequest("[${everyoneGroup()}]"),
+                // PUT /api/v1/apps/test-app-id/groups/every1-id
+                jsonRequest('{}'),
+                //GET /api/v1/internal/apps/test-app-id/settings/clientcreds
+                jsonRequest('{ "client_id": "test-id" }')]
+
+        mockWebServer.with {
+            responses.forEach { mockWebServer.enqueue(it) }
+
+            List<String> input = [
+                    "",  // default of "test-project"
+                    "",  // default callback "localhost:/callback"
+                    "",  // default post logout redirect localhost:/
+            ]
+
+            def result = new CommandRunner()
+                    .withSdkConfig(url(mockWebServer,"/"))
+                    .runCommandWithInput(input,"--color=never", "apps", "create", "native")
+
+
+            assertThat result, resultMatches(0, allOf(
+                    containsString("Okta application configuration:"),
+                    containsString("okta.oauth2.client-id: test-id"),
+                    containsString("Enter your Redirect URI(s) [localhost:/callback]:"),
+                    containsString("Enter your Post Logout Redirect URI(s) [localhost:/]:"),
+                    containsString("okta.oauth2.issuer: ${url(mockWebServer,"/")}/oauth2/test-as"),
+                    not(containsString("okta.oauth2.client-secret"))),
+                    null)
 
             mockWebServer.takeRequest() // auth list request
             mockWebServer.takeRequest() // check if app exists
