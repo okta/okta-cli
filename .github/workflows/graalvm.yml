@@ -78,6 +78,10 @@ jobs:
       - name: Install native-image
         run: gu install native-image
         shell: cmd
+        
+      - name: Install VSSetup
+        run: |
+          Install-Module -Name VSSetup -Repository PSGallery -Force
 
       - name: Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools
         run: |
