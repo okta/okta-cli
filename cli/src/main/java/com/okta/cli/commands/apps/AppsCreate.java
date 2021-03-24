@@ -16,10 +16,7 @@
 package com.okta.cli.commands.apps;
 
 import com.okta.cli.commands.BaseCommand;
-import com.okta.cli.commands.apps.templates.AppType;
-import com.okta.cli.commands.apps.templates.ServiceAppTemplate;
-import com.okta.cli.commands.apps.templates.SpaAppTemplate;
-import com.okta.cli.commands.apps.templates.WebAppTemplate;
+import com.okta.cli.commands.apps.templates.*;
 import com.okta.cli.common.URIs;
 import com.okta.cli.common.config.MapPropertySource;
 import com.okta.cli.common.config.MutablePropertySource;
@@ -261,6 +258,9 @@ public class AppsCreate extends BaseCommand {
         QUARKUS("quarkus", AppType.WEB, WebAppTemplate.QUARKUS),
         JHIPSTER("jhipster", AppType.WEB, WebAppTemplate.JHIPSTER),
         GENERIC_WEB("web", AppType.WEB, WebAppTemplate.GENERIC),
+        SPA("spa", AppType.SPA, SpaAppTemplate.GENERIC),
+        // native
+        NATIVE("native", AppType.NATIVE, NativeAppTemplate.GENERIC),
         // service
         SPRING_BOOT_SERVICE("spring-boot-service", AppType.SERVICE, ServiceAppTemplate.SPRING_BOOT),
         JHIPSTER_SERVICE("jhipster-service", AppType.SERVICE, ServiceAppTemplate.JHIPSTER),
