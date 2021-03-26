@@ -104,6 +104,7 @@ class CommandRunner {
         }
 
         process.waitForOrKill(timeout().toMillis())
+        process.closeStreams()
 
         // flush the console output
         System.out.flush()
