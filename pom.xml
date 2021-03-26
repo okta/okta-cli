@@ -50,6 +50,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <okta.sdk.version>2.0.0</okta.sdk.version>
+        <slf4j.version>1.7.30</slf4j.version>
     </properties>
 
     <modules>
@@ -96,7 +97,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>30.1-jre</version>
+                <version>30.1.1-jre</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
