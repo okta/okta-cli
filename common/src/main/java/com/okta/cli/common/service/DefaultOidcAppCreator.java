@@ -174,7 +174,7 @@ class DefaultOidcAppCreator implements OidcAppCreator {
 
     private Optional<Application> getApplication(Client client, String appName) {
         return client.listApplications(appName, null, null, null).stream()
-                .filter(app -> appName.equalsIgnoreCase(app.getLabel()))
+                .filter(app -> appName.equals(app.getLabel()))
                 .findFirst();
     }
 
