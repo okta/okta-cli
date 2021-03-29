@@ -33,6 +33,9 @@ public class DisabledPrompter implements Prompter {
         throw fail(message);
     }
 
+    @Override
+    public void pause() {}
+
     private static IllegalStateException fail(String message) {
         return new IllegalStateException("Interactive mode is disable, failed to prompt for response: " + message);
     }

@@ -21,6 +21,11 @@ import java.util.List;
 
 public interface Prompter {
 
+    /**
+     * Displays a "(Press Enter to continue)" message and waits for user acknowledgement.
+     */
+    void pause();
+
     String prompt(String message);
 
     default boolean promptYesNo(String message) {

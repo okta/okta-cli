@@ -29,11 +29,11 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
-import java.util.regex.Pattern
 
 import static com.okta.cli.test.CommandRunner.resultMatches
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.*
+import static org.hamcrest.Matchers.allOf
+import static org.hamcrest.Matchers.containsString
 
 class StartIT implements MockWebSupport, CreateAppSupport {
 
@@ -88,6 +88,7 @@ class StartIT implements MockWebSupport, CreateAppSupport {
                     "test-email@example.com",
                     "test co",
                     "123456",
+                    "", // accept prompt to change password
                     // select a sample
                     "2"
             ]

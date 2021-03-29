@@ -44,6 +44,12 @@ public class DefaultPrompter implements Prompter, Closeable {
         return prompt();
     }
 
+    @Override
+    public void pause() {
+        out.writeLine("(Press Enter to continue)");
+        prompt();
+    }
+
     private String prompt() {
         out.flush();
         try {
