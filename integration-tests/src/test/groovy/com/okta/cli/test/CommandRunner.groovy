@@ -90,7 +90,13 @@ class CommandRunner {
         def sout = new StringBuilder()
         def serr = new StringBuilder()
         def process = Runtime.getRuntime().exec(cmd, null, workingDir)
-        process.consumeProcessOutput(sout, serr)
+
+        // We are seeing some issues with Groovy's process.consumeProcessOutput(sout, serr) method
+        // It looks like there are some threading issues the show up in CI with Linux VMs. Likely what is happening
+        // is the threads used to consume the sout and serr finish at some point after process.waitForOrKill finishes
+        // any remaining output is lost
+        def soutThread = process.consumeProcessOutputStream(sout)
+        def serrThread = process.consumeProcessErrorStream(serr)
 
         Thread.sleep(100)
 
@@ -103,12 +109,15 @@ class CommandRunner {
             }
         }
 
-        process.waitForOrKill(timeout().toMillis())
-        process.closeStreams()
-
-        // flush the console output
-        System.out.flush()
-        System.err.flush()
+        // Wait for the process to finish
+        try {
+            process.waitForOrKill(timeout().toMillis())
+            // wait for the output consumption threads to finish, these will throw if they don't finish in 100ms
+            soutThread.join(100)
+            serrThread.join(100)
+        } finally {
+            process.closeStreams()
+        }
 
         return new Result(process.exitValue(), cmd, envVars, sout.toString(), serr.toString(), workingDir, homeDir)
     }
