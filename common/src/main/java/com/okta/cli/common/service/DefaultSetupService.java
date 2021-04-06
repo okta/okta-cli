@@ -240,7 +240,7 @@ public class DefaultSetupService implements SetupService {
 
     private void createAndAssignGroup(Client client, User user, String groupName, ProgressBar progressBar) {
 
-        GroupList groups  = client.listGroups(groupName, null);
+        GroupList groups  = client.listGroups(groupName, null, null);
         Group group = groups.stream()
                 .filter(it -> it.getProfile().getName().equals(groupName))
                 .findFirst()

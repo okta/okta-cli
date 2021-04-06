@@ -39,6 +39,8 @@
 }, {
   "name" : "com.okta.sdk.resource.user.factor.TotpUserFactor"
 }, {
+  "name" : "com.okta.sdk.resource.user.factor.CustomHotpUserFactor"
+}, {
   "name" : "com.okta.sdk.resource.user.factor.SecurityQuestionUserFactor"
 }, {
   "name" : "com.okta.sdk.resource.user.factor.WebUserFactor"
@@ -66,34 +68,34 @@
   "name" : "com.okta.sdk.impl.resource.trusted.origin.DefaultTrustedOrigin",
   "methods" : [ {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   }, {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.trusted.origin.DefaultTrustedOriginList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.role.DefaultCatalogApplicationList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.role.DefaultAssignRoleRequest",
@@ -108,10 +110,10 @@
   "name" : "com.okta.sdk.impl.resource.role.DefaultCatalogApplication",
   "methods" : [ {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   }, {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.role.DefaultScope",
@@ -165,10 +167,10 @@
   "name" : "com.okta.sdk.impl.resource.identity.provider.DefaultProtocolEndpoints",
   "methods" : [ {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   }, {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.identity.provider.DefaultSocialAuthToken",
@@ -228,22 +230,22 @@
   "name" : "com.okta.sdk.impl.resource.identity.provider.DefaultIdentityProviderApplicationUserList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.identity.provider.DefaultIdentityProviderApplicationUser",
   "methods" : [ {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   }, {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.identity.provider.DefaultProvisioning",
@@ -300,25 +302,25 @@
   "name" : "com.okta.sdk.impl.resource.identity.provider.DefaultSocialAuthTokenList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.identity.provider.DefaultIdentityProviderList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.identity.provider.DefaultProtocolSettings",
@@ -360,13 +362,13 @@
   "name" : "com.okta.sdk.impl.resource.group.DefaultGroupList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.group.DefaultGroupProfile",
@@ -417,13 +419,13 @@
   "name" : "com.okta.sdk.impl.resource.group.rule.DefaultGroupRuleList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.group.rule.DefaultGroupRuleConditions",
@@ -462,7 +464,7 @@
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   } ]
 }, {
-  "name" : "com.okta.sdk.impl.resource.DefaultOIdCApplicationBuilder",
+  "name" : "com.okta.sdk.impl.resource.DefaultOIDCApplicationBuilder",
   "methods" : [ {
     "name" : "<init>",
     "parameterTypes" : [ ]
@@ -471,10 +473,10 @@
   "name" : "com.okta.sdk.impl.resource.DefaultVoidResource",
   "methods" : [ {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   }, {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.template.DefaultSmsTemplateTranslations",
@@ -489,13 +491,13 @@
   "name" : "com.okta.sdk.impl.resource.template.DefaultSmsTemplateList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.template.DefaultSmsTemplate",
@@ -510,10 +512,10 @@
   "name" : "com.okta.sdk.impl.resource.ion.DefaultIonForm",
   "methods" : [ {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   }, {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.ion.DefaultIonField",
@@ -529,27 +531,6 @@
   "methods" : [ {
     "name" : "<init>",
     "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "com.okta.sdk.impl.resource.user.DefaultUserTypeList",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
-  } ]
-}, {
-  "name" : "com.okta.sdk.impl.resource.user.DefaultUserType",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.user.DefaultUser",
@@ -582,13 +563,13 @@
   "name" : "com.okta.sdk.impl.resource.user.DefaultAppLinkList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.user.DefaultPasswordCredentialHash",
@@ -654,6 +635,15 @@
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   } ]
 }, {
+  "name" : "com.okta.sdk.impl.resource.user.factor.DefaultCustomHotpUserFactor",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
   "name" : "com.okta.sdk.impl.resource.user.factor.DefaultTotpUserFactorProfile",
   "methods" : [ {
     "name" : "<init>",
@@ -666,13 +656,13 @@
   "name" : "com.okta.sdk.impl.resource.user.factor.DefaultUserFactorList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.user.factor.DefaultU2fUserFactorProfile",
@@ -702,6 +692,15 @@
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   } ]
 }, {
+  "name" : "com.okta.sdk.impl.resource.user.factor.DefaultCustomHotpUserFactorProfile",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
   "name" : "com.okta.sdk.impl.resource.user.factor.DefaultSmsUserFactorProfile",
   "methods" : [ {
     "name" : "<init>",
@@ -723,13 +722,13 @@
   "name" : "com.okta.sdk.impl.resource.user.factor.DefaultSecurityQuestionList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.user.factor.DefaultU2fUserFactor",
@@ -921,6 +920,78 @@
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   } ]
 }, {
+  "name" : "com.okta.sdk.impl.resource.user.schema.DefaultUserSchemaPublic",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
+  "name" : "com.okta.sdk.impl.resource.user.schema.DefaultUserSchemaAttributePermission",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
+  "name" : "com.okta.sdk.impl.resource.user.schema.DefaultUserSchemaBaseProperties",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
+  "name" : "com.okta.sdk.impl.resource.user.schema.DefaultUserSchema",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
+  "name" : "com.okta.sdk.impl.resource.user.schema.DefaultUserSchemaAttributeMaster",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
+  "name" : "com.okta.sdk.impl.resource.user.schema.DefaultUserSchemaBase",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
+  "name" : "com.okta.sdk.impl.resource.user.schema.DefaultUserSchemaDefinitions",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
+  "name" : "com.okta.sdk.impl.resource.user.schema.DefaultUserSchemaAttribute",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
   "name" : "com.okta.sdk.impl.resource.user.DefaultUserActivationToken",
   "methods" : [ {
     "name" : "<init>",
@@ -939,37 +1010,58 @@
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   } ]
 }, {
-  "name" : "com.okta.sdk.impl.resource.user.DefaultResponseLinksList",
+  "name" : "com.okta.sdk.impl.resource.user.type.DefaultUserTypeList",
   "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
+  "name" : "com.okta.sdk.impl.resource.user.type.DefaultUserType",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  } ]
+}, {
+  "name" : "com.okta.sdk.impl.resource.user.DefaultResponseLinksList",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.user.DefaultRoleList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.user.DefaultUserProfile",
   "methods" : [ {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   }, {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.user.DefaultPasswordCredentialHook",
@@ -984,13 +1076,13 @@
   "name" : "com.okta.sdk.impl.resource.user.DefaultUserList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.user.DefaultResponseLinks",
@@ -1086,13 +1178,13 @@
   "name" : "com.okta.sdk.impl.resource.inline.hook.DefaultInlineHookList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.inline.hook.DefaultInlineHookPayload",
@@ -1203,10 +1295,10 @@
   "name" : "com.okta.sdk.impl.resource.log.DefaultLogOutcome",
   "methods" : [ {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   }, {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.log.DefaultLogIpAddress",
@@ -1239,13 +1331,13 @@
   "name" : "com.okta.sdk.impl.resource.log.DefaultLogEventList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.log.DefaultLogEvent",
@@ -1269,10 +1361,10 @@
   "name" : "com.okta.sdk.impl.resource.log.DefaultLogClient",
   "methods" : [ {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   }, {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.log.DefaultLogRequest",
@@ -1314,13 +1406,13 @@
   "name" : "com.okta.sdk.impl.resource.linked.object.DefaultLinkedObjectList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.linked.object.DefaultLinkedObjectDetails",
@@ -1335,13 +1427,13 @@
   "name" : "com.okta.sdk.impl.resource.feature.DefaultFeatureList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.feature.DefaultFeatureStage",
@@ -1383,8 +1475,17 @@
   "name" : "com.okta.sdk.impl.resource.application.DefaultOAuth2RefreshTokenList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
+  "name" : "com.okta.sdk.impl.resource.application.DefaultApplication",
+  "methods" : [ {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   }, {
@@ -1392,7 +1493,7 @@
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
-  "name" : "com.okta.sdk.impl.resource.application.DefaultApplication",
+  "name" : "com.okta.sdk.impl.resource.application.DefaultOpenIdConnectApplicationSettingsRefreshToken",
   "methods" : [ {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
@@ -1458,13 +1559,13 @@
   "name" : "com.okta.sdk.impl.resource.application.DefaultOAuth2ClaimList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.application.DefaultOAuth2Token",
@@ -1488,46 +1589,64 @@
   "name" : "com.okta.sdk.impl.resource.application.DefaultOAuth2ScopeList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
+  } ]
+}, {
+  "name" : "com.okta.sdk.impl.resource.application.DefaultOpenIdConnectApplicationSettingsClientKeys",
+  "methods" : [ {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
+  "name" : "com.okta.sdk.impl.resource.application.DefaultSpCertificate",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.application.DefaultOAuth2TokenList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.application.DefaultOAuth2ScopeConsentGrantList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.application.DefaultJsonWebKey",
   "methods" : [ {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   }, {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.application.DefaultSwaApplication",
@@ -1584,6 +1703,15 @@
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   } ]
 }, {
+  "name" : "com.okta.sdk.impl.resource.application.DefaultSingleLogout",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
   "name" : "com.okta.sdk.impl.resource.application.DefaultAutoLoginApplicationSettingsSignOn",
   "methods" : [ {
     "name" : "<init>",
@@ -1623,13 +1751,13 @@
   "name" : "com.okta.sdk.impl.resource.application.DefaultApplicationList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.application.DefaultAuthorizationServerCredentials",
@@ -1713,6 +1841,15 @@
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   } ]
 }, {
+  "name" : "com.okta.sdk.impl.resource.application.DefaultAcsEndpoint",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
   "name" : "com.okta.sdk.impl.resource.application.DefaultApplicationSettingsNotificationsVpnNetwork",
   "methods" : [ {
     "name" : "<init>",
@@ -1734,13 +1871,13 @@
   "name" : "com.okta.sdk.impl.resource.application.DefaultApplicationGroupAssignmentList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.application.DefaultOpenIdConnectApplicationSettingsClient",
@@ -1782,25 +1919,25 @@
   "name" : "com.okta.sdk.impl.resource.application.DefaultJsonWebKeyList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.application.DefaultCsrList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.application.DefaultSecurePasswordStoreApplicationSettings",
@@ -1815,13 +1952,13 @@
   "name" : "com.okta.sdk.impl.resource.application.DefaultAppUserList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.application.DefaultWsFederationApplication",
@@ -1998,22 +2135,22 @@
   "name" : "com.okta.sdk.impl.resource.application.DefaultAppUserCredentials",
   "methods" : [ {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   }, {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.application.DefaultOAuth2ClientList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.application.DefaultOAuth2Scope",
@@ -2052,6 +2189,15 @@
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   } ]
 }, {
+  "name" : "com.okta.sdk.impl.resource.application.DefaultOpenIdConnectApplicationIdpInitiatedLogin",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
   "name" : "com.okta.sdk.impl.resource.application.DefaultApplicationGroupAssignment",
   "methods" : [ {
     "name" : "<init>",
@@ -2079,10 +2225,31 @@
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   } ]
 }, {
+  "name" : "com.okta.sdk.impl.resource.authorization.server.DefaultAuthorizationServerPolicy",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
   "name" : "com.okta.sdk.impl.resource.authorization.server.DefaultAuthorizationServer",
   "methods" : [ {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
+  "name" : "com.okta.sdk.impl.resource.authorization.server.DefaultAuthorizationServerPolicyList",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
@@ -2100,13 +2267,61 @@
   "name" : "com.okta.sdk.impl.resource.authorization.server.DefaultAuthorizationServerList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
+  } ]
+}, {
+  "name" : "com.okta.sdk.impl.resource.authorization.server.policy.DefaultAuthorizationServerPolicyRule",
+  "methods" : [ {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
+  "name" : "com.okta.sdk.impl.resource.authorization.server.policy.DefaultAuthorizationServerPolicyRuleConditions",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
+  "name" : "com.okta.sdk.impl.resource.authorization.server.policy.DefaultTokenAuthorizationServerPolicyRuleAction",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
+  "name" : "com.okta.sdk.impl.resource.authorization.server.policy.DefaultAuthorizationServerPolicyRuleActions",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+  } ]
+}, {
+  "name" : "com.okta.sdk.impl.resource.authorization.server.policy.DefaultAuthorizationServerPolicyRuleList",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
+  }, {
+    "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.DefaultSignOnPolicyRuleBuilder",
@@ -2172,13 +2387,13 @@
   "name" : "com.okta.sdk.impl.resource.event.hook.DefaultEventHookList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.event.hook.DefaultEventHookBuilder",
@@ -2349,10 +2564,10 @@
   "name" : "com.okta.sdk.impl.resource.policy.DefaultDevicePolicyRuleCondition",
   "methods" : [ {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   }, {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.policy.DefaultPolicyRuleAuthContextCondition",
@@ -2367,19 +2582,19 @@
   "name" : "com.okta.sdk.impl.resource.policy.DefaultPasswordPolicyPasswordSettingsAge",
   "methods" : [ {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   }, {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.policy.DefaultPasswordPolicyPasswordSettings",
   "methods" : [ {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   }, {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.policy.DefaultMDMEnrollmentPolicyRuleCondition",
@@ -2439,10 +2654,10 @@
   "name" : "com.okta.sdk.impl.resource.policy.DefaultPasswordPolicyPasswordSettingsComplexity",
   "methods" : [ {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   }, {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.policy.DefaultPlatformConditionEvaluatorPlatformOperatingSystemVersion",
@@ -2475,10 +2690,10 @@
   "name" : "com.okta.sdk.impl.resource.policy.DefaultUserPolicyRuleCondition",
   "methods" : [ {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
   }, {
     "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.policy.DefaultLifecycleExpirationPolicyRuleCondition",
@@ -2497,18 +2712,6 @@
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  } ]
-}, {
-  "name" : "com.okta.sdk.impl.resource.policy.DefaultPolicyList",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.policy.DefaultUserIdentityProviderLinkRequest",
@@ -2667,13 +2870,13 @@
   "name" : "com.okta.sdk.impl.resource.policy.DefaultPolicyRuleList",
   "methods" : [ {
     "name" : "<init>",
+    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
+  }, {
+    "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map", "java.util.Map" ]
   }, {
     "name" : "<init>",
     "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore", "java.util.Map" ]
-  }, {
-    "name" : "<init>",
-    "parameterTypes" : [ "com.okta.sdk.impl.ds.InternalDataStore" ]
   } ]
 }, {
   "name" : "com.okta.sdk.impl.resource.policy.DefaultDevicePolicyRuleConditionPlatform",
