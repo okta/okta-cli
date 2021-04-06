@@ -83,4 +83,11 @@
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>
 
+    <Match>
+        <!-- equalsIgnoreCase is fine for a yes/no prompt -->
+        <Class name="com.okta.cli.console.DefaultPrompter"/>
+        <Method name="promptYesNo"/>
+        <Bug pattern="IMPROPER_UNICODE"/>
+    </Match>
+
 </FindBugsFilter>
