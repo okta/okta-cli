@@ -57,6 +57,7 @@ public class Register extends BaseCommand {
             out.writeLine("Registering for a new Okta account, if you would like to use an existing account, use 'okta login' instead.\n");
             new Register(standardOptions).call();
             out.writeLine("");
+            standardOptions.getEnvironment().prompter().pause();
         }
     }
 

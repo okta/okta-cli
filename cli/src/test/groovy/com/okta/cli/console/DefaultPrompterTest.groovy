@@ -205,6 +205,24 @@ class DefaultPrompterTest {
         verify(out, times(1)).writeError("\nInvalid choice, try again\n\n")
     }
 
+    @Test
+    void pauseEnter() {
+        ConsoleOutput out = mock(ConsoleOutput)
+        expectInput("\n")
+        DefaultPrompter prompter = new DefaultPrompter(out)
+        prompter.pause()
+        verify(out).writeLine("(Press Enter to continue)")
+    }
+
+    @Test
+    void pauseWithExtraInput() {
+        ConsoleOutput out = mock(ConsoleOutput)
+        expectInput("  something   was typed before  pressing... Enter\n")
+        DefaultPrompter prompter = new DefaultPrompter(out)
+        prompter.pause()
+        verify(out).writeLine("(Press Enter to continue)")
+    }
+
     static void expectInput(String text) {
         System.in = new ByteArrayInputStream(text.bytes)
     }
