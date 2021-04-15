@@ -44,6 +44,9 @@ public class Register extends BaseCommand {
     @CommandLine.Option(names = "--company", description = "Company/organization used when registering a new Okta account.")
     protected String company;
 
+    @CommandLine.Option(names = "--country", description = "Country of residence")
+    protected String country;
+
     public Register() {}
 
     private Register(OktaCli.StandardOptions standardOptions) {
@@ -76,7 +79,7 @@ public class Register extends BaseCommand {
                                    getEnvironment().isDemo(),
                                    getEnvironment().isInteractive());
 
-        String identifier = orgResponse.getId();
+        String identifier = orgResponse.getDeveloperOrgCliToken();
         setupService.verifyOktaOrg(identifier,
                 registrationQuestions,
                 getEnvironment().getOktaPropsFile());
@@ -104,12 +107,7 @@ public class Register extends BaseCommand {
                     .setFirstName(prompter.promptUntilValue(firstName, "First name"))
                     .setLastName(prompter.promptUntilValue(lastName, "Last name"))
                     .setEmail(prompter.promptUntilValue(email, "Email address"))
-                    .setOrganization(prompter.promptUntilValue(company, "Company"));
-        }
-
-        @Override
-        public String getVerificationCode() {
-            return prompter.promptUntilValue("Verification code");
+                    .setCountry(prompter.promptUntilValue(country, "Country"));
         }
     }
 }

@@ -34,8 +34,8 @@ class RegisterIT implements MockWebSupport {
     void happyPath() {
 
         List<MockResponse> responses = [
-                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "id": "test-id" }'),
-                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "apiToken": "fake-test-token" }')
+                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "developerOrgCliToken": "test-id" }'),
+                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "apiToken": "fake-test-token", "status": "ACTIVE" }')
         ]
 
         MockWebServer mockWebServer = createMockServer()
@@ -46,23 +46,24 @@ class RegisterIT implements MockWebSupport {
                     "test-first",
                     "test-last",
                     "test-email@example.com",
-                    "test co",
-                    "123456"
+                    "Petoria",
             ]
 
             def result = new CommandRunner(url(mockWebServer, "/")).runCommandWithInput(input, "register", "--verbose")
-            assertThat result, resultMatches(0, allOf(containsString("An email has been sent to you with a verification code."), containsString("Verification code")), emptyString())
+            assertThat result, resultMatches(0, allOf(containsString("An account activation email has been sent to you.")), emptyString())
 
 
             RecordedRequest request = mockWebServer.takeRequest()
-            assertThat request.getRequestLine(), equalTo("POST /create HTTP/1.1")
+            assertThat request.getRequestLine(), equalTo("POST /api/v1/registration/reg405abrRAkn0TRf5d6/register HTTP/1.1")
             assertThat request.getHeader("Content-Type"), is("application/json")
             Map body = new JsonSlurper().parse(request.getBody().readByteArray(), StandardCharsets.UTF_8.toString())
             assertThat body, equalTo([
+                userProfile: [
                     firstName: "test-first",
                     lastName: "test-last",
                     email: "test-email@example.com",
-                    organization: "test co"
+                    country: "Petoria"
+                ]
             ])
 
             File oktaConfigFile = new File(result.homeDir, ".okta/okta.yaml")
@@ -74,8 +75,8 @@ class RegisterIT implements MockWebSupport {
     void existingConfigFile_overwrite() {
 
         List<MockResponse> responses = [
-                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "id": "test-id" }'),
-                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "apiToken": "fake-test-token" }')
+                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "developerOrgCliToken": "test-id" }'),
+                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "apiToken": "fake-test-token", "status": "ACTIVE" }\') }')
         ]
 
         MockWebServer mockWebServer = createMockServer()
@@ -87,8 +88,7 @@ class RegisterIT implements MockWebSupport {
                     "test-first",
                     "test-last",
                     "test-email@example.com",
-                    "test co",
-                    "123456"
+                    "Petoria"
             ]
 
             CommandRunner runner = new CommandRunner(url(mockWebServer, "/"))
@@ -104,17 +104,19 @@ okta:
                     }
 
             def result = runner.runCommandWithInput(input, "register")
-            assertThat result, resultMatches(0, allOf(containsString("An email has been sent to you with a verification code."), containsString("Verification code")), emptyString())
+            assertThat result, resultMatches(0, containsString("An account activation email has been sent to you."), emptyString())
 
             RecordedRequest request = mockWebServer.takeRequest()
-            assertThat request.getRequestLine(), equalTo("POST /create HTTP/1.1")
+            assertThat request.getRequestLine(), equalTo("POST /api/v1/registration/reg405abrRAkn0TRf5d6/register HTTP/1.1")
             assertThat request.getHeader("Content-Type"), is("application/json")
             Map body = new JsonSlurper().parse(request.getBody().readByteArray(), StandardCharsets.UTF_8.toString())
             assertThat body, equalTo([
+                userProfile: [
                     firstName: "test-first",
                     lastName: "test-last",
                     email: "test-email@example.com",
-                    organization: "test co"
+                    country: "Petoria"
+                ]
             ])
 
             File oktaConfigFile = new File(result.homeDir, ".okta/okta.yaml")
@@ -150,17 +152,11 @@ okta:
     }
 
     @Test
-    void invalidCodeTest() {
+    void pollingTest() {
         List<MockResponse> responses = [
-                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "id": "test-id" }'),
-                jsonRequest(new ErrorResponse()
-                        .setError("Invalid passcode")
-                        .setMessage("Test message")
-                        .setCauses(["error 1", "error 2"])
-                        .setStatus(401),
-                        401
-                ),
-                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "apiToken": "fake-test-token" }')
+                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "developerOrgCliToken": "test-id" }'),
+                jsonRequest('{ "status": "PENDING" }'),
+                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "apiToken": "fake-test-token", "status": "ACTIVE" }')
         ]
 
         MockWebServer mockWebServer = createMockServer()
@@ -171,23 +167,23 @@ okta:
                     "test-first",
                     "test-last",
                     "test-email@example.com",
-                    "test co",
-                    "123456",
-                    "654321"
+                    "Petoria"
             ]
 
             def result = new CommandRunner(url(mockWebServer, "/")).runCommandWithInput(input, "register")
-            assertThat result, resultMatches(0, allOf(containsString("An email has been sent to you with a verification code."), containsString("Verification code")), emptyString())
+            assertThat result, resultMatches(0, containsString("An account activation email has been sent to you."), emptyString())
 
             RecordedRequest request = mockWebServer.takeRequest()
-            assertThat request.getRequestLine(), equalTo("POST /create HTTP/1.1")
+            assertThat request.getRequestLine(), equalTo("POST /api/v1/registration/reg405abrRAkn0TRf5d6/register HTTP/1.1")
             assertThat request.getHeader("Content-Type"), is("application/json")
             Map body = new JsonSlurper().parse(request.getBody().readByteArray(), StandardCharsets.UTF_8.toString())
             assertThat body, equalTo([
+                userProfile: [
                     firstName: "test-first",
                     lastName: "test-last",
                     email: "test-email@example.com",
-                    organization: "test co"
+                    country: "Petoria"
+                ]
             ])
 
             File oktaConfigFile = new File(result.homeDir, ".okta/okta.yaml")

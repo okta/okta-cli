@@ -21,21 +21,17 @@ public interface RegistrationQuestions {
 
     OrganizationRequest getOrganizationRequest();
 
-    String getVerificationCode();
-
-    static RegistrationQuestions answers(boolean overwriteConfig, OrganizationRequest request, String code) {
-        return new SimpleRegistrationQuestions(overwriteConfig, request, code);
+    static RegistrationQuestions answers(boolean overwriteConfig, OrganizationRequest request) {
+        return new SimpleRegistrationQuestions(overwriteConfig, request);
     }
 
     class SimpleRegistrationQuestions implements RegistrationQuestions {
         private final boolean overwriteConfig;
         private final OrganizationRequest organizationRequest;
-        private final String verificationCode;
 
-        public SimpleRegistrationQuestions(boolean overwriteConfig, OrganizationRequest organizationRequest, String verificationCode) {
+        public SimpleRegistrationQuestions(boolean overwriteConfig, OrganizationRequest organizationRequest) {
             this.overwriteConfig = overwriteConfig;
             this.organizationRequest = organizationRequest;
-            this.verificationCode = verificationCode;
         }
 
         public boolean isOverwriteExistingConfig(String oktaBaseUrl, String configFile) {
@@ -44,10 +40,6 @@ public interface RegistrationQuestions {
 
         public OrganizationRequest getOrganizationRequest() {
             return organizationRequest;
-        }
-
-        public String getVerificationCode() {
-            return verificationCode;
         }
     }
 }

@@ -46,7 +46,7 @@ trait CreateAppSupport {
         ]
     }
 
-    void verifyOrgCreateRequest(RecordedRequest request, String firstName = "test-first", String lastName = "test-last", String email = "test-email@example.com", String company = "test co") {
+    void verifyOrgCreateRequest(RecordedRequest request, String firstName = "test-first", String lastName = "test-last", String email = "test-email@example.com", String country = "Petoria") {
         assertThat request.getRequestLine(), equalTo("POST /create HTTP/1.1")
         assertThat request.getHeader("Content-Type"), equalTo("application/json")
         Map body = new JsonSlurper().parse(request.getBody().readByteArray(), StandardCharsets.UTF_8.toString())
@@ -54,7 +54,7 @@ trait CreateAppSupport {
                 firstName: firstName,
                 lastName: lastName,
                 email: email,
-                organization: company
+                country: country
         ])
     }
 

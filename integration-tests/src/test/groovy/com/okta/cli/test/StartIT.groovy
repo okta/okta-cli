@@ -48,8 +48,8 @@ class StartIT implements MockWebSupport, CreateAppSupport {
 
         List<MockResponse> responses = [
                 // reg requests
-                jsonRequest('{ "orgUrl": "' + orgUrl + '", "email": "test-email@example.com", "id": "test-id" }'),
-                jsonRequest('{ "orgUrl": "' + orgUrl + '", "email": "test-email@example.com", "apiToken": "fake-test-token", "updatePasswordUrl": "' + orgUrl + 'password-reset-link"}'),
+                jsonRequest('{ "orgUrl": "' + orgUrl + '", "email": "test-email@example.com", "developerOrgCliToken": "test-id" }'),
+                jsonRequest('{ "orgUrl": "' + orgUrl + '", "email": "test-email@example.com", "apiToken": "fake-test-token", "status": "ACTIVE" }'),
 
                 // list samples
                 jsonRequest([items: [
@@ -86,9 +86,8 @@ class StartIT implements MockWebSupport, CreateAppSupport {
                     "test-first",
                     "test-last",
                     "test-email@example.com",
-                    "test co",
-                    "123456",
-                    "", // accept prompt to change password
+                    "Petoria",
+                    "", // accept prompt to continue
                     // select a sample
                     "2"
             ]
@@ -96,8 +95,7 @@ class StartIT implements MockWebSupport, CreateAppSupport {
             def result = new CommandRunner(url(mockWebServer, "/")).runCommandWithInput(input, "start")
             assertThat result, resultMatches(0, allOf(
                         // registration
-                        containsString("An email has been sent to you with a verification code."),
-                        containsString("Verification code"),
+                        containsString("An account activation email has been sent to you."),
                         containsString("Select a sample"),
                         containsString("a test description"),
                         containsString("Change the directory:"),

@@ -22,11 +22,12 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class OrganizationResponse {
 
-    private String id;
     private String orgUrl;
-    private String email;
     private String apiToken;
-    private String factorId;
-    private String updatePasswordUrl;
+    private String developerOrgCliToken;
+    private String status; // ACTIVE or PENDING
 
+    public boolean isActive() {
+        return "ACTIVE".equals(status);
+    }
 }

@@ -30,6 +30,13 @@
     "allPublicFields": true
   },
   {
+    "name": "com.okta.cli.common.model.UserProfileRequestWrapper",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allPublicFields": true
+  },
+  {
     "name": "com.okta.cli.common.model.OrganizationResponse",
     "allDeclaredFields": true,
     "allDeclaredMethods": true,

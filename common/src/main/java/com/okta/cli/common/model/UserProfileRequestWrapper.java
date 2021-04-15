@@ -13,17 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.cli.common;
+package com.okta.cli.common.model;
 
-import com.okta.cli.common.model.ErrorResponse;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
-public class FactorVerificationException extends RestException {
+/**
+ * Okta's Registration API wraps the request in a "userProfile" node.
+ */
+@Data
+@Accessors(chain = true)
+public class UserProfileRequestWrapper {
 
-    public FactorVerificationException(ErrorResponse errorResponse, Throwable t) {
-        super(errorResponse, t);
-    }
+    private final OrganizationRequest userProfile;
 
-    public FactorVerificationException(ErrorResponse errorResponse) {
-        super(errorResponse);
+    public UserProfileRequestWrapper(OrganizationRequest userProfile) {
+        this.userProfile = userProfile;
     }
 }
