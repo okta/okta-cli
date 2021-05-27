@@ -61,7 +61,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2016]
+        os: [windows-current]
     env:
       REPO_SLUG: ${{ github.repository }}
       BRANCH: ${{ github.head_ref }}
@@ -79,9 +79,9 @@ jobs:
         run: gu install native-image
         shell: cmd
 
-      - name: Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools
+      - name: Set up Visual Studio 2019 Build Tools 16.9.5.0
         run: |
-          choco install visualstudio2017-workload-vctools
+          choco install visualstudio2019buildtools
 
       - name: Configure Pagefile
         uses: al-cheb/configure-pagefile-action@v1.2
@@ -101,7 +101,7 @@ jobs:
 
       - name: Build and Test
         run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
           mvnw -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -V install -Pci -e
         shell: cmd
 
