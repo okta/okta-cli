@@ -61,7 +61,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-current]
+        os: [windows-latest]
     env:
       REPO_SLUG: ${{ github.repository }}
       BRANCH: ${{ github.head_ref }}
@@ -79,9 +79,10 @@ jobs:
         run: gu install native-image
         shell: cmd
 
-      - name: Set up Visual Studio 2019 Build Tools 16.9.5.0
+      - name: Set up Visual Studio 2019 Build Tools & C++ Tools
         run: |
           choco install visualstudio2019buildtools
+          choco install visualstudio2019-workload-vctools
 
       - name: Configure Pagefile
         uses: al-cheb/configure-pagefile-action@v1.2
