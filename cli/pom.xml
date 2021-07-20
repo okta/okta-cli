@@ -168,7 +168,7 @@
             <plugin>
                 <groupId>org.graalvm.nativeimage</groupId>
                 <artifactId>native-image-maven-plugin</artifactId>
-                <version>21.1.0</version>
+                <version>21.2.0</version>
                 <configuration>
                     <mainClass>com.okta.cli.OktaCli</mainClass>
                     <skip>false</skip>
