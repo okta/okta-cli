@@ -49,7 +49,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <okta.sdk.version>4.0.0</okta.sdk.version>
+        <okta.sdk.version>4.1.1</okta.sdk.version>
         <slf4j.version>1.7.31</slf4j.version>
     </properties>
 
