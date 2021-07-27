@@ -28,6 +28,7 @@ import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.console.ConsoleOutput;
 import com.okta.cli.console.Prompter;
 import com.okta.commons.lang.Assert;
+import com.okta.commons.lang.Strings;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
 import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
@@ -44,6 +45,8 @@ import java.util.stream.Collectors;
 @CommandLine.Command(name = "create",
         description = "Create an new Okta app")
 public class AppsCreate extends BaseCommand {
+
+    private static final String NO_BASE_URL_ERROR = "Unable to find base URL, run `okta login` and try again";
 
     @CommandLine.Mixin
     private AppCreationMixin appCreationMixin;
@@ -196,10 +199,13 @@ public class AppsCreate extends BaseCommand {
 
     private String getBaseUrl() {
         try {
-            // TODO more hacking
-            return new DefaultSdkConfigurationService().loadUnvalidatedConfiguration().getBaseUrl();
+            String baseUrl = new DefaultSdkConfigurationService().loadUnvalidatedConfiguration().getBaseUrl();
+            if (Strings.isEmpty(baseUrl)) {
+                throw new IllegalStateException(NO_BASE_URL_ERROR);
+            }
+            return baseUrl;
         } catch (ClientConfigurationException e) {
-            throw new IllegalStateException("Unable to find base URL, run `okta login` and try again");
+            throw new IllegalStateException(NO_BASE_URL_ERROR, e);
         }
     }
 
