@@ -31,7 +31,7 @@ import picocli.CommandLine;
         description = "Show an Okta app's configuration")
 public class AppsConfig extends BaseCommand {
 
-    @CommandLine.Option(names = "--app", description = "App ID", required = true)
+    @CommandLine.Option(names = "--app", description = "App ID.", required = true)
     private String appName;
 
     @Override

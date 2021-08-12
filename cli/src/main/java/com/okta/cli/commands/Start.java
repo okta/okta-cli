@@ -61,7 +61,7 @@ public class Start extends BaseCommand {
     @CommandLine.Parameters(description = "Name of sample", arity = "0..1")
     private String sampleName;
 
-    @CommandLine.Option(names = {"--branch", "-b"}, description = "GitHub branch to use", hidden = true, defaultValue = "main")
+    @CommandLine.Option(names = {"--branch", "-b"}, description = "GitHub branch to use.", hidden = true, defaultValue = "main")
     private String branchName;
 
     @Override
