@@ -103,12 +103,12 @@ public class OktaCli implements Runnable {
             environment.setConsoleColors(color == ColorOptions.always);
         }
 
-        @Option(names = "--batch", description = "Batch mode, will not prompt for user input")
+        @Option(names = "--batch", description = "Batch mode. Will not prompt for user input.")
         public void setBatch(boolean batch) {
             environment.setInteractive(!batch);
         }
 
-        @Option(names = "--verbose", description = "Verbose logging")
+        @Option(names = "--verbose", description = "Verbose logging.")
         public void setVerbose(boolean verbose) {
             this.environment.setVerbose(verbose);
             if (verbose) {
@@ -120,7 +120,7 @@ public class OktaCli implements Runnable {
             return getEnvironment().isVerbose();
         }
 
-        @Option(names = "-D", hidden = true, description = "Set Java System Property key value pairs", paramLabel = "<key=value>")
+        @Option(names = "-D", hidden = true, description = "Set Java System Property key value pairs.", paramLabel = "<key=value>")
         public void setSystemProperties(List<String> props) {
             if (props != null) {
                 props.forEach(it -> {

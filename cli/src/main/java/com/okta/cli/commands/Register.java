@@ -32,16 +32,16 @@ import picocli.CommandLine.Command;
          description = "Sign up for a new Okta account")
 public class Register extends BaseCommand {
 
-    @CommandLine.Option(names = "--email", description = "Email used when registering a new Okta account")
+    @CommandLine.Option(names = "--email", description = "Email used when registering a new Okta account.")
     protected String email;
 
-    @CommandLine.Option(names = "--first-name", description = "First name used when registering a new Okta account")
+    @CommandLine.Option(names = "--first-name", description = "First name used when registering a new Okta account.")
     protected String firstName;
 
-    @CommandLine.Option(names = "--last-name", description = "Last name used when registering a new Okta account")
+    @CommandLine.Option(names = "--last-name", description = "Last name used when registering a new Okta account.")
     protected String lastName;
 
-    @CommandLine.Option(names = "--company", description = "Company / organization used when registering a new Okta account")
+    @CommandLine.Option(names = "--company", description = "Company/organization used when registering a new Okta account.")
     protected String company;
 
     public Register() {}

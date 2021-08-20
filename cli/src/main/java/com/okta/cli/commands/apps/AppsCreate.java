@@ -43,7 +43,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @CommandLine.Command(name = "create",
-        description = "Create an new Okta app")
+        description = "Create a new Okta app")
 public class AppsCreate extends BaseCommand {
 
     private static final String NO_BASE_URL_ERROR = "Unable to find base URL, run `okta login` and try again";
