@@ -26,13 +26,13 @@ public class AppCreationMixin {
     @CommandLine.Option(names = "--config-file", description = {"Application config file, will search for:", " - src/main/resources/application.yml", " - src/main/resources/application.properties", " - .okta.env" })
     public File configFile;
 
-    @CommandLine.Option(names = "--app-name", description = "Application name to be created, defaults to current directory name")
+    @CommandLine.Option(names = "--app-name", description = "Application name to be created, defaults to current directory name.")
     public String appName;
 
-    @CommandLine.Option(names = "--authorization-server-id", description = "Okta Authorization Server Id")
+    @CommandLine.Option(names = "--authorization-server-id", description = "Okta Authorization Server Id.")
     public String authorizationServerId;
 
-    @CommandLine.Option(names = "--redirect-uri", description = "OIDC Redirect URI")
+    @CommandLine.Option(names = "--redirect-uri", description = "OIDC Redirect URI.")
     public String redirectUri;
 
     public MutablePropertySource getPropertySource(String defaultConfigFile) {

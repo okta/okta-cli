@@ -39,7 +39,7 @@ import static java.lang.Thread.sleep;
                      hidden = true)
 public class Logs extends BaseCommand {
 
-    @CommandLine.Option(names = {"-f", "--follow"}, description = "Polls for new log events")
+    @CommandLine.Option(names = {"-f", "--follow"}, description = "Polls for new log events.")
     protected boolean follow;
 
     @Override

@@ -32,7 +32,7 @@ public class AppsDelete extends BaseCommand {
     @CommandLine.Parameters(index="0..*", arity = "1..*", description = "List of application IDs to be deleted")
     private List<String> appIds;
 
-    @CommandLine.Option(names = {"-f", "--force"}, description = "Deactivate and delete applications")
+    @CommandLine.Option(names = {"-f", "--force"}, description = "Deactivate and delete applications.")
     private boolean force = false;
 
     @Override

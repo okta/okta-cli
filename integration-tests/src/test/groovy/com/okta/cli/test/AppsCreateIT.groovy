@@ -236,6 +236,20 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
     }
 
     @Test
+    void createAppNativeNotLoggedIn() {
+
+        List<String> input = [
+                "",  // default of "test-project"
+        ]
+
+        def result = new CommandRunner()
+                .runCommandWithInput(input,"--color=never", "apps", "create", "native")
+
+        assertThat result, resultMatches(1, null,
+                containsString("Unable to find base URL, run `okta login` and try again"))
+    }
+
+    @Test
     void createWebApp() {
         MockWebServer mockWebServer = createMockServer()
         List<MockResponse> responses = [
