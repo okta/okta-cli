@@ -7,7 +7,7 @@ Okta CLI
 
 The Okta CLI is the easiest way to get started with Okta! 
 
-If you are a Java developer using Apache Maven, also checkout the [Okta Maven Plugin](https://github.com/oktadeveloper/okta-maven-plugin). 
+Take a look at the [Okta CLI Documentation](https://cli.okta.com/) to learn how to install and use the Okta CLI or follow the installation instructions below.
 
 ## Installation
 
