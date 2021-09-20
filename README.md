@@ -15,6 +15,8 @@ If you are a Java developer using Apache Maven, also checkout the [Okta Maven Pl
         width="100">
 </a>
 
+Take a look at the [Okta CLI Documentation](https://cli.okta.com/) to learn how to install and use the Okta CLI or follow the installation instructions below.
+
 ## Installation
 
 **macOS (via [Homebrew](https://brew.sh/)):**
