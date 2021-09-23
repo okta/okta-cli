@@ -19,7 +19,7 @@ import com.okta.sdk.authc.credentials.ClientCredentials
 import com.okta.sdk.client.Client
 import com.okta.sdk.impl.client.DefaultClientBuilder
 import com.okta.sdk.impl.ds.JacksonMapMarshaller
-import com.okta.sdk.impl.util.BaseUrlResolver
+import com.okta.commons.http.config.BaseUrlResolver
 import com.okta.sdk.resource.application.*
 import com.okta.sdk.resource.group.Group
 import com.okta.sdk.resource.group.GroupProfile
