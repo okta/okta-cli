@@ -16,6 +16,7 @@
 package com.okta.cli.common.config;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -47,6 +48,6 @@ public class MapPropertySource implements MutablePropertySource {
 
     @Override
     public Map<String, String> getProperties() {
-        return properties;
+        return Collections.unmodifiableMap(properties);
     }
 }

@@ -21,12 +21,13 @@ import com.okta.sdk.impl.resource.ArrayProperty;
 import com.okta.sdk.impl.resource.Property;
 import com.okta.sdk.resource.user.User;
 
+import java.util.Collections;
 import java.util.Map;
 
 public class AuthorizationServerList extends AbstractCollectionResource<AuthorizationServer> {
 
     private static final ArrayProperty<User> ITEMS = new ArrayProperty<>("items", User.class);
-    private static final Map<String, Property> PROPERTY_DESCRIPTORS = createPropertyDescriptorMap(ITEMS);
+    private static final Map<String, Property> PROPERTY_DESCRIPTORS = Collections.unmodifiableMap(createPropertyDescriptorMap(ITEMS));
 
     public AuthorizationServerList(InternalDataStore dataStore) {
         super(dataStore);
