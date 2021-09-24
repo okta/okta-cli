@@ -90,4 +90,40 @@
         <Bug pattern="IMPROPER_UNICODE"/>
     </Match>
 
+    <Match>
+        <!-- Lombok based beans ideally would return an unmodifiable collection -->
+        <Package name="com.okta.cli.common.model"/>
+        <OR>
+            <Bug pattern="EI_EXPOSE_REP"/>
+            <Bug pattern="EI_EXPOSE_REP2"/>
+        </OR>
+    </Match>
+
+    <Match>
+        <!-- Lombok based beans ideally would return an unmodifiable collection -->
+        <Class name="com.okta.cli.common.service.DefaultSetupService"/>
+        <Method name="&lt;init&gt;"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+
+    <!-- medium confidence, these objects do not mutate in the context of the project -->
+    <Match>
+        <Priority value="2" />
+        <Class name="com.okta.cli.Environment"/>
+        <Method name="getConsoleOutput"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Priority value="2" />
+        <OR>
+            <Package name="com.okta.cli.commands"/>
+            <Package name="com.okta.cli.commands.apps.templates"/>
+        </OR>
+        <OR>
+            <Bug pattern="EI_EXPOSE_REP"/>
+            <Bug pattern="EI_EXPOSE_REP2"/>
+        </OR>
+    </Match>
+
+
 </FindBugsFilter>
