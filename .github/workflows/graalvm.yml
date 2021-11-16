@@ -36,7 +36,7 @@ jobs:
       RUN_IT: true
       OKTA_ITS_TIMEOUT: PT45s
     steps:
-      - uses: actions/checkout@v2.3.5
+      - uses: actions/checkout@v2.4.0
 
       - name: Set up GraalVM (Java 11)
         uses: DeLaGuardo/setup-graalvm@5.0
@@ -68,7 +68,7 @@ jobs:
       RUN_IT: true
 
     steps:
-      - uses: actions/checkout@v2.3.5
+      - uses: actions/checkout@v2.4.0
       - uses: ilammy/msvc-dev-cmd@v1.9.0
       - uses: microsoft/setup-msbuild@v1.0.2
 
