@@ -37,7 +37,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                                         jsonRequest('[]'),
                                         // POST /api/v1/apps
                                         jsonRequest('{ "id": "test-app-id", "label": "test-app-name" }'),
-                                        // GET /api/v1/groups?q=everyone
+                                        // GET /api/v1/groups?search=profile.name eq "everyone"
                                         jsonRequest("[${everyoneGroup()}]"),
                                         // PUT /api/v1/apps/test-app-id/groups/every1-id
                                         jsonRequest('{}'),
@@ -76,7 +76,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             verify(mockWebServer.takeRequest(), "GET", "/api/v1/authorizationServers")
             verify(mockWebServer.takeRequest(), "GET", "/api/v1/apps", "q=test-project")
             verifyRedirectUri(mockWebServer.takeRequest(), ["http://localhost:8080/callback"])
-            verify(mockWebServer.takeRequest(), "GET", "/api/v1/groups", "q=everyone")
+            verify(mockWebServer.takeRequest(), "GET", "/api/v1/groups", "search=profile.name eq \"everyone\"")
             verify(mockWebServer.takeRequest(), "PUT", "/api/v1/apps/test-app-id/groups/every1-id")
             verify(mockWebServer.takeRequest(), "GET", "/api/v1/internal/apps/test-app-id/settings/clientcreds")
             verify(mockWebServer.takeRequest(), "GET", "/api/v1/trustedOrigins")
@@ -95,7 +95,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                 jsonRequest('[]'),
                 // POST /api/v1/apps
                 jsonRequest('{ "id": "test-app-id", "label": "test-app-name" }'),
-                // GET /api/v1/groups?q=everyone
+                // GET /api/v1/groups?search=profile.name eq "everyone"
                 jsonRequest("[${everyoneGroup()}]"),
                 // PUT /api/v1/apps/test-app-id/groups/every1-id
                 jsonRequest('{}'),
@@ -133,7 +133,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             verify(mockWebServer.takeRequest(), "GET", "/api/v1/authorizationServers")
             verify(mockWebServer.takeRequest(), "GET", "/api/v1/apps", "q=test-project")
             verifyRedirectUri(mockWebServer.takeRequest(), ["http://localhost:8080/callback"])
-            verify(mockWebServer.takeRequest(), "GET", "/api/v1/groups", "q=everyone")
+            verify(mockWebServer.takeRequest(), "GET", "/api/v1/groups", "search=profile.name eq \"everyone\"")
             verify(mockWebServer.takeRequest(), "PUT", "/api/v1/apps/test-app-id/groups/every1-id")
             verify(mockWebServer.takeRequest(), "GET", "/api/v1/internal/apps/test-app-id/settings/clientcreds")
             verify(mockWebServer.takeRequest(), "GET", "/api/v1/trustedOrigins")
@@ -151,7 +151,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                                         jsonRequest('[]'),
                                         // POST /api/v1/apps
                                         jsonRequest('{ "id": "test-app-id", "label": "test-app-name" }'),
-                                        // GET /api/v1/groups?q=everyone
+                                        // GET /api/v1/groups?search=profile.name eq "everyone"
                                         jsonRequest("[${everyoneGroup()}]"),
                                         // PUT /api/v1/apps/test-app-id/groups/every1-id
                                         jsonRequest('{}'),
@@ -199,7 +199,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                 jsonRequest('[]'),
                 // POST /api/v1/apps
                 jsonRequest('{ "id": "test-app-id", "label": "test-app-name" }'),
-                // GET /api/v1/groups?q=everyone
+                // GET /api/v1/groups?search=profile.name eq "everyone"
                 jsonRequest("[${everyoneGroup()}]"),
                 // PUT /api/v1/apps/test-app-id/groups/every1-id
                 jsonRequest('{}'),
@@ -259,7 +259,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                                         jsonRequest('[]'),
                                         // POST /api/v1/apps
                                         jsonRequest('{ "id": "test-app-id", "label": "test-app-name" }'),
-                                        // GET /api/v1/groups?q=everyone
+                                        // GET /api/v1/groups?search=profile.name eq "everyone"
                                         jsonRequest("[${everyoneGroup()}]"),
                                         // PUT /api/v1/apps/test-app-id/groups/every1-id
                                         jsonRequest('{}'),
@@ -305,7 +305,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                 jsonRequest('[]'),
                 // POST /api/v1/apps
                 jsonRequest('{ "id": "test-app-id", "label": "test-app-name" }'),
-                // GET /api/v1/groups?q=everyone
+                // GET /api/v1/groups?search=profile.name eq "everyone"
                 jsonRequest("[${everyoneGroup()}]"),
                 // PUT /api/v1/apps/test-app-id/groups/every1-id
                 jsonRequest('{}'),
@@ -354,7 +354,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                                         jsonRequest('[]'),
                                         // POST /api/v1/apps
                                         jsonRequest('{ "id": "test-app-id", "label": "test-app-name" }'),
-                                        // GET /api/v1/groups?q=everyone
+                                        // GET /api/v1/groups?search=profile.name eq "everyone"
                                         jsonRequest("[${everyoneGroup()}]"),
                                         // PUT /api/v1/apps/test-app-id/groups/every1-id
                                         jsonRequest('{}'),
@@ -393,7 +393,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                                         jsonRequest('[]'),
                                         // POST /api/v1/apps
                                         jsonRequest('{ "id": "test-app-id", "label": "test-app-name" }'),
-                                        // GET /api/v1/groups?q=everyone
+                                        // GET /api/v1/groups?search=profile.name eq "everyone"
                                         jsonRequest("[${everyoneGroup()}]"),
                                         // PUT /api/v1/apps/test-app-id/groups/every1-id
                                         jsonRequest('{}'),
