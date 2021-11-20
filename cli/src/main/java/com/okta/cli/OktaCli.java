@@ -44,6 +44,8 @@ import java.util.List;
                 AutoComplete.GenerateCompletion.class})
 public class OktaCli implements Runnable {
 
+    public static final String VERSION = ApplicationInfo.get().get("okta-cli");
+
     @Spec
     private CommandSpec spec;
 
@@ -148,8 +150,7 @@ public class OktaCli implements Runnable {
 
         @Override
         public String[] getVersion() throws Exception {
-            String version = ApplicationInfo.get().get("okta-cli");
-            return new String[] {version };
+            return new String[] { VERSION };
         }
     }
 }
