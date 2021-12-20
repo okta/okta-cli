@@ -30,19 +30,19 @@
         <dependency>
             <groupId>com.okta.sdk</groupId>
             <artifactId>okta-sdk-api</artifactId>
-            <version>4.1.0</version>
+            <version>8.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.okta.sdk</groupId>
             <artifactId>okta-sdk-impl</artifactId>
-            <version>4.1.0</version>
+            <version>8.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.okta.sdk</groupId>
             <artifactId>okta-sdk-httpclient</artifactId>
-            <version>4.1.0</version>
+            <version>8.0.0</version>
             <scope>runtime</scope>
         </dependency>
 
