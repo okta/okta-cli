@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.okta.cli</groupId>
         <artifactId>okta-cli-tools</artifactId>
-        <version>0.9.0</version>
+        <version>0.9.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>okta-cli-its</artifactId>
