@@ -39,12 +39,12 @@ jobs:
       - uses: actions/checkout@v2.4.0
 
       - name: Set up GraalVM (Java 11)
-        uses: DeLaGuardo/setup-graalvm@5.0
+        uses: graalvm/setup-graalvm@v1.0.2
         with:
-          graalvm-version: '21.3.0.java11'
-
-      - name: Install native-image
-        run: gu install native-image
+          version: '21.3.0'
+          java-version: '11'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Test
         run: ./src/ci/gh-build.sh
@@ -73,13 +73,12 @@ jobs:
       - uses: microsoft/setup-msbuild@v1.0.2
 
       - name: Set up GraalVM (Java 11)
-        uses: DeLaGuardo/setup-graalvm@5.0
+        uses: graalvm/setup-graalvm@v1.0.2
         with:
-          graalvm-version: '21.3.0.java11'
-
-      - name: Install native-image
-        run: gu install native-image
-        shell: cmd
+          version: '21.3.0'
+          java-version: '11'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Pagefile
         uses: al-cheb/configure-pagefile-action@v1.2
