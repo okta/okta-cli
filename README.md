@@ -33,9 +33,11 @@ To update to a new CLI version:
 brew reinstall okta
 ```
 
->**NOTE**<br/>
+>**NOTE**
+> 
 >If you have issues installing the latest version, try removing the CLI using `brew untap` and then running `brew install` again:
 >
+
 ```bash
 brew untap oktadeveloper/tap
 brew install --cask oktadeveloper/tap/okta
