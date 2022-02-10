@@ -83,7 +83,7 @@ class DefaultOidcAppCreator implements OidcAppCreator {
             OpenIdConnectApplicationSettingsClient oauthClient = client.instantiate(OpenIdConnectApplicationSettingsClient.class)
                     .setRedirectUris(redirectUris)
                     .setResponseTypes(Collections.singletonList(OAuthResponseType.CODE))
-                    .setGrantTypes(Collections.singletonList(OAuthGrantType.AUTHORIZATION_CODE))
+                    .setGrantTypes(List.of(OAuthGrantType.AUTHORIZATION_CODE, OAuthGrantType.REFRESH_TOKEN))
                     .setApplicationType(OpenIdConnectApplicationType.NATIVE);
 
             Application app = client.instantiate(OpenIdConnectApplication.class)

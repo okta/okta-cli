@@ -245,7 +245,7 @@ class DefaultOidcAppCreatorTest {
         verify(settingsClient).setRedirectUris(["http://localhost:8080/callback",
                                                 "http://localhost:8080/login/oauth2/code/okta"])
         verify(settingsClient).setResponseTypes([OAuthResponseType.CODE])
-        verify(settingsClient).setGrantTypes([OAuthGrantType.AUTHORIZATION_CODE])
+        verify(settingsClient).setGrantTypes([OAuthGrantType.AUTHORIZATION_CODE, OAuthGrantType.REFRESH_TOKEN])
         verify(settingsClient).setApplicationType(OpenIdConnectApplicationType.NATIVE)
         verify(settingsClient, never()).setPostLogoutRedirectUris(any(List))
     }
