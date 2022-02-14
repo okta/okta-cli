@@ -15,7 +15,6 @@
  */
 package com.okta.cli.test
 
-import com.okta.cli.common.model.ErrorResponse
 import groovy.json.JsonSlurper
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -34,7 +33,7 @@ class RegisterIT implements MockWebSupport {
     void happyPath() {
 
         List<MockResponse> responses = [
-                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "developerOrgCliToken": "test-id" }'),
+                jsonRequest('{ "developerOrgCliToken": "test-id" }'),
                 jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "apiToken": "fake-test-token", "status": "ACTIVE" }')
         ]
 
@@ -62,7 +61,8 @@ class RegisterIT implements MockWebSupport {
                     firstName: "test-first",
                     lastName: "test-last",
                     email: "test-email@example.com",
-                    country: "Petoria"
+                    country: "Petoria",
+                    okta_oie: true
                 ]
             ])
 
@@ -75,7 +75,7 @@ class RegisterIT implements MockWebSupport {
     void existingConfigFile_overwrite() {
 
         List<MockResponse> responses = [
-                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "developerOrgCliToken": "test-id" }'),
+                jsonRequest('{ "developerOrgCliToken": "test-id" }'),
                 jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "apiToken": "fake-test-token", "status": "ACTIVE" }\') }')
         ]
 
@@ -95,16 +95,23 @@ class RegisterIT implements MockWebSupport {
                     .withHomeDirectory {
                         File oktaYaml = new File(it, ".okta/okta.yaml")
                         oktaYaml.getParentFile().mkdirs()
-                        oktaYaml.write("""
-okta:
-  client:
-    orgUrl: https://test.example.com
-    token: test-token
-""")
+                        oktaYaml.write(
+                        """\
+                        okta:
+                          client:
+                            orgUrl: https://test.example.com
+                            token: test-token
+                        """.stripIndent())
                     }
 
             def result = runner.runCommandWithInput(input, "register")
-            assertThat result, resultMatches(0, containsString("An account activation email has been sent to you."), emptyString())
+            assertThat result, resultMatches(0, allOf(
+                    containsString("Creating new Okta Organization, this may take a minute:"),
+                    containsString("An account activation email has been sent to you."),
+                    containsString("Check your email"),
+                    containsString("New Okta Account created!"),
+                    containsString("Your Okta Domain: https://result.example.com")
+            ), emptyString())
 
             RecordedRequest request = mockWebServer.takeRequest()
             assertThat request.getRequestLine(), equalTo("POST /api/v1/registration/reg405abrRAkn0TRf5d6/register HTTP/1.1")
@@ -115,7 +122,8 @@ okta:
                     firstName: "test-first",
                     lastName: "test-last",
                     email: "test-email@example.com",
-                    country: "Petoria"
+                    country: "Petoria",
+                    okta_oie: true
                 ]
             ])
 
@@ -135,12 +143,13 @@ okta:
                     .withHomeDirectory {
                         File oktaYaml = new File(it, ".okta/okta.yaml")
                         oktaYaml.getParentFile().mkdirs()
-                        oktaYaml.write("""
-okta:
-  client:
-    orgUrl: https://test.example.com
-    token: test-token
-""")
+                        oktaYaml.write(
+                            """\
+                            okta:
+                              client:
+                                orgUrl: https://test.example.com
+                                token: test-token
+                            """.stripIndent())
                     }
 
         def result = runner.runCommandWithInput(input, "register")
@@ -154,7 +163,7 @@ okta:
     @Test
     void pollingTest() {
         List<MockResponse> responses = [
-                jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "developerOrgCliToken": "test-id" }'),
+                jsonRequest('{ "developerOrgCliToken": "test-id" }'),
                 jsonRequest('{ "status": "PENDING" }'),
                 jsonRequest('{ "orgUrl": "https://result.example.com", "email": "test-email@example.com", "apiToken": "fake-test-token", "status": "ACTIVE" }')
         ]
@@ -182,7 +191,8 @@ okta:
                     firstName: "test-first",
                     lastName: "test-last",
                     email: "test-email@example.com",
-                    country: "Petoria"
+                    country: "Petoria",
+                    okta_oie: true
                 ]
             ])
 

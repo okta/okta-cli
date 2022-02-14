@@ -16,6 +16,7 @@
 package com.okta.cli.common.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -28,4 +29,7 @@ public class OrganizationRequest {
     private String lastName;
     private String email;
     private String country;
+
+    @JsonProperty("okta_oie")
+    private Boolean oie;
 }

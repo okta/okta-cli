@@ -47,6 +47,9 @@ public class Register extends BaseCommand {
     @CommandLine.Option(names = "--country", description = "Country of residence")
     protected String country;
 
+    @CommandLine.Option(names = "--oie", description = "Create Okta account with OIE enabled.", defaultValue = "true", hidden = true, negatable = true)
+    protected Boolean oie = Boolean.TRUE;
+
     public Register() {}
 
     private Register(OktaCli.StandardOptions standardOptions) {
@@ -107,7 +110,8 @@ public class Register extends BaseCommand {
                     .setFirstName(prompter.promptUntilValue(firstName, "First name"))
                     .setLastName(prompter.promptUntilValue(lastName, "Last name"))
                     .setEmail(prompter.promptUntilValue(email, "Email address"))
-                    .setCountry(prompter.promptUntilValue(country, "Country"));
+                    .setCountry(prompter.promptUntilValue(country, "Country"))
+                    .setOie(oie);
         }
     }
 }
