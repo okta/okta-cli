@@ -56,4 +56,22 @@ public abstract class BaseCommand implements Callable<Integer> {
     protected Environment getEnvironment() {
         return standardOptions.getEnvironment();
     }
+
+    protected ConfigQuestions configQuestions() {
+        return new ConfigQuestions(this);
+    }
+
+    protected static class ConfigQuestions {
+
+        private final BaseCommand command;
+
+        ConfigQuestions(BaseCommand command) {
+            this.command = command;
+        }
+
+        public boolean isOverwriteExistingConfig(String oktaBaseUrl, String configFile) {
+            command.getConsoleOutput().writeLine("An existing Okta Organization (" + oktaBaseUrl + ") was found in " + configFile);
+            return command.getPrompter().promptYesNo("Overwrite configuration file?");
+        }
+    }
 }

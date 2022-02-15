@@ -98,9 +98,7 @@ public class DefaultSetupService implements SetupService {
         try (ProgressBar progressBar = ProgressBar.create(interactive)) {
 
             if (!Strings.isEmpty(clientConfiguration.getBaseUrl())) {
-                progressBar.info("An existing Okta Organization (" + clientConfiguration.getBaseUrl() + ") was found in "+ oktaPropsFile.getAbsolutePath());
-
-                if (!registrationQuestions.isOverwriteConfig()) {
+                if (!registrationQuestions.isOverwriteExistingConfig(clientConfiguration.getBaseUrl(), oktaPropsFile.getAbsolutePath())) {
                     throw new ClientConfigurationException("User canceled");
                 }
 

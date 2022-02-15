@@ -37,23 +37,21 @@ public class Login extends BaseCommand {
 
         ConsoleOutput out = getConsoleOutput();
 
-        if (Strings.isEmpty(orgUrl) || Strings.isEmpty(clientConfiguration.getApiToken())) {
-
-            if (!Strings.isEmpty(orgUrl)) {
-                out.writeLine("Using Okta URL: " + orgUrl);
-            } else {
-                orgUrl = getPrompter().promptUntilValue(orgUrl, "Okta Org URL");
-                ConfigurationValidator.assertOrgUrl(orgUrl);
-            }
-
-            out.writeLine("Enter your Okta API token, for more information see: https://bit.ly/get-okta-api-token");
-            String apiToken = getPrompter().promptUntilValue(null, "Okta API token");
-            ConfigurationValidator.assertApiToken(apiToken);
-
-            sdkConfigurationService.writeOktaYaml(orgUrl, apiToken, getEnvironment().getOktaPropsFile());
-        } else {
-            out.writeLine("Okta Org already configured: "+ orgUrl);
+        // prompt user to overwrite config file
+        if (Strings.hasText(orgUrl)
+            && !configQuestions().isOverwriteExistingConfig(orgUrl, getEnvironment().getOktaPropsFile().getAbsolutePath())) {
+            return 0;
         }
+
+        // prompt for Base URL
+        orgUrl = getPrompter().promptUntilValue("Okta Org URL");
+        ConfigurationValidator.assertOrgUrl(orgUrl);
+
+        out.writeLine("Enter your Okta API token, for more information see: https://bit.ly/get-okta-api-token");
+        String apiToken = getPrompter().promptUntilValue(null, "Okta API token");
+        ConfigurationValidator.assertApiToken(apiToken);
+
+        sdkConfigurationService.writeOktaYaml(orgUrl, apiToken, getEnvironment().getOktaPropsFile());
 
         return 0;
     }
