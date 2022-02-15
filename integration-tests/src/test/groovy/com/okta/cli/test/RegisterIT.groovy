@@ -48,7 +48,7 @@ class RegisterIT implements MockWebSupport {
                     "Petoria",
             ]
 
-            def result = new CommandRunner(url(mockWebServer, "/")).runCommandWithInput(input, "register", "--verbose")
+            def result = new CommandRunner(url(mockWebServer, "/")).runCommandWithInput(input, "register")
             assertThat result, resultMatches(0, allOf(containsString("An account activation email has been sent to you.")), emptyString())
 
 
