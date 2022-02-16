@@ -32,7 +32,7 @@ public interface SetupService {
     OrganizationResponse createOktaOrg(RegistrationQuestions registrationQuestions,
                                        File oktaPropsFile,
                                        boolean demo,
-                                       boolean interactive) throws IOException, ClientConfigurationException;
+                                       boolean interactive) throws IOException, ClientConfigurationException, UserCanceledException;
 
     void verifyOktaOrg(String identifier,
                        RegistrationQuestions registrationQuestions,

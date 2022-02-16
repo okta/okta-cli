@@ -153,7 +153,7 @@ class RegisterIT implements MockWebSupport {
                     }
 
         def result = runner.runCommandWithInput(input, "register")
-        assertThat result, resultMatches(1, containsString("Overwrite configuration file?"), containsString("User canceled"))
+        assertThat result, resultMatches(2, containsString("Overwrite configuration file?"), emptyString())
 
         File oktaConfigFile = new File(result.homeDir, ".okta/okta.yaml")
         assertThat oktaConfigFile, new OktaConfigMatcher("https://test.example.com", "test-token")

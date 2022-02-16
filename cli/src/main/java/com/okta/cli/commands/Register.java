@@ -23,14 +23,19 @@ import com.okta.cli.common.model.RegistrationQuestions;
 import com.okta.cli.common.service.DefaultSdkConfigurationService;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.common.service.SetupService;
+import com.okta.cli.common.service.UserCanceledException;
 import com.okta.cli.console.ConsoleOutput;
 import com.okta.cli.console.Prompter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 @Command(name = "register",
          description = "Sign up for a new Okta account")
 public class Register extends BaseCommand {
+
+    private final Logger logger = LoggerFactory.getLogger(Register.class);
 
     @CommandLine.Option(names = "--email", description = "Email used when registering a new Okta account.")
     protected String email;
@@ -76,17 +81,21 @@ public class Register extends BaseCommand {
 
         CliRegistrationQuestions registrationQuestions = registrationQuestions();
 
-        SetupService setupService = new DefaultSetupService(OidcProperties.oktaEnv());
-        OrganizationResponse orgResponse = setupService.createOktaOrg(registrationQuestions,
-                                   getEnvironment().getOktaPropsFile(),
-                                   getEnvironment().isDemo(),
-                                   getEnvironment().isInteractive());
+        try {
+            SetupService setupService = new DefaultSetupService(OidcProperties.oktaEnv());
+            OrganizationResponse orgResponse = setupService.createOktaOrg(registrationQuestions,
+                    getEnvironment().getOktaPropsFile(),
+                    getEnvironment().isDemo(),
+                    getEnvironment().isInteractive());
 
-        String identifier = orgResponse.getDeveloperOrgCliToken();
-        setupService.verifyOktaOrg(identifier,
-                registrationQuestions,
-                getEnvironment().getOktaPropsFile());
-
+            String identifier = orgResponse.getDeveloperOrgCliToken();
+            setupService.verifyOktaOrg(identifier,
+                    registrationQuestions,
+                    getEnvironment().getOktaPropsFile());
+        } catch (UserCanceledException e) {
+            logger.debug("User canceled registration.", e);
+            return 2;
+        }
         return 0;
 
 

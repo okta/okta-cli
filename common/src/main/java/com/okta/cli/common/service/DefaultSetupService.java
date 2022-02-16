@@ -89,7 +89,7 @@ public class DefaultSetupService implements SetupService {
     public OrganizationResponse createOktaOrg(RegistrationQuestions registrationQuestions,
                                               File oktaPropsFile,
                                               boolean demo,
-                                              boolean interactive) throws IOException, ClientConfigurationException {
+                                              boolean interactive) throws IOException, ClientConfigurationException, UserCanceledException {
 
 
         // check if okta client config exists?
@@ -99,7 +99,7 @@ public class DefaultSetupService implements SetupService {
 
             if (!Strings.isEmpty(clientConfiguration.getBaseUrl())) {
                 if (!registrationQuestions.isOverwriteExistingConfig(clientConfiguration.getBaseUrl(), oktaPropsFile.getAbsolutePath())) {
-                    throw new ClientConfigurationException("User canceled");
+                    throw new UserCanceledException();
                 }
 
                 Instant instant = Instant.now();
