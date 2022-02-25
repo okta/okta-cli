@@ -23,6 +23,8 @@ import static com.okta.cli.test.CommandRunner.resultMatches
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.allOf
 import static org.hamcrest.Matchers.containsString
+import static org.hamcrest.Matchers.nullValue
+import static org.hamcrest.Matchers.is
 
 class AppsIT implements MockWebSupport {
 
@@ -43,6 +45,32 @@ class AppsIT implements MockWebSupport {
             assertThat result, resultMatches(0, allOf(containsString("app-id-1\tApp 1"),
                                                                containsString("app-id-2\tApp 2")),
                                                           null)
+
+            // by default the extra filter query filter should be added to limit only active apps
+            assertThat mockWebServer.takeRequest().requestUrl.queryParameter("filter"), is('status eq "ACTIVE"')
+        }
+    }
+
+    @Test
+    void listAllApps() {
+        List<MockResponse> responses = [new MockResponse()
+                                                .setBody('[{ "id": "app-id-1", "label": "App 1" }, { "id": "app-id-2", "label": "App 2" }]')
+                                                .setHeader("Content-Type", "application/json")]
+
+        MockWebServer mockWebServer = createMockServer()
+        mockWebServer.with {
+            responses.forEach { mockWebServer.enqueue(it) }
+
+            def result = new CommandRunner()
+                    .withSdkConfig(url(mockWebServer,"/"))
+                    .runCommand("-Dokta.testing.disableHttpsCheck=true", "apps", "--all")
+
+            assertThat result, resultMatches(0, allOf(containsString("app-id-1\tApp 1"),
+                    containsString("app-id-2\tApp 2")),
+                    null)
+
+            // adding the `--all` flag will remove the search filter, and return all apps
+            assertThat mockWebServer.takeRequest().requestUrl.queryParameter("filter"), nullValue()
         }
     }
 }

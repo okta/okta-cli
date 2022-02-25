@@ -17,6 +17,7 @@ package com.okta.cli.commands.apps;
 
 import com.okta.cli.commands.BaseCommand;
 import com.okta.sdk.client.Clients;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 @Command(name = "apps",
@@ -27,11 +28,16 @@ import picocli.CommandLine.Command;
                     AppsDelete.class})
 public class Apps extends BaseCommand {
 
+    @CommandLine.Option(names = "--all", description = "Include deactivated applications in result.", defaultValue = "false")
+    private boolean includeAll = false;
+
     @Override
     public int runCommand() throws Exception {
 
+        String searchFilter = includeAll ? null : "status eq \"ACTIVE\"";
+
         Clients.builder().build()
-                .listApplications().stream()
+                .listApplications(null, searchFilter, null, null).stream()
                 .forEach(app -> {
                     getConsoleOutput().writeLine(app.getId() + "\t" + app.getLabel());
                 });
