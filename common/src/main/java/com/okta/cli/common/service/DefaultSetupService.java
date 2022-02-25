@@ -27,7 +27,6 @@ import com.okta.commons.configcheck.ConfigurationValidator;
 import com.okta.commons.lang.Collections;
 import com.okta.commons.lang.Strings;
 import com.okta.sdk.client.Client;
-import com.okta.sdk.client.Clients;
 import com.okta.sdk.impl.config.ClientConfiguration;
 import com.okta.sdk.impl.resource.DefaultGroupBuilder;
 import com.okta.sdk.resource.ExtensibleResource;
@@ -172,7 +171,8 @@ public class DefaultSetupService implements SetupService {
                                       OpenIdConnectApplicationType appType,
                                       List<String> redirectUris,
                                       List<String> postLogoutRedirectUris,
-                                      List<String> trustedOrigins) throws IOException {
+                                      List<String> trustedOrigins,
+                                      Client client) throws IOException {
 
         // Create new Application
         String clientId = propertySource.getProperty(oidcProperties.clientIdPropertyName);
@@ -181,9 +181,6 @@ public class DefaultSetupService implements SetupService {
             if (!ConfigurationValidator.validateClientId(clientId).isValid()) {
 
                 progressBar.start("Configuring a new OIDC Application, almost done:");
-
-                // create ODIC application
-                Client client = Clients.builder().build();
 
                 ExtensibleResource clientCredsResponse;
                 switch (appType) {

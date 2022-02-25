@@ -133,7 +133,8 @@ public class Start extends BaseCommand {
                 applicationType,
                 config.getOAuthClient().getRedirectUris(),
                 config.getOAuthClient().getPostLogoutRedirectUris(),
-                config.getTrustedOrigins()
+                config.getTrustedOrigins(),
+                client
         );
 
         // filter config file
