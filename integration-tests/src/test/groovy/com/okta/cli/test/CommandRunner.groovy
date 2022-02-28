@@ -82,7 +82,7 @@ class CommandRunner {
 
         String homeDirString = escapePath(homeDir.absolutePath)
 
-        List<String> command = [getCli(homeDir), "-Duser.home=${homeDirString}", "-Dokta.testing.disableHttpsCheck=true", "-Dokta.cli.baseUrl=${regServiceUrl}"]
+        List<String> command = [getCli(homeDir), "-Duser.home=${homeDirString}", "-Dokta.testing.disableHttpsCheck=true", "-Dokta.cli.registrationUrl=${regServiceUrl}", "-Dokta.cli.apiUrl=${regServiceUrl}"]
         command.addAll(args)
 
         String cmd = command.join(" ")

@@ -33,13 +33,15 @@ class DefaultOrganizationCreatorTest implements WireMockSupport {
     @Override
     Collection<StubMapping> wireMockStubMapping() {
         return [
-                post("/create")
+                post("/api/v1/registration/reg405abrRAkn0TRf5d6/register")
                 .withRequestBody(equalToJson("""
                     {
-                      "firstName": "Joe",
-                      "lastName": "Coder",
-                      "email": "joe.coder@example.com",
-                      "organization": "Test co"
+                      "userProfile": {
+                          "firstName": "Joe",
+                          "lastName": "Coder",
+                          "email": "joe.coder@example.com",
+                          "country": "US of A"
+                        }
                     }
                     """))
                 .withHeader("Content-Type", equalTo("application/json"))
@@ -53,18 +55,17 @@ class DefaultOrganizationCreatorTest implements WireMockSupport {
     @Test
     void basicSuccessTest() {
 
-        RestoreEnvironmentVariables.setEnvironmentVariable("OKTA_CLI_BASE_URL", mockUrl())
+        RestoreEnvironmentVariables.setEnvironmentVariable("OKTA_CLI_REGISTRATION_URL", mockUrl())
 
         DefaultOktaOrganizationCreator creator = new DefaultOktaOrganizationCreator()
         OrganizationResponse response = creator.createNewOrg(new OrganizationRequest()
             .setEmail("joe.coder@example.com")
-            .setOrganization("Test co")
+            .setCountry("US of A")
             .setFirstName("Joe")
             .setLastName("Coder"))
 
         assertThat response.orgUrl, is("https://okta.example.com")
         assertThat response.apiToken, is("an-api-token-here")
-        assertThat response.email, is("joe.coder@example.com")
     }
 
     private String basicSuccess() {

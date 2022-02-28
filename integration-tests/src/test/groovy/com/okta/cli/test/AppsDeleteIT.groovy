@@ -46,7 +46,7 @@ class AppsDeleteIT implements MockWebSupport, CreateAppSupport {
 
             def result = new CommandRunner()
                     .withSdkConfig(mockWebServer.url("/").toString())
-                    .runCommandWithInput(input, "--color=never", "apps", "delete", "--verbose", "app-id1")
+                    .runCommandWithInput(input, "--color=never", "apps", "delete", "app-id1")
 
             assertThat result, resultMatches(0, allOf(
                     containsString("Deactivate and delete application 'app-id1'? [y/N]"),
@@ -107,7 +107,7 @@ class AppsDeleteIT implements MockWebSupport, CreateAppSupport {
 
             def result = new CommandRunner()
                     .withSdkConfig(mockWebServer.url("/").toString())
-                    .runCommandWithInput(input, "--color=never", "apps", "delete", "--verbose", "app-id1")
+                    .runCommandWithInput(input, "--color=never", "apps", "delete", "app-id1")
 
             assertThat result, resultMatches(0, allOf(
                         containsString("Deactivate and delete application 'app-id1'? [y/N]"),
@@ -134,7 +134,7 @@ class AppsDeleteIT implements MockWebSupport, CreateAppSupport {
 
             def result = new CommandRunner()
                     .withSdkConfig(mockWebServer.url("/").toString())
-                    .runCommandWithInput(input, "--color=never", "apps", "delete", "--verbose", "app-id1")
+                    .runCommandWithInput(input, "--color=never", "apps", "delete", "app-id1")
 
             assertThat result, resultMatches(1, containsString("Application 'app-id1' has already been marked for deletion"),
                     null)
@@ -161,7 +161,7 @@ class AppsDeleteIT implements MockWebSupport, CreateAppSupport {
 
             def result = new CommandRunner()
                     .withSdkConfig(mockWebServer.url("/").toString())
-                    .runCommandWithInput(input, "--color=never", "apps", "delete", "--verbose", "app-id1")
+                    .runCommandWithInput(input, "--color=never", "apps", "delete", "app-id1")
 
             assertThat result, resultMatches(1, allOf(
                     containsString("Deactivate and delete application 'app-id1'? [y/N]")),
@@ -219,7 +219,7 @@ class AppsDeleteIT implements MockWebSupport, CreateAppSupport {
 
             def result = new CommandRunner()
                     .withSdkConfig(mockWebServer.url("/").toString())
-                    .runCommandWithInput(input, "--color=never", "apps", "delete", "--verbose", "app-id1", "app-id2")
+                    .runCommandWithInput(input, "--color=never", "apps", "delete", "app-id1", "app-id2")
 
             assertThat result, resultMatches(1, allOf(
                     containsString("Deactivate and delete application 'app-id1'? [y/N]"),

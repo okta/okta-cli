@@ -373,7 +373,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
 
             def result = new CommandRunner()
                     .withSdkConfig(url(mockWebServer,"/"))
-                    .runCommandWithInput(input,"--verbose", "--color=never", "apps", "create")
+                    .runCommandWithInput(input,"--color=never", "apps", "create")
 
             assertThat result, resultMatches(0, allOf(
                                                             containsString("Created OIDC application, client-id: test-id"),

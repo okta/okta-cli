@@ -15,15 +15,21 @@
  */
 package com.okta.cli.common.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrganizationRequest {
 
     private String firstName;
     private String lastName;
     private String email;
-    private String organization;
+    private String country;
+
+    @JsonProperty("okta_oie")
+    private Boolean oie;
 }

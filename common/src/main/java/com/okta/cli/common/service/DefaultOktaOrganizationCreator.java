@@ -15,32 +15,27 @@
  */
 package com.okta.cli.common.service;
 
-import com.okta.cli.common.FactorVerificationException;
 import com.okta.cli.common.RestException;
 import com.okta.cli.common.model.OrganizationRequest;
 import com.okta.cli.common.model.OrganizationResponse;
+import com.okta.cli.common.model.UserProfileRequestWrapper;
 
 import java.io.IOException;
 
 public class DefaultOktaOrganizationCreator implements OktaOrganizationCreator {
 
-    private final RestClient restClient = new DefaultStartRestClient();
+    private final RestClient restClient = new DefaultStartRestClient(Settings.getRegistrationBaseUrl());
+
+    private final String registrationId = Settings.getRegistrationId();
 
     @Override
     public OrganizationResponse createNewOrg(OrganizationRequest orgRequest) throws RestException, IOException {
-
-        return restClient.post("/create", orgRequest, OrganizationResponse.class);
+        return restClient.post("/api/v1/registration/" + registrationId + "/register", new UserProfileRequestWrapper(orgRequest), OrganizationResponse.class);
     }
 
     @Override
-    public OrganizationResponse verifyNewOrg(String identifier, String code) throws FactorVerificationException, IOException {
-
-        String postBody = "{\"code\":\"" + code + "\"}";
-
-        try {
-            return restClient.post("/verify/" + identifier, postBody, OrganizationResponse.class);
-        } catch (RestException e) {
-            throw new FactorVerificationException(e.getErrorResponse(), e);
-        }
+    public OrganizationResponse verifyNewOrg(String identifier) throws RestException, IOException {
+        return restClient.get("/api/internal/v1/developer/redeem/" + identifier, OrganizationResponse.class);
     }
+
 }

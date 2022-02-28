@@ -23,14 +23,19 @@ import com.okta.cli.common.model.RegistrationQuestions;
 import com.okta.cli.common.service.DefaultSdkConfigurationService;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.common.service.SetupService;
+import com.okta.cli.common.service.UserCanceledException;
 import com.okta.cli.console.ConsoleOutput;
 import com.okta.cli.console.Prompter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 @Command(name = "register",
          description = "Sign up for a new Okta account")
 public class Register extends BaseCommand {
+
+    private final Logger logger = LoggerFactory.getLogger(Register.class);
 
     @CommandLine.Option(names = "--email", description = "Email used when registering a new Okta account.")
     protected String email;
@@ -43,6 +48,12 @@ public class Register extends BaseCommand {
 
     @CommandLine.Option(names = "--company", description = "Company/organization used when registering a new Okta account.")
     protected String company;
+
+    @CommandLine.Option(names = "--country", description = "Country of residence")
+    protected String country;
+
+    @CommandLine.Option(names = "--oie", description = "Create Okta account with OIE enabled.", defaultValue = "true", hidden = true, negatable = true)
+    protected Boolean oie = Boolean.TRUE;
 
     public Register() {}
 
@@ -70,17 +81,21 @@ public class Register extends BaseCommand {
 
         CliRegistrationQuestions registrationQuestions = registrationQuestions();
 
-        SetupService setupService = new DefaultSetupService(OidcProperties.oktaEnv());
-        OrganizationResponse orgResponse = setupService.createOktaOrg(registrationQuestions,
-                                   getEnvironment().getOktaPropsFile(),
-                                   getEnvironment().isDemo(),
-                                   getEnvironment().isInteractive());
+        try {
+            SetupService setupService = new DefaultSetupService(OidcProperties.oktaEnv());
+            OrganizationResponse orgResponse = setupService.createOktaOrg(registrationQuestions,
+                    getEnvironment().getOktaPropsFile(),
+                    getEnvironment().isDemo(),
+                    getEnvironment().isInteractive());
 
-        String identifier = orgResponse.getId();
-        setupService.verifyOktaOrg(identifier,
-                registrationQuestions,
-                getEnvironment().getOktaPropsFile());
-
+            String identifier = orgResponse.getDeveloperOrgCliToken();
+            setupService.verifyOktaOrg(identifier,
+                    registrationQuestions,
+                    getEnvironment().getOktaPropsFile());
+        } catch (UserCanceledException e) {
+            logger.debug("User canceled registration.", e);
+            return 2;
+        }
         return 0;
 
 
@@ -104,12 +119,8 @@ public class Register extends BaseCommand {
                     .setFirstName(prompter.promptUntilValue(firstName, "First name"))
                     .setLastName(prompter.promptUntilValue(lastName, "Last name"))
                     .setEmail(prompter.promptUntilValue(email, "Email address"))
-                    .setOrganization(prompter.promptUntilValue(company, "Company"));
-        }
-
-        @Override
-        public String getVerificationCode() {
-            return prompter.promptUntilValue("Verification code");
+                    .setCountry(prompter.promptUntilValue(country, "Country"))
+                    .setOie(oie);
         }
     }
 }

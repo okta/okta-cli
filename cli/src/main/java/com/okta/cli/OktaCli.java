@@ -30,6 +30,10 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
 import java.util.List;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 @Command(name = "okta",
         description = "The Okta CLI helps you configure your applications to use Okta.",
@@ -110,9 +114,18 @@ public class OktaCli implements Runnable {
 
         @Option(names = "--verbose", description = "Verbose logging.")
         public void setVerbose(boolean verbose) {
-            this.environment.setVerbose(verbose);
+            environment.setVerbose(verbose);
             if (verbose) {
-                System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
+                // <ISO8601 date> <level> <logger> <message> <exception>
+                System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tFT%1$tT.%1$tL%1$tz %4$s %2$s - %5$s\u001F%6$s%n");
+
+                final LogManager logManager = LogManager.getLogManager();
+                Logger rootLogger = logManager.getLogger("");
+                rootLogger.setLevel(Level.FINER);
+
+                ConsoleHandler consoleHandler = new ConsoleHandler();
+                consoleHandler.setLevel(Level.FINER);
+                rootLogger.addHandler(consoleHandler);
             }
         }
 

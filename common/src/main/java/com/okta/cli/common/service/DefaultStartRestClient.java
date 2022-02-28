@@ -18,10 +18,14 @@ package com.okta.cli.common.service;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.okta.cli.common.RestException;
-import com.okta.cli.common.model.ErrorResponse;
 import com.okta.cli.common.model.SamplesListings;
 import com.okta.cli.common.model.VersionInfo;
 import com.okta.commons.lang.ApplicationInfo;
+import com.okta.sdk.error.Error;
+import com.okta.sdk.impl.ds.JacksonMapMarshaller;
+import com.okta.sdk.impl.ds.MapMarshaller;
+import com.okta.sdk.impl.error.DefaultError;
+import com.okta.sdk.resource.ResourceException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
@@ -35,17 +39,13 @@ import org.apache.http.impl.client.HttpClients;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class DefaultStartRestClient implements RestClient, StartRestClient {
-
-    /**
-     * The base URL of the service used to create a new Okta account.
-     * This value is NOT exposed as a plugin parameter, but CAN be set using the env var {@code OKTA_CLI_BASE_URL}.
-     */
-    private static final String DEFAULT_API_BASE_URL = "https://start.okta.dev/";
 
     private static final String APPLICATION_JSON = "application/json";
 
@@ -55,6 +55,18 @@ public class DefaultStartRestClient implements RestClient, StartRestClient {
 
     private final ObjectMapper objectMapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    private final MapMarshaller mapMarshaller = new JacksonMapMarshaller();
+
+    private final String baseUrl;
+
+    public DefaultStartRestClient() {
+        this(Settings.getCliApiUrl());
+    }
+
+    public DefaultStartRestClient(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
 
     @Override
     public VersionInfo getVersionInfo() throws IOException, RestException {
@@ -89,8 +101,7 @@ public class DefaultStartRestClient implements RestClient, StartRestClient {
                 return objectMapper.reader().readValue(content, responseType);
             } else {
                 // assume error
-                ErrorResponse error = objectMapper.reader().readValue(content, ErrorResponse.class);
-                throw new RestException(error);
+                throw new ResourceException(error(content, response.getStatusLine().getStatusCode()));
             }
         }
     }
@@ -124,20 +135,21 @@ public class DefaultStartRestClient implements RestClient, StartRestClient {
                 return objectMapper.reader().readValue(content, responseType);
             } else {
                 // assume error
-                ErrorResponse error = objectMapper.reader().readValue(content, ErrorResponse.class);
-                throw new RestException(error);
+                throw new ResourceException(error(content, response.getStatusLine().getStatusCode()));
             }
         }
     }
 
     private String fullUrl(String relative) {
-        return getApiBaseUrl() + relative;
+        return baseUrl + relative;
     }
 
-    private String getApiBaseUrl() {
-        // Resolve baseURL via ENV Var, System property, and fallback to the default
-        return System.getenv().getOrDefault("OKTA_CLI_BASE_URL",
-                System.getProperties().getProperty("okta.cli.baseUrl",
-                    DEFAULT_API_BASE_URL));
+    private Error error(InputStream content, int statusCode) {
+        Map<String, Object> data = mapMarshaller.unmarshal(content, Collections.emptyMap());
+        DefaultError error = new DefaultError(data);
+        if (error.getStatus() < 0) {
+            error.setStatus(statusCode);
+        }
+        return error;
     }
 }
