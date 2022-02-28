@@ -93,7 +93,7 @@ class StartIT implements MockWebSupport, CreateAppSupport {
                     "2"
             ]
 
-            def result = new CommandRunner(url(mockWebServer, "/")).runCommandWithInput(input, "--verbose", "start")
+            def result = new CommandRunner(url(mockWebServer, "/")).runCommandWithInput(input, "start")
             assertThat result, resultMatches(0, allOf(
                         // registration
                         containsString("An email has been sent to you with a verification code."),

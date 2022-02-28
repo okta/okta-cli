@@ -23,8 +23,6 @@ import com.okta.cli.common.model.OrganizationRequest
 import com.okta.cli.common.model.OrganizationResponse
 import com.okta.cli.common.model.RegistrationQuestions
 import com.okta.sdk.client.Client
-import com.okta.sdk.client.ClientBuilder
-import com.okta.sdk.client.Clients
 import com.okta.sdk.impl.config.ClientConfiguration
 import com.okta.sdk.resource.ExtensibleResource
 import com.okta.sdk.resource.application.OpenIdConnectApplicationType
@@ -39,24 +37,13 @@ import com.okta.sdk.resource.user.User
 import com.okta.sdk.resource.user.UserProfile
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
-import org.powermock.api.mockito.PowerMockito
-import org.powermock.core.classloader.annotations.PrepareForTest
-import org.powermock.modules.testng.PowerMockObjectFactory
-import org.testng.IObjectFactory
-import org.testng.annotations.ObjectFactory
 import org.testng.annotations.Test
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.is
 import static org.mockito.Mockito.*
 
-@PrepareForTest(Clients)
 class DefaultSetupServiceTest {
-
-    @ObjectFactory
-    IObjectFactory getObjectFactory() {
-        return new PowerMockObjectFactory()
-    }
 
     @Test
     void createOktaOrg() {
@@ -134,10 +121,10 @@ class DefaultSetupServiceTest {
         when(propertySource.getProperty("okta.oauth2.client-id")).thenReturn("existing-client-id")
 
         DefaultSetupService setupService = setupService()
-        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
+        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB, mock(Client))
 
         // verify nothing happened
-        PowerMockito.verifyNoMoreInteractions(setupService.organizationCreator,
+        verifyNoMoreInteractions(setupService.organizationCreator,
                 setupService.sdkConfigurationService,
                 setupService.oidcAppCreator,
                 setupService.authorizationServerService)
@@ -153,11 +140,7 @@ class DefaultSetupServiceTest {
         String authorizationServerId = "test-auth-id"
         boolean interactive = false
 
-        PowerMockito.mockStatic(Clients)
-        ClientBuilder clientBuilder = mock(ClientBuilder)
         Client client = mock(Client)
-        when(clientBuilder.build()).thenReturn(client)
-        when(Clients.builder()).thenReturn(clientBuilder)
 
         DefaultSetupService setupService = setupService()
         ExtensibleResource resource = mock(ExtensibleResource)
@@ -165,7 +148,7 @@ class DefaultSetupServiceTest {
         when(resource.getString("client_secret")).thenReturn("test-client-secret")
         when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName, ["https://test.example.com/callback", "https://test.example.com/callback2"], ["https://test.example.com/logout", "https://test.example.com/logout2"])).thenReturn(resource)
 
-        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB, ["https://test.example.com/callback", "https://test.example.com/callback2"], ["https://test.example.com/logout", "https://test.example.com/logout2"])
+        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB, ["https://test.example.com/callback", "https://test.example.com/callback2"], ["https://test.example.com/logout", "https://test.example.com/logout2"], client)
 
         ArgumentCaptor<Map> mapCapture = ArgumentCaptor.forClass(Map)
         verify(propertySource).addProperties(mapCapture.capture())
@@ -176,7 +159,7 @@ class DefaultSetupServiceTest {
         ])
 
         // no group claim created
-        PowerMockito.verifyNoMoreInteractions(setupService.authorizationServerService)
+        verifyNoMoreInteractions(setupService.authorizationServerService)
     }
 
     @Test
@@ -189,11 +172,7 @@ class DefaultSetupServiceTest {
         String authorizationServerId = "test-auth-id"
         boolean interactive = false
 
-        PowerMockito.mockStatic(Clients)
-        ClientBuilder clientBuilder = mock(ClientBuilder)
         Client client = mock(Client)
-        when(clientBuilder.build()).thenReturn(client)
-        when(Clients.builder()).thenReturn(clientBuilder)
 
         DefaultSetupService setupService = setupService()
         ExtensibleResource resource = mock(ExtensibleResource)
@@ -201,7 +180,7 @@ class DefaultSetupServiceTest {
         when(resource.getString("client_secret")).thenReturn("test-client-secret")
         when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName, [], [])).thenReturn(resource)
 
-        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
+        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB, client)
 
         ArgumentCaptor<Map> mapCapture = ArgumentCaptor.forClass(Map)
         verify(propertySource).addProperties(mapCapture.capture())
@@ -212,7 +191,7 @@ class DefaultSetupServiceTest {
         ])
 
         // no group claim created
-        PowerMockito.verifyNoMoreInteractions(setupService.authorizationServerService)
+        verifyNoMoreInteractions(setupService.authorizationServerService)
     }
 
     @Test
@@ -234,11 +213,7 @@ class DefaultSetupServiceTest {
         String authorizationServerId = "test-auth-id"
         boolean interactive = false
 
-        PowerMockito.mockStatic(Clients)
-        ClientBuilder clientBuilder = mock(ClientBuilder)
         Client client = mock(Client)
-        when(clientBuilder.build()).thenReturn(client)
-        when(Clients.builder()).thenReturn(clientBuilder)
         when(client.getUser("me")).thenReturn(user)
         when(user.getProfile()).thenReturn(userProfile)
         when(userProfile.getLogin()).thenReturn("test@example.com")
@@ -260,7 +235,7 @@ class DefaultSetupServiceTest {
         when(resource.getString("client_secret")).thenReturn("test-client-secret")
         when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName, [], [])).thenReturn(resource)
 
-        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, ["group-one", "group-two"] as Set, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB)
+        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, ["group-one", "group-two"] as Set, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB, client)
 
         ArgumentCaptor<Map> mapCapture = ArgumentCaptor.forClass(Map)
         verify(propertySource).addProperties(mapCapture.capture())
