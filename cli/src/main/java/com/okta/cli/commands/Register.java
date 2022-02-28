@@ -62,7 +62,7 @@ public class Register extends BaseCommand {
     }
 
     protected CliRegistrationQuestions registrationQuestions() {
-        return new CliRegistrationQuestions();
+        return new CliRegistrationQuestions(this);
     }
 
     @Override
@@ -90,13 +90,12 @@ public class Register extends BaseCommand {
 //            }
     }
 
-    private class CliRegistrationQuestions implements RegistrationQuestions {
+    private class CliRegistrationQuestions extends ConfigQuestions implements RegistrationQuestions {
 
         private final Prompter prompter = getPrompter();
 
-        @Override
-        public boolean isOverwriteConfig() {
-            return prompter.promptYesNo("Overwrite configuration file?");
+        CliRegistrationQuestions(BaseCommand command) {
+            super(command);
         }
 
         @Override

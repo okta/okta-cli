@@ -17,7 +17,7 @@ package com.okta.cli.common.model;
 
 public interface RegistrationQuestions {
 
-    boolean isOverwriteConfig();
+    boolean isOverwriteExistingConfig(String oktaBaseUrl, String configFile);
 
     OrganizationRequest getOrganizationRequest();
 
@@ -38,7 +38,7 @@ public interface RegistrationQuestions {
             this.verificationCode = verificationCode;
         }
 
-        public boolean isOverwriteConfig() {
+        public boolean isOverwriteExistingConfig(String oktaBaseUrl, String configFile) {
             return overwriteConfig;
         }
 
