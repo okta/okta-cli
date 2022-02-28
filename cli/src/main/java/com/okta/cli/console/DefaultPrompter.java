@@ -22,8 +22,11 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -89,7 +92,7 @@ public class DefaultPrompter implements Prompter, Closeable {
 
         Map<String, PromptOption<T>> choices = IntStream.range(0, options.size())
                 .boxed()
-                .collect(Collectors.toMap(index -> Integer.toString(index + 1), options::get));
+                .collect(orderedMap(index -> Integer.toString(index + 1), options::get));
 
         out.write(message + "\n");
         choices.forEach((key, value) -> {
@@ -126,5 +129,10 @@ public class DefaultPrompter implements Prompter, Closeable {
     public void close() throws IOException {
         out.close();
         consoleReader.close();
+    }
+
+    private static <T, K, U, M extends Map<K, U>> Collector<T, ?, M> orderedMap(Function<? super T, ? extends K> keyMapper,
+                                                                                Function<? super T, ? extends U> valueMapper) {
+        return (Collector<T, ?, M>) Collectors.toMap(keyMapper, valueMapper, (x, y) -> y, LinkedHashMap::new);
     }
 }

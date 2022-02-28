@@ -136,6 +136,50 @@ class DefaultPrompterTest {
     }
 
     @Test
+    void promptOptions_moreThan10() {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
+        ConsoleOutput out = new ConsoleOutput.AnsiConsoleOutput(new PrintStream(outputStream), true)
+
+        expectInput("1")
+        DefaultPrompter prompter = new DefaultPrompter(out)
+
+        def options = [
+                new StubPromptOption("one", "one-1"),
+                new StubPromptOption("two", "two-2"),
+                new StubPromptOption("three", "three-3"),
+                new StubPromptOption("four", "four-4"),
+                new StubPromptOption("five", "five-5"),
+                new StubPromptOption("six", "six-6"),
+                new StubPromptOption("seven", "seven-7"),
+                new StubPromptOption("eight", "eight-8"),
+                new StubPromptOption("nine", "nine-9"),
+                new StubPromptOption("ten", "ten-10"),
+                new StubPromptOption("eleven", "eleven-11"),
+                new StubPromptOption("twelve", "twelve-12")
+        ]
+        String result = prompter.prompt("hello", options, options[0])
+
+        // ansi colors
+        String expectedOutput = "hello\n" +
+                "\u001B[1m> 1: \u001B[0mone\n" +
+                "\u001B[1m> 2: \u001B[0mtwo\n" +
+                "\u001B[1m> 3: \u001B[0mthree\n" +
+                "\u001B[1m> 4: \u001B[0mfour\n" +
+                "\u001B[1m> 5: \u001B[0mfive\n" +
+                "\u001B[1m> 6: \u001B[0msix\n" +
+                "\u001B[1m> 7: \u001B[0mseven\n" +
+                "\u001B[1m> 8: \u001B[0meight\n" +
+                "\u001B[1m> 9: \u001B[0mnine\n" +
+                "\u001B[1m> 10: \u001B[0mten\n" +
+                "\u001B[1m> 11: \u001B[0meleven\n" +
+                "\u001B[1m> 12: \u001B[0mtwelve\n" +
+                "Enter your choice [one]: "
+
+        assertThat(result, equalTo("one-1"))
+        assertThat(outputStream.toString(), equalTo(expectedOutput))
+    }
+
+    @Test
     void failToReadLine() {
         ConsoleOutput out = mock(ConsoleOutput)
         System.in = mock(InputStream)
