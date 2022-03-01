@@ -37,11 +37,12 @@ brew reinstall okta
 > 
 >If you have issues installing the latest version, try removing the CLI using `brew untap` and then running `brew install` again:
 >
-
-```bash
-brew untap oktadeveloper/tap
-brew install --cask oktadeveloper/tap/okta
-```
+>
+> ```bash
+> brew uninstall okta
+> brew untap oktadeveloper/tap
+> brew install --cask oktadeveloper/tap/okta
+> ```
 
 ### Linux Using Flatpak
 First add the Flathub repo if it's not already installed by running:
