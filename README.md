@@ -76,7 +76,7 @@ curl https://raw.githubusercontent.com/okta/okta-cli/master/cli/src/main/scripts
 Run the following command in a terminal to install the CLI:
 
 ```bash
-choco install okta --version=0.8.0
+choco install okta --version=0.10.0
 ```
 
 ### Manual Install
