@@ -41,11 +41,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up GraalVM (Java 11)
+      - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1.0.7
         with:
           version: '${{ env.graalvm_version }}'
-          java-version: '11'
+          java-version: '17'
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -75,11 +75,11 @@ jobs:
       - uses: ilammy/msvc-dev-cmd@v1.11.0
       - uses: microsoft/setup-msbuild@v1.0.2
 
-      - name: Set up GraalVM (Java 11)
+      - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1.0.7
         with:
           version: '${{ env.graalvm_version }}'
-          java-version: '11'
+          java-version: '17'
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
