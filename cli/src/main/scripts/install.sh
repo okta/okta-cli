@@ -64,7 +64,7 @@ function install {
 
   } || { # catch
      echoerr
-     echoerr "Failed install the okta cli, run the following command manually:"
+     echoerr "Failed to install the okta cli.  Run the following command manually:"
      echoerr "  mv -f $DOWNLOAD_LOCATION $HOME/bin"
      exit 1
   }
@@ -74,34 +74,37 @@ function install {
 
   PATH_UPDATED=false
   if [[ ! "$LOCATION" == *"$HOME/bin/okta:"* ]]; then
-    [ -f $HOME/.bash_profile ] && updateBashProfilePath && PATH_UPDATED=true
-    [ -f $HOME/.bashrc ] && updateBashRcPath && PATH_UPDATED=true
-    [ -f $HOME/.zshrc ] && updateZshPath && PATH_UPDATED=true
+    [ -f "$HOME/.bash_profile" ] && updateBashProfilePath && PATH_UPDATED=true
+    [ -f "$HOME/.bashrc" ] && updateBashRcPath && PATH_UPDATED=true
+    [ -f "$HOME/.zshrc" ] && updateZshPath && PATH_UPDATED=true
 
     if [[ ! "$PATH_UPDATED" == "true" ]]; then
-      echoerr "Failed to add \$HOME/bin/okta to your path"
+      echoerr 'Failed to add $HOME/bin/okta to your path'
       exit 1
     fi
   fi
 }
 
 function updateBashPath {
+  # shellcheck disable=SC2016
+  (( $# == 1 )) || { printf 'Usage: updateBashPath $bashPath\n' >&2; return 1; }
+
   local bashPath=$1
   { # try
     grep -q 'export PATH=$HOME/bin:$PATH' "$bashPath" || echo -e '\nexport PATH=$HOME/bin:$PATH' >> "$bashPath"
   } || { # catch
     echoerr
-    echoerr "Failed add $HOME/bin to PATH.  Update your $bashPath by running the following command:"
+    echoerr "Failed to add $HOME/bin to PATH.  Update your $bashPath by running the following command:"
     echoerr "  export PATH=\$HOME/bin:\$PATH >> $bashPath"
   }
 }
 
 function updateBashProfilePath {
-  updateBashPath "~/.bash_profile"
+  updateBashPath "$HOME/.bash_profile"
 }
 
 function updateBashRcPath {
-  updateBashPath "~/.bashrc"
+  updateBashPath "$HOME/.bashrc"
 }
 
 function updateZshPath {
@@ -109,7 +112,7 @@ function updateZshPath {
     grep -q 'export PATH=$HOME/bin:$PATH' ~/.zshrc || echo -e '\nexport PATH=$HOME/bin:$PATH' >> ~/.zshrc
   } || { # catch
     echoerr
-    echoerr 'Failed add $HOME/bin to PATH.  Update your ~/.zshrc will by running the following command:'
+    echoerr 'Failed to add $HOME/bin to PATH.  Update your ~/.zshrc will by running the following command:'
     echoerr '  export PATH=$HOME/bin:$PATH >> ~/.zshrc'
   }
 }
