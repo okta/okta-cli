@@ -74,7 +74,8 @@ function install {
 
   PATH_UPDATED=false
   if [[ ! "$LOCATION" == *"$HOME/bin/okta:"* ]]; then
-    [ -f $HOME/.bashrc ] && updateBashPath && PATH_UPDATED=true
+    [ -f $HOME/.bash_profile ] && updateBashProfilePath && PATH_UPDATED=true
+    [ -f $HOME/.bashrc ] && updateBashRcPath && PATH_UPDATED=true
     [ -f $HOME/.zshrc ] && updateZshPath && PATH_UPDATED=true
 
     if [[ ! "$PATH_UPDATED" == "true" ]]; then
@@ -85,13 +86,22 @@ function install {
 }
 
 function updateBashPath {
+  local bashPath=$1
   { # try
-    grep -q 'export PATH=$HOME/bin:$PATH' ~/.bashrc || echo -e '\nexport PATH=$HOME/bin:$PATH' >> ~/.bashrc
+    grep -q 'export PATH=$HOME/bin:$PATH' "$bashPath" || echo -e '\nexport PATH=$HOME/bin:$PATH' >> "$bashPath"
   } || { # catch
     echoerr
-    echoerr 'Failed add $HOME/bin to PATH.  Update your ~/.bashrc will by running the following command:'
-    echoerr '  export PATH=$HOME/bin:$PATH >> ~/.bashrc'
+    echoerr "Failed add $HOME/bin to PATH.  Update your $bashPath by running the following command:"
+    echoerr "  export PATH=\$HOME/bin:\$PATH >> $bashPath"
   }
+}
+
+function updateBashProfilePath {
+  updateBashPath "~/.bash_profile"
+}
+
+function updateBashRcPath {
+  updateBashPath "~/.bashrc"
 }
 
 function updateZshPath {
