@@ -64,7 +64,7 @@ function install {
 
   } || { # catch
      echoerr
-     echoerr "Failed to install the okta cli.  Run the following command manually:"
+     echoerr "Failed to install the Okta CLI. Please run the following command manually:"
      echoerr "  mv -f $DOWNLOAD_LOCATION $HOME/bin"
      exit 1
   }
@@ -79,7 +79,7 @@ function install {
     [ -f "$HOME/.zshrc" ] && updateZshPath && PATH_UPDATED=true
 
     if [[ ! "$PATH_UPDATED" == "true" ]]; then
-      echoerr 'Failed to add $HOME/bin/okta to your path'
+      echoerr 'Failed to add $HOME/bin/okta to your path.'
       exit 1
     fi
   fi
@@ -94,7 +94,7 @@ function updateBashPath {
     grep -q 'export PATH=$HOME/bin:$PATH' "$bashPath" || echo -e '\nexport PATH=$HOME/bin:$PATH' >> "$bashPath"
   } || { # catch
     echoerr
-    echoerr "Failed to add $HOME/bin to PATH.  Update your $bashPath by running the following command:"
+    echoerr "Failed to add $HOME/bin to PATH. Please update your $bashPath by running the following command:"
     echoerr "  export PATH=\$HOME/bin:\$PATH >> $bashPath"
   }
 }
@@ -112,7 +112,7 @@ function updateZshPath {
     grep -q 'export PATH=$HOME/bin:$PATH' ~/.zshrc || echo -e '\nexport PATH=$HOME/bin:$PATH' >> ~/.zshrc
   } || { # catch
     echoerr
-    echoerr 'Failed to add $HOME/bin to PATH.  Update your ~/.zshrc will by running the following command:'
+    echoerr 'Failed to add $HOME/bin to PATH. Please update your ~/.zshrc by running the following command:'
     echoerr '  export PATH=$HOME/bin:$PATH >> ~/.zshrc'
   }
 }
