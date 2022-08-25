@@ -18,14 +18,13 @@ package com.okta.cli.common.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.nio.charset.MalformedInputException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public interface Interpolator {
 
@@ -36,11 +35,14 @@ public interface Interpolator {
     default void interpolate(Path path, Map<String, String> context) throws IOException {
 
         // TODO - better way to detect binary files?
-        String fileContent = null;
+        String fileContent;
         try {
-            fileContent = Files.readString(path, StandardCharsets.UTF_8);
+            fileContent = readFile(path);
         } catch (MalformedInputException e) {
             log.debug("skipping binary file: {}", path.getFileName());
+            return;
+        } catch (IOException e) {
+            log.warn("Failed to read file: {}", path.getFileName());
             return;
         }
         String result = interpolate(fileContent, context);
@@ -48,10 +50,17 @@ public interface Interpolator {
         if (fileContent == null || result == null || result.equals(fileContent)) {
             return;
         }
-        try (OutputStreamWriter writer =
-                 new OutputStreamWriter(new FileOutputStream(path.toFile()), StandardCharsets.UTF_8)) {
-            writer.write(result);
-        }
+
+        writeFile(path, result);
     }
 
+    // allows for testing
+    default String readFile(Path path) throws IOException {
+        return Files.readString(path, UTF_8);
+    }
+
+    // allows for testing
+    default void writeFile(Path path, String content) throws IOException {
+        Files.write(path, content.getBytes(UTF_8));
+    }
 }
