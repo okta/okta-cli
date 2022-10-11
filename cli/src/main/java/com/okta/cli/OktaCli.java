@@ -22,6 +22,7 @@ import com.okta.cli.commands.Register;
 import com.okta.cli.commands.Start;
 import com.okta.cli.commands.apps.Apps;
 import com.okta.commons.lang.ApplicationInfo;
+import com.okta.sdk.resource.ResourceException;
 import picocli.AutoComplete;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -29,6 +30,7 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
+import java.io.PrintStream;
 import java.util.List;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
@@ -77,17 +79,33 @@ public class OktaCli implements Runnable {
 
     class ExceptionHandler implements CommandLine.IExecutionExceptionHandler {
 
+        private final PrintStream err;
+
+        public ExceptionHandler() {
+            this(System.err);
+        }
+
+        public ExceptionHandler(PrintStream err) {
+            this.err = err;
+        }
+
         @Override
         public int handleExecutionException(Exception ex, CommandLine commandLine, CommandLine.ParseResult parseResult) throws Exception {
 
-            // TODO get the root cause exception
+            if (ex instanceof ResourceException) {
+                ResourceException resourceException = (ResourceException) ex;
+                if ( "E0000015".equals(resourceException.getCode())) {
+                    err.println("\nYour Okta Org is missing a feature required to use the Okta CLI: API Access Management\n" +
+                            "You can create a free Okta developer account that has this feature at: https://developer.okta.com/signup/");
+                }
+            }
 
             // `null` is the typical message for an NPE, so print the stack traces
             if (standardOptions.isVerbose()|| ex instanceof NullPointerException) {
-                ex.printStackTrace();
+                ex.printStackTrace(err);
             } else {
-                System.err.println("\nAn error occurred if you need more detail use the '--verbose' option\n");
-                System.err.println(ex.getMessage());
+                err.println("\nAn error occurred if you need more detail use the '--verbose' option\n");
+                err.println(ex.getMessage());
             }
 
             return 1;
