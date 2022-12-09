@@ -18,6 +18,7 @@ package com.okta.cli.test
 import org.hamcrest.Description
 import org.hamcrest.TypeSafeMatcher
 import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.constructor.Constructor
 
 class OktaConfigMatcher extends TypeSafeMatcher<File> {
 
@@ -53,7 +54,7 @@ class OktaConfigMatcher extends TypeSafeMatcher<File> {
     }
 
     private static Map parseYaml(File oktaConfigFile) {
-        Yaml yaml = new Yaml()
+        Yaml yaml = new Yaml(new Constructor(Map))
         return yaml.load(oktaConfigFile.text)
     }
 }
