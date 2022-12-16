@@ -24,6 +24,7 @@ import com.okta.sdk.client.Client
 import com.okta.sdk.impl.config.ClientConfiguration
 import com.okta.sdk.resource.ExtensibleResource
 import com.okta.sdk.resource.application.OpenIdConnectApplicationType
+import com.okta.sdk.resource.authorization.server.policy.AuthorizationServerPolicyRule
 import com.okta.sdk.resource.group.Group
 import com.okta.sdk.resource.group.GroupList
 import com.okta.sdk.resource.group.GroupProfile
@@ -112,7 +113,7 @@ class DefaultSetupServiceTest {
         when(propertySource.getProperty("okta.oauth2.client-id")).thenReturn("existing-client-id")
 
         DefaultSetupService setupService = setupService()
-        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB, mock(Client))
+        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB.toString(), mock(Client))
 
         // verify nothing happened
         verifyNoMoreInteractions(setupService.organizationCreator,
@@ -139,7 +140,7 @@ class DefaultSetupServiceTest {
         when(resource.getString("client_secret")).thenReturn("test-client-secret")
         when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName, ["https://test.example.com/callback", "https://test.example.com/callback2"], ["https://test.example.com/logout", "https://test.example.com/logout2"])).thenReturn(resource)
 
-        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB, ["https://test.example.com/callback", "https://test.example.com/callback2"], ["https://test.example.com/logout", "https://test.example.com/logout2"], client)
+        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB.toString(), ["https://test.example.com/callback", "https://test.example.com/callback2"], ["https://test.example.com/logout", "https://test.example.com/logout2"], client)
 
         ArgumentCaptor<Map> mapCapture = ArgumentCaptor.forClass(Map)
         verify(propertySource).addProperties(mapCapture.capture())
@@ -171,7 +172,7 @@ class DefaultSetupServiceTest {
         when(resource.getString("client_secret")).thenReturn("test-client-secret")
         when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName, [], [])).thenReturn(resource)
 
-        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB, client)
+        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, null, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB.toString(), client)
 
         ArgumentCaptor<Map> mapCapture = ArgumentCaptor.forClass(Map)
         verify(propertySource).addProperties(mapCapture.capture())
@@ -226,7 +227,7 @@ class DefaultSetupServiceTest {
         when(resource.getString("client_secret")).thenReturn("test-client-secret")
         when(setupService.oidcAppCreator.createOidcApp(client, oidcAppName, [], [])).thenReturn(resource)
 
-        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, ["group-one", "group-two"] as Set, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB, client)
+        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, ["group-one", "group-two"] as Set, null, authorizationServerId, interactive, OpenIdConnectApplicationType.WEB.toString(), client)
 
         ArgumentCaptor<Map> mapCapture = ArgumentCaptor.forClass(Map)
         verify(propertySource).addProperties(mapCapture.capture())
@@ -360,6 +361,67 @@ class DefaultSetupServiceTest {
         verify(client).createOrigin(newOrigin)
 
         verifyNoMoreInteractions(client)
+    }
+
+    @Test
+    void createDeviceGrantApp() {
+        MutablePropertySource propertySource = mock(MutablePropertySource)
+        String oidcAppName = "test-app-name"
+        String orgUrl = "https://org.example.com"
+        String authorizationServerId = "test-auth-id"
+        boolean interactive = false
+
+        Client client = mock(Client)
+
+        DefaultSetupService setupService = setupService()
+        ExtensibleResource resource = mock(ExtensibleResource)
+        AuthorizationServerPolicyRule rule = mock(AuthorizationServerPolicyRule)
+        when(resource.getString("client_id")).thenReturn("test-client-id")
+        when(setupService.oidcAppCreator.createDeviceCodeApp(client, oidcAppName)).thenReturn(resource)
+        when(setupService.authorizationServerService.getSinglePolicyRule(client, authorizationServerId)).thenReturn(Optional.of(rule))
+
+        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, null, null, null, authorizationServerId, interactive, SetupService.APP_TYPE_DEVICE, client)
+
+        ArgumentCaptor<Map> mapCapture = ArgumentCaptor.forClass(Map)
+        verify(propertySource).addProperties(mapCapture.capture())
+        assertThat mapCapture.getValue(), is([
+                "okta.oauth2.issuer": "${orgUrl}/oauth2/${authorizationServerId}".toString(),
+                "okta.oauth2.client-id": "test-client-id",
+                "okta.oauth2.client-secret": null
+        ])
+
+        // enableDeviceGrant was called
+        verify(setupService.authorizationServerService).enableDeviceGrant(client, authorizationServerId, rule)
+    }
+
+    @Test
+    void createDeviceGrantAppWithComplexPolicy() {
+        MutablePropertySource propertySource = mock(MutablePropertySource)
+        String oidcAppName = "test-app-name"
+        String orgUrl = "https://org.example.com"
+        String authorizationServerId = "test-auth-id"
+        boolean interactive = false
+
+        Client client = mock(Client)
+
+        DefaultSetupService setupService = setupService()
+        ExtensibleResource resource = mock(ExtensibleResource)
+        when(resource.getString("client_id")).thenReturn("test-client-id")
+        when(setupService.oidcAppCreator.createDeviceCodeApp(client, oidcAppName)).thenReturn(resource)
+        when(setupService.authorizationServerService.getSinglePolicyRule(client, authorizationServerId)).thenReturn(Optional.empty())
+
+        setupService.createOidcApplication(propertySource, oidcAppName, orgUrl, null, null, null, authorizationServerId, interactive, SetupService.APP_TYPE_DEVICE, client)
+
+        ArgumentCaptor<Map> mapCapture = ArgumentCaptor.forClass(Map)
+        verify(propertySource).addProperties(mapCapture.capture())
+        assertThat mapCapture.getValue(), is([
+                "okta.oauth2.issuer": "${orgUrl}/oauth2/${authorizationServerId}".toString(),
+                "okta.oauth2.client-id": "test-client-id",
+                "okta.oauth2.client-secret": null
+        ])
+
+        verify(setupService.authorizationServerService).getSinglePolicyRule(client, authorizationServerId)
+        verifyNoMoreInteractions(setupService.authorizationServerService)
     }
 
     private static DefaultSetupService setupService(OidcProperties oidcProperties = OidcProperties.oktaEnv()) {

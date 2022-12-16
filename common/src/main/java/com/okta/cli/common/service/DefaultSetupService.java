@@ -30,7 +30,7 @@ import com.okta.sdk.impl.config.ClientConfiguration;
 import com.okta.sdk.impl.resource.DefaultGroupBuilder;
 import com.okta.sdk.resource.ExtensibleResource;
 import com.okta.sdk.resource.ResourceException;
-import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
+import com.okta.sdk.resource.authorization.server.policy.AuthorizationServerPolicyRule;
 import com.okta.sdk.resource.group.Group;
 import com.okta.sdk.resource.group.GroupList;
 import com.okta.sdk.resource.role.Scope;
@@ -48,6 +48,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -166,7 +167,7 @@ public class DefaultSetupService implements SetupService {
                                       String issuerUri,
                                       String authorizationServerId,
                                       boolean interactive,
-                                      OpenIdConnectApplicationType appType,
+                                      String appType,
                                       List<String> redirectUris,
                                       List<String> postLogoutRedirectUris,
                                       List<String> trustedOrigins,
@@ -174,6 +175,7 @@ public class DefaultSetupService implements SetupService {
 
         // Create new Application
         String clientId = propertySource.getProperty(oidcProperties.clientIdPropertyName);
+        boolean enableDeviceGrant = false;
 
         try (ProgressBar progressBar = ProgressBar.create(interactive)) {
             if (!ConfigurationValidator.validateClientId(clientId).isValid()) {
@@ -182,17 +184,21 @@ public class DefaultSetupService implements SetupService {
 
                 ExtensibleResource clientCredsResponse;
                 switch (appType) {
-                    case WEB:
+                    case APP_TYPE_WEB:
                         clientCredsResponse = oidcAppCreator.createOidcApp(client, oidcAppName, redirectUris, postLogoutRedirectUris);
                         break;
-                    case NATIVE:
+                    case APP_TYPE_NATIVE:
                         clientCredsResponse = oidcAppCreator.createOidcNativeApp(client, oidcAppName, redirectUris, postLogoutRedirectUris);
                         break;
-                    case BROWSER:
+                    case APP_TYPE_BROWSER:
                         clientCredsResponse = oidcAppCreator.createOidcSpaApp(client, oidcAppName, redirectUris, postLogoutRedirectUris);
                         break;
-                    case SERVICE:
+                    case APP_TYPE_SERVICE:
                         clientCredsResponse = oidcAppCreator.createOidcServiceApp(client, oidcAppName, redirectUris);
+                        break;
+                    case APP_TYPE_DEVICE:
+                        clientCredsResponse = oidcAppCreator.createDeviceCodeApp(client, oidcAppName);
+                        enableDeviceGrant = true;
                         break;
                     default:
                         throw new IllegalStateException("Unsupported Application Type: "+ appType);
@@ -222,6 +228,17 @@ public class DefaultSetupService implements SetupService {
                     progressBar.info("Adding user '" + user.getProfile().getLogin() + "' to groups: " + groupsToCreate);
                     groupsToCreate.forEach(groupName -> {
                         createAndAssignGroup(client, user, groupName, progressBar);
+                    });
+                }
+
+                if (enableDeviceGrant) {
+                    progressBar.info("Enabling Device Grant");
+                    Optional<AuthorizationServerPolicyRule> optionalRule = authorizationServerService.getSinglePolicyRule(client, authorizationServerId);
+                    optionalRule.ifPresentOrElse(rule -> {
+                        authorizationServerService.enableDeviceGrant(client, authorizationServerId, rule);
+                    },() -> {
+                        progressBar.info("Custom Authorization Server policy detected, if you are going to use an Okta Custom Authorization Server, you must enable the 'Device Authorization' grant manually, see:");
+                        progressBar.info("https://developer.okta.com/docs/guides/device-authorization-grant/main/#configure-the-authorization-server-policy-rule-for-device-authorization");
                     });
                 }
 

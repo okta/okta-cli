@@ -156,7 +156,8 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
                                         // PUT /api/v1/apps/test-app-id/groups/every1-id
                                         jsonRequest('{}'),
                                         //GET /api/v1/internal/apps/test-app-id/settings/clientcreds
-                                        jsonRequest('{ "client_id": "test-id" }')]
+                                        jsonRequest('{ "client_id": "test-id" }')
+        ]
 
         mockWebServer.with {
             responses.forEach { mockWebServer.enqueue(it) }
@@ -185,6 +186,62 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
             mockWebServer.takeRequest() // auth list request
             mockWebServer.takeRequest() // check if app exists
             verifyRedirectUri(mockWebServer.takeRequest(), ["localhost:/callback"])
+        }
+    }
+
+    // This test is different from the previous one in that it runs `apps create device`
+    @Test
+    void createDeviceApp() {
+        MockWebServer mockWebServer = createMockServer()
+        List<MockResponse> responses = [
+                                        // GET /api/v1/authorizationServers
+                                        jsonRequest('[{ "id": "test-as", "name": "test-as-name", "issuer": "' + url(mockWebServer,"/") + '/oauth2/test-as" }]'),
+                                        // GET /api/v1/apps?q=test-project
+                                        jsonRequest('[]'),
+                                        // POST /api/v1/apps
+                                        jsonRequest('{ "id": "test-app-id", "label": "test-app-name" }'),
+                                        // GET /api/v1/groups?search=profile.name eq "everyone"
+                                        jsonRequest("[${everyoneGroup()}]"),
+                                        // PUT /api/v1/apps/test-app-id/groups/every1-id
+                                        jsonRequest('{}'),
+                                        // GET /api/v1/internal/apps/test-app-id/settings/clientcreds
+                                        jsonRequest('{ "client_id": "test-id" }'),
+                                        // GET /api/v1/authorizationServers/test-as/policies
+                                        jsonRequest('[{"id": "single-policy-id"}]'),
+                                        // GET /api/v1/authorizationServers/test-as/policies/single-policy-id/rules
+                                        jsonRequest(List.of([id: "single-rule-id",
+                                                             conditions: [
+                                                                 grantTypes: [
+                                                                     include:[]]],
+                                                            _links: [
+                                                                self: [
+                                                                    href: url(mockWebServer,"/api/v1/authorizationServers/test-as/policies/single-policy-id/rules/single-rule-id")]]
+                                        ])),
+                                        // POST /api/v1/authorizationServers/test-as/policies/single-policy-id/rules/single-rule-id
+                                        jsonRequest('{}') // auth server rule update
+        ]
+
+        mockWebServer.with {
+            responses.forEach { mockWebServer.enqueue(it) }
+
+            List<String> input = [
+                    "",  // default of "test-project"
+                    "4", // "device" type of app choice
+            ]
+
+            def result = new CommandRunner()
+                    .withSdkConfig(url(mockWebServer,"/"))
+                    .runCommandWithInput(input,"--color=never", "apps", "create")
+
+            assertThat result, resultMatches(0, allOf(
+                    containsString("Okta application configuration:"),
+                    containsString("okta.oauth2.client-id: test-id"),
+                    containsString("okta.oauth2.issuer: ${url(mockWebServer,"/")}/oauth2/test-as"),
+                    not(containsString("okta.oauth2.client-secret"))),
+                    null)
+
+            8.times {mockWebServer.takeRequest() }
+            verifyDeviceGrantType(mockWebServer.takeRequest(), "/api/v1/authorizationServers/test-as/policies/single-policy-id/rules/single-rule-id")
         }
     }
 
@@ -366,7 +423,7 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
 
             List<String> input = [
                     "",  // default of "test-project"
-                    "4", // "native" type of app choice
+                    "5", // "native" type of app choice
                     "",  // default callback "localhost:/callback"
                     "",  // default post logout redirect
             ]
@@ -445,5 +502,11 @@ class AppsCreateIT implements MockWebSupport, CreateAppSupport {
         verify(request, "POST", "/api/v1/trustedOrigins")
         def body = new JsonSlurper().parse(request.getBody().inputStream())
         assertThat body.origin, equalTo(expectedUri)
+    }
+
+    private void verifyDeviceGrantType(RecordedRequest request, String url) {
+        verify(request, "PUT", url)
+        def body = new JsonSlurper().parse(request.getBody().inputStream())
+        assertThat body.conditions.grantTypes.include, equalTo(["urn:ietf:params:oauth:grant-type:device_code"])
     }
 }

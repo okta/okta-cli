@@ -29,6 +29,7 @@ import com.okta.cli.common.service.DefaultSampleConfigParser;
 import com.okta.cli.common.service.DefaultSdkConfigurationService;
 import com.okta.cli.common.service.DefaultSetupService;
 import com.okta.cli.common.service.DefaultStartRestClient;
+import com.okta.cli.common.service.SetupService;
 import com.okta.cli.common.service.TarballExtractor;
 import com.okta.cli.console.ConsoleOutput;
 import com.okta.cli.console.PromptOption;
@@ -36,7 +37,6 @@ import com.okta.commons.lang.Assert;
 import com.okta.commons.lang.Strings;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
-import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -48,7 +48,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -114,8 +113,12 @@ public class Start extends BaseCommand {
 
         // parse the `.okta.yaml` file
         OktaSampleConfig config = new DefaultSampleConfigParser().loadConfig(projectDirectory, sampleContext);
-        OpenIdConnectApplicationType applicationType = OpenIdConnectApplicationType.valueOf(
-                config.getOAuthClient().getApplicationType().toUpperCase(Locale.ENGLISH));
+        String applicationType = config.getOAuthClient().getApplicationType();
+
+        // remap device key, because the actual grant name is long
+        if (applicationType.equals("device")) {
+            applicationType = SetupService.APP_TYPE_DEVICE;
+        }
 
         // create the Okta application
         Client client = Clients.builder().build();

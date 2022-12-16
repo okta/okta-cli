@@ -29,4 +29,6 @@ public interface OidcAppCreator {
     ExtensibleResource createOidcSpaApp(Client client, String oidcAppName, List<String> redirectUris, List<String> postLogoutRedirectUris);
 
     ExtensibleResource createOidcServiceApp(Client client, String oidcAppName, List<String> redirectUris);
+
+    ExtensibleResource createDeviceCodeApp(Client client, String oidcAppName);
 }

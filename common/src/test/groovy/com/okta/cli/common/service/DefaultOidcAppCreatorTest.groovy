@@ -249,4 +249,71 @@ class DefaultOidcAppCreatorTest {
         verify(settingsClient).setApplicationType(OpenIdConnectApplicationType.NATIVE)
         verify(settingsClient, never()).setPostLogoutRedirectUris(any(List))
     }
+
+    @Test
+    void createDeviceApp() {
+
+        String appName = "appLabel-createDeviceApp"
+        String appId = "appId-createDeviceApp"
+        String groupId = "everyone-id"
+
+        Client client = mock(Client)
+        ApplicationList appList = mock(ApplicationList)
+        List<Application> apps = []
+        RequestBuilder http = mock(RequestBuilder)
+        ExtensibleResource response = mock(ExtensibleResource)
+
+        OpenIdConnectApplication newApp = mock(OpenIdConnectApplication)
+        OpenIdConnectApplicationSettings appSettings = mock(OpenIdConnectApplicationSettings)
+        OpenIdConnectApplicationSettingsClient settingsClient = mock(OpenIdConnectApplicationSettingsClient)
+        ApplicationGroupAssignment groupAssignment = mock(ApplicationGroupAssignment)
+        ApplicationCredentialsOAuthClient credentialsOAuthClient = mock(ApplicationCredentialsOAuthClient)
+        OAuthApplicationCredentials appCreds = mock(OAuthApplicationCredentials)
+
+        GroupList groupList = mock(GroupList)
+        Group group = mock(Group)
+
+        DefaultOidcAppCreator appCreator = new DefaultOidcAppCreator()
+
+        when(client.listApplications(appName, null, null, null)).thenReturn(appList)
+        when(newApp.setLabel(appName)).thenReturn(newApp)
+        when(newApp.setSettings(appSettings)).thenReturn(newApp)
+        when(newApp.setCredentials((OAuthApplicationCredentials) appCreds)).thenReturn(newApp)
+        when(appSettings.setOAuthClient(settingsClient)).thenReturn(appSettings)
+        when(appCreds.setOAuthClient(credentialsOAuthClient)).thenReturn(appCreds)
+        when(credentialsOAuthClient.setTokenEndpointAuthMethod(OAuthEndpointAuthenticationMethod.NONE)).thenReturn(credentialsOAuthClient)
+
+        when(client.instantiate(OpenIdConnectApplication)).thenReturn(newApp)
+        when(client.instantiate(OpenIdConnectApplicationSettings)).thenReturn(appSettings)
+        when(client.instantiate(OpenIdConnectApplicationSettingsClient)).thenReturn(settingsClient)
+        when(client.instantiate(ApplicationGroupAssignment)).thenReturn(groupAssignment)
+        when(client.instantiate(OAuthApplicationCredentials)).thenReturn(appCreds)
+        when(client.instantiate(ApplicationCredentialsOAuthClient)).thenReturn(credentialsOAuthClient)
+
+        when(settingsClient.setRedirectUris(any(List))).thenReturn(settingsClient)
+        when(settingsClient.setResponseTypes(any(List))).thenReturn(settingsClient)
+        when(settingsClient.setGrantTypes(any(List))).thenReturn(settingsClient)
+        when(settingsClient.setApplicationType(OpenIdConnectApplicationType.NATIVE)).thenReturn(settingsClient)
+        when(groupAssignment.setPriority(any(Integer))).thenReturn(groupAssignment)
+
+        when(client.createApplication(newApp)).thenReturn(newApp)
+        when(newApp.getId()).thenReturn(appId)
+        when(appList.stream()).thenReturn(apps.stream())
+
+        when(groupList.single()).thenReturn(group)
+        when(group.getId()).thenReturn(groupId)
+        when(client.listGroups(null, "profile.name eq \"everyone\"", null)).thenReturn(groupList)
+
+        when(client.http()).thenReturn(http)
+        when(http.get("/api/v1/internal/apps/${appId}/settings/clientcreds", ExtensibleResource)).thenReturn(response)
+
+        ExtensibleResource result = appCreator.createDeviceCodeApp(client, appName)
+
+        assertThat result, is(response)
+
+        verify(settingsClient).put("grant_types", [SetupService.APP_TYPE_DEVICE])
+        verify(settingsClient).setApplicationType(OpenIdConnectApplicationType.NATIVE)
+        verify(settingsClient, never()).setPostLogoutRedirectUris(any(List))
+        verify(settingsClient, never()).setRedirectUris(any(List))
+    }
 }

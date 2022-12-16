@@ -17,12 +17,18 @@ package com.okta.cli.common.service;
 
 import com.okta.cli.common.model.AuthorizationServer;
 import com.okta.sdk.client.Client;
+import com.okta.sdk.resource.authorization.server.policy.AuthorizationServerPolicyRule;
 
 import java.util.Map;
+import java.util.Optional;
 
 public interface AuthorizationServerService {
 
     Map<String, AuthorizationServer> authorizationServersMap(Client client);
 
     void createGroupClaim(Client client, String groupClaimName, String authorizationServerId);
+
+    Optional<AuthorizationServerPolicyRule> getSinglePolicyRule(Client client, String authorizationServerId);
+
+    void enableDeviceGrant(Client client, String authorizationServerId, AuthorizationServerPolicyRule rule);
 }

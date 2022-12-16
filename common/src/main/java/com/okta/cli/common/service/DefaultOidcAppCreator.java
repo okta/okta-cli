@@ -172,6 +172,36 @@ class DefaultOidcAppCreator implements OidcAppCreator {
         return getClientCredentials(client, oidcApplication);
     }
 
+    @Override
+    public ExtensibleResource createDeviceCodeApp(Client client, String oidcAppName) {
+
+        Optional<Application> existingApp = getApplication(client, oidcAppName);
+
+        // create a new OIDC app if one does NOT exist
+        Application oidcApplication = existingApp.orElseGet(() -> {
+
+            OpenIdConnectApplicationSettingsClient oidcClient = client.instantiate(OpenIdConnectApplicationSettingsClient.class)
+                    .setApplicationType(OpenIdConnectApplicationType.NATIVE);
+            oidcClient.put("grant_types", List.of("urn:ietf:params:oauth:grant-type:device_code"));
+
+            Application app = client.instantiate(OpenIdConnectApplication.class)
+                    .setSettings(client.instantiate(OpenIdConnectApplicationSettings.class)
+                            .setOAuthClient(oidcClient))
+                    .setCredentials(client.instantiate(OAuthApplicationCredentials.class)
+                            .setOAuthClient(client.instantiate(ApplicationCredentialsOAuthClient.class)
+                                    .setTokenEndpointAuthMethod(OAuthEndpointAuthenticationMethod.NONE)))
+                    .setLabel(oidcAppName);
+
+            app = client.createApplication(app);
+            assignAppToEveryoneGroup(client, app);
+
+            return app;
+        });
+
+        // lookup the credentials for this application
+        return getClientCredentials(client, oidcApplication);
+    }
+
     private Optional<Application> getApplication(Client client, String appName) {
         return client.listApplications(appName, null, null, null).stream()
                 .filter(app -> appName.equals(app.getLabel()))
