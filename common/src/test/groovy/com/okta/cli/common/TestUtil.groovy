@@ -17,6 +17,7 @@ package com.okta.cli.common
 
 import org.testng.Assert
 import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.constructor.Constructor
 
 class TestUtil {
 
@@ -34,7 +35,7 @@ class TestUtil {
 
     static Map readYamlFromFile(File configFile) {
         configFile.withReader {
-            return new Yaml().loadAs(it, Map.class)
+            return new Yaml(new Constructor(Map)).loadAs(it, Map)
         }
     }
 

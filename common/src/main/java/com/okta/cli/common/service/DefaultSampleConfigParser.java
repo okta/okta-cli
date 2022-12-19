@@ -16,7 +16,9 @@
 package com.okta.cli.common.service;
 
 import com.okta.cli.common.model.OktaSampleConfig;
+import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.File;
@@ -45,10 +47,10 @@ public class DefaultSampleConfigParser implements SampleConfigParser {
         configFileContent = new DefaultInterpolator().interpolate(configFileContent, context);
 
         // ignore unknown properties, so we can add additional features and not break older clients
-        Representer representer = new Representer();
+        Representer representer = new Representer(new DumperOptions());
         representer.getPropertyUtils().setSkipMissingProperties(true);
 
-        OktaSampleConfig config = new Yaml(representer).loadAs(configFileContent, OktaSampleConfig.class);
+        OktaSampleConfig config = new Yaml(new Constructor(OktaSampleConfig.class), representer).loadAs(configFileContent, OktaSampleConfig.class);
 
         // TODO improve validation of configuration
         if (config.getOAuthClient() == null) {
