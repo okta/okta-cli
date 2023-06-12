@@ -18,8 +18,10 @@ package com.okta.cli.common.config;
 import com.okta.sdk.impl.config.YAMLPropertiesSource;
 import com.okta.sdk.impl.io.FileResource;
 import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.File;
@@ -49,7 +51,7 @@ public class YamlPropertiesSource extends WrappedMutablePropertiesSource {
     @Override
     public void addProperties(Map<String, String> properties) throws IOException {
 
-        Yaml springAppYaml = new Yaml(new Constructor(Map.class), new Representer(yamlOptions()));
+        Yaml springAppYaml = new Yaml(new Constructor(Map.class, new LoaderOptions()), new Representer(yamlOptions()));
         Map<String, Object> existingProperties = new HashMap<>();
         if (yamlFile.exists()) {
             try (Reader reader = new InputStreamReader(new FileInputStream(yamlFile), StandardCharsets.UTF_8)) {
