@@ -19,7 +19,6 @@ import org.testng.Assert
 import org.yaml.snakeyaml.LoaderOptions
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
-import org.yaml.snakeyaml.constructor.SafeConstructor
 
 class TestUtil {
 
