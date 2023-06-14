@@ -38,6 +38,12 @@
             <artifactId>okta-sdk-impl</artifactId>
             <version>8.2.2</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.yaml</groupId>
+                    <artifactId>snakeyaml</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.okta.sdk</groupId>
@@ -82,7 +88,6 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
