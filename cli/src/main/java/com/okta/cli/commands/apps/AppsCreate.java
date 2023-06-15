@@ -25,6 +25,7 @@ import com.okta.cli.common.model.OidcProperties;
 import com.okta.cli.common.service.ClientConfigurationException;
 import com.okta.cli.common.service.DefaultSdkConfigurationService;
 import com.okta.cli.common.service.DefaultSetupService;
+import com.okta.cli.common.service.SetupService;
 import com.okta.cli.console.ConsoleOutput;
 import com.okta.cli.console.Prompter;
 import com.okta.commons.lang.Assert;
@@ -86,6 +87,8 @@ public class AppsCreate extends BaseCommand {
                 return createSpaApp(appName);
             case NATIVE:
                 return createNativeApp(appName);
+            case DEVICE:
+                return createDeviceApp(appName);
             case SERVICE:
                 return createServiceApp(appName,(ServiceAppTemplate) appTemplate);
             default:
@@ -114,7 +117,7 @@ public class AppsCreate extends BaseCommand {
         OidcProperties oidcProperties = appTemplate.getOidcProperties();
 
         MutablePropertySource propertySource = appCreationMixin.getPropertySource(appTemplate.getDefaultConfigFileName());
-        new DefaultSetupService(oidcProperties).createOidcApplication(propertySource, appName, baseUrl, groupClaimName, groupsToCreate, issuer.getIssuer(), issuer.getId(), true, OpenIdConnectApplicationType.WEB, redirectUris, postLogoutRedirectUris, client);
+        new DefaultSetupService(oidcProperties).createOidcApplication(propertySource, appName, baseUrl, groupClaimName, groupsToCreate, issuer.getIssuer(), issuer.getId(), true, OpenIdConnectApplicationType.WEB.toString(), redirectUris, postLogoutRedirectUris, client);
 
         out.writeLine("Okta application configuration has been written to: " + propertySource.getName());
 
@@ -134,7 +137,28 @@ public class AppsCreate extends BaseCommand {
         AuthorizationServer issuer = getIssuer(client);
 
         MutablePropertySource propertySource = new MapPropertySource();
-        new DefaultSetupService(OidcProperties.oktaEnv()).createOidcApplication(propertySource, appName, baseUrl, null, Collections.emptySet(), issuer.getIssuer(), issuer.getId(), getEnvironment().isInteractive(), OpenIdConnectApplicationType.NATIVE, redirectUris, postLogoutRedirectUris, client);
+        new DefaultSetupService(OidcProperties.oktaEnv()).createOidcApplication(propertySource, appName, baseUrl, null, Collections.emptySet(), issuer.getIssuer(), issuer.getId(), getEnvironment().isInteractive(), OpenIdConnectApplicationType.NATIVE.toString(), redirectUris, postLogoutRedirectUris, client);
+
+        out.writeLine("Okta application configuration: ");
+        propertySource.getProperties().forEach((key, value) -> {
+            out.bold(key);
+            out.write(": ");
+            out.writeLine(value);
+        });
+
+        return 0;
+    }
+
+    private Integer createDeviceApp(String appName) throws IOException {
+
+        ConsoleOutput out = getConsoleOutput();
+        String baseUrl = getBaseUrl();
+
+        Client client = Clients.builder().build();
+        AuthorizationServer issuer = getIssuer(client);
+
+        MutablePropertySource propertySource = new MapPropertySource();
+        new DefaultSetupService(OidcProperties.oktaEnv()).createOidcApplication(propertySource, appName, baseUrl, null, Collections.emptySet(), issuer.getIssuer(), issuer.getId(), getEnvironment().isInteractive(), SetupService.APP_TYPE_DEVICE, client);
 
         out.writeLine("Okta application configuration: ");
         propertySource.getProperties().forEach((key, value) -> {
@@ -158,7 +182,7 @@ public class AppsCreate extends BaseCommand {
         AuthorizationServer issuer = getIssuer(client);
 
         MutablePropertySource propertySource = appCreationMixin.getPropertySource(appTemplate.getDefaultConfigFileName());
-        new DefaultSetupService(appTemplate.getOidcProperties()).createOidcApplication(propertySource, appName, baseUrl, null, Collections.emptySet(), issuer.getIssuer(), issuer.getId(), getEnvironment().isInteractive(), OpenIdConnectApplicationType.SERVICE, client);
+        new DefaultSetupService(appTemplate.getOidcProperties()).createOidcApplication(propertySource, appName, baseUrl, null, Collections.emptySet(), issuer.getIssuer(), issuer.getId(), getEnvironment().isInteractive(), OpenIdConnectApplicationType.SERVICE.toString(), client);
 
         out.writeLine("Okta application configuration has been written to: " + propertySource.getName());
 
@@ -177,7 +201,7 @@ public class AppsCreate extends BaseCommand {
         List<String> trustedOrigins = redirectUris.stream().map(URIs::baseUrlOf).collect(Collectors.toList());
 
         MutablePropertySource propertySource = new MapPropertySource();
-        new DefaultSetupService(OidcProperties.oktaEnv()).createOidcApplication(propertySource, appName, baseUrl, null, Collections.emptySet(), authorizationServer.getIssuer(), authorizationServer.getId(), getEnvironment().isInteractive(), OpenIdConnectApplicationType.BROWSER, redirectUris, postLogoutRedirectUris, trustedOrigins, client);
+        new DefaultSetupService(OidcProperties.oktaEnv()).createOidcApplication(propertySource, appName, baseUrl, null, Collections.emptySet(), authorizationServer.getIssuer(), authorizationServer.getId(), getEnvironment().isInteractive(), OpenIdConnectApplicationType.BROWSER.toString(), redirectUris, postLogoutRedirectUris, trustedOrigins, client);
 
         out.writeLine("Okta application configuration: ");
         out.bold("Issuer:    ");
@@ -267,6 +291,8 @@ public class AppsCreate extends BaseCommand {
         SPA("spa", AppType.SPA, SpaAppTemplate.GENERIC),
         // native
         NATIVE("native", AppType.NATIVE, NativeAppTemplate.GENERIC),
+        // CLI, TV, other device
+        DEVICE("device", AppType.DEVICE, DeviceAppTemplate.GENERIC),
         // service
         SPRING_BOOT_SERVICE("spring-boot-service", AppType.SERVICE, ServiceAppTemplate.SPRING_BOOT),
         JHIPSTER_SERVICE("jhipster-service", AppType.SERVICE, ServiceAppTemplate.JHIPSTER),

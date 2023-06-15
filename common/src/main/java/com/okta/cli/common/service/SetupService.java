@@ -19,7 +19,6 @@ import com.okta.cli.common.config.MutablePropertySource;
 import com.okta.cli.common.model.OrganizationResponse;
 import com.okta.cli.common.model.RegistrationQuestions;
 import com.okta.sdk.client.Client;
-import com.okta.sdk.resource.application.OpenIdConnectApplicationType;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +27,13 @@ import java.util.List;
 import java.util.Set;
 
 public interface SetupService {
+
+    // Copied from OpenIdConnectApplicationType, device_code is missing from that class
+    String APP_TYPE_WEB = "web";
+    String APP_TYPE_SERVICE = "service";
+    String APP_TYPE_BROWSER = "browser";
+    String APP_TYPE_NATIVE = "native";
+    String APP_TYPE_DEVICE = "urn:ietf:params:oauth:grant-type:device_code";
 
     OrganizationResponse createOktaOrg(RegistrationQuestions registrationQuestions,
                                        File oktaPropsFile,
@@ -46,7 +52,7 @@ public interface SetupService {
                                        String issuerUri,
                                        String authorizationServerId,
                                        boolean interactive,
-                                       OpenIdConnectApplicationType appType,
+                                       String appType,
                                        Client client) throws IOException {
         createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, groupsToCreate, issuerUri, authorizationServerId, interactive, appType, Collections.emptyList(), client);
     }
@@ -59,7 +65,7 @@ public interface SetupService {
                                        String issuerUri,
                                        String authorizationServerId,
                                        boolean interactive,
-                                       OpenIdConnectApplicationType appType,
+                                       String appType,
                                        List<String> redirectUris,
                                        Client client) throws IOException {
         createOidcApplication(propertySource, oidcAppName, orgUrl, groupClaimName, groupsToCreate, issuerUri, authorizationServerId, interactive, appType, redirectUris, Collections.emptyList(), client);
@@ -73,7 +79,7 @@ public interface SetupService {
                                        String issuerUri,
                                        String authorizationServerId,
                                        boolean interactive,
-                                       OpenIdConnectApplicationType appType,
+                                       String appType,
                                        List<String> redirectUris,
                                        List<String> postLogoutRedirectUris,
                                        Client client) throws IOException {
@@ -88,7 +94,7 @@ public interface SetupService {
                                String issuerUri,
                                String authorizationServerId,
                                boolean interactive,
-                               OpenIdConnectApplicationType appType,
+                               String appType,
                                List<String> redirectUris,
                                List<String> postLogoutRedirectUris,
                                List<String> trustedOrigins,

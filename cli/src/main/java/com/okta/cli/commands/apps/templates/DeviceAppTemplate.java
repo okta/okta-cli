@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-Present Okta, Inc.
+ * Copyright 2022-Present Okta, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,19 @@
  */
 package com.okta.cli.commands.apps.templates;
 
-import com.okta.cli.console.PromptOption;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
-public enum AppType implements PromptOption<AppType> {
-    WEB("Web"),
-    SPA("Single Page App"),
-    NATIVE("Native App (mobile)"),
-    DEVICE("Device App (TV, CLI, or other device)"),
-    SERVICE("Service (Machine-to-Machine)");
+public enum DeviceAppTemplate {
+
+    GENERIC("Device Grant App");
+
+    private static final List<String> names = Arrays.stream(values()).map(it -> it.friendlyName).collect(Collectors.toList());
 
     private final String friendlyName;
 
-    AppType(String friendlyName) {
+    DeviceAppTemplate(String friendlyName) {
         this.friendlyName = friendlyName;
-    }
-
-    @Override
-    public String displayName() {
-        return friendlyName;
-    }
-
-    @Override
-    public AppType value() {
-        return this;
     }
 }

@@ -20,10 +20,14 @@ import com.okta.cli.common.model.AuthorizationServerList;
 import com.okta.commons.lang.Assert;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.resource.ExtensibleResource;
+import com.okta.sdk.resource.authorization.server.AuthorizationServerPolicy;
+import com.okta.sdk.resource.authorization.server.AuthorizationServerPolicyList;
+import com.okta.sdk.resource.authorization.server.policy.AuthorizationServerPolicyRule;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DefaultAuthorizationServerService implements AuthorizationServerService {
@@ -54,6 +58,35 @@ public class DefaultAuthorizationServerService implements AuthorizationServerSer
             // create the group claim
             createClaim(client, groupClaimName, authorizationServerId, "RESOURCE");
             createClaim(client, groupClaimName, authorizationServerId, "IDENTITY");
+        }
+    }
+
+    @Override
+    public Optional<AuthorizationServerPolicyRule> getSinglePolicyRule(Client client, String authorizationServerId) {
+
+        List<AuthorizationServerPolicy> policies = client.http()
+                .get("/api/v1/authorizationServers/" + authorizationServerId + "/policies", AuthorizationServerPolicyList.class)
+                .stream()
+                .toList();
+
+        if (policies.size() != 1) {
+            return Optional.empty();
+        }
+
+        List<AuthorizationServerPolicyRule> rules = policies.get(0).listPolicyRules(authorizationServerId).stream().toList();
+        if (rules.size() != 1) {
+            return Optional.empty();
+        }
+
+        return Optional.of(rules.get(0));
+    }
+
+    @Override
+    public void enableDeviceGrant(Client client, String authorizationServerId, AuthorizationServerPolicyRule rule) {
+        List<String> grantTypes = rule.getConditions().getGrantTypes().getInclude();
+        if (!grantTypes.contains(SetupService.APP_TYPE_DEVICE)) {
+            grantTypes.add(SetupService.APP_TYPE_DEVICE);
+            rule.update(authorizationServerId);
         }
     }
 
