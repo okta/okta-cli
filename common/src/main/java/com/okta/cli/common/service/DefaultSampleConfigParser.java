@@ -19,7 +19,7 @@ import com.okta.cli.common.model.OktaSampleConfig;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.SafeConstructor;
+import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.File;
@@ -51,7 +51,7 @@ public class DefaultSampleConfigParser implements SampleConfigParser {
         Representer representer = new Representer(new DumperOptions());
         representer.getPropertyUtils().setSkipMissingProperties(true);
 
-        OktaSampleConfig config = new Yaml(new SafeConstructor(new LoaderOptions()), representer).loadAs(configFileContent, OktaSampleConfig.class);
+        OktaSampleConfig config = new Yaml(new Constructor(OktaSampleConfig.class, new LoaderOptions()), representer).loadAs(configFileContent, OktaSampleConfig.class);
 
         // TODO improve validation of configuration
         if (config.getOAuthClient() == null) {
