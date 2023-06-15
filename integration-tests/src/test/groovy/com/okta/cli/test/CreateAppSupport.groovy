@@ -28,6 +28,7 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
 import org.hamcrest.Matcher
 import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.LoaderOptions
 import org.yaml.snakeyaml.constructor.Constructor
 
 import java.nio.charset.StandardCharsets
@@ -69,7 +70,7 @@ trait CreateAppSupport {
     }
 
     Map parseYaml(File oktaConfigFile) {
-        Yaml yaml = new Yaml(new Constructor(Map))
+        Yaml yaml = new Yaml(new Constructor(Map.class, new LoaderOptions()))
         return yaml.load(oktaConfigFile.text)
     }
 
