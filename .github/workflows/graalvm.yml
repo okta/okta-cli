@@ -24,7 +24,7 @@ on:
   pull_request: # build all PRs
 
 env:
-  graalvm_version: '22.3.0'
+  graalvm_version: '22.3.3'
 
 jobs:
   build:
