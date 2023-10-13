@@ -145,7 +145,7 @@ The third party software "bash-completion" enables adding command completion for
 okta generate-completion > /usr/local/etc/bash_completion.d/okta
 ```
 
-###Linux
+### Linux
 
 ```sh
 okta generate-completion > /etc/bash_completion.d/okta
