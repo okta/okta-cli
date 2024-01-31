@@ -53,7 +53,7 @@ jobs:
         run: ./src/ci/gh-build.sh
 
       - name: Archive Binary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: okta-cli-${{ matrix.os }}-x86_64
           path: cli/target/okta
@@ -106,7 +106,7 @@ jobs:
         shell: cmd
 
       - name: Archive Binary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: okta-cli-${{ matrix.os }}-x86_64.exe
           path: cli/target/okta.exe
