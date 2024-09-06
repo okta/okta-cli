@@ -78,7 +78,7 @@
         <dependency>
             <groupId>org.graalvm.nativeimage</groupId>
             <artifactId>svm</artifactId>
-            <version>22.3.0</version>
+            <version>23.0.1</version>
         </dependency>
 
         <dependency>
@@ -168,6 +168,7 @@
                     <buildArgs>
                         <arg>--no-fallback</arg>
                         <arg>--no-server</arg>
+                        <arg>--add-exports=jdk.internal.vm.compiler/org.graalvm.compiler.options=ALL-UNNAMED</arg>
                         <arg>--enable-url-protocols=http,https</arg>
                         <arg>-H:ResourceConfigurationFiles=../src/main/graalvm/resource-config.json</arg>
                         <arg>-H:ReflectionConfigurationFiles=../src/main/graalvm/reflect-config.json,../src/main/graalvm/okta-sdk-reflect-config.json</arg>
