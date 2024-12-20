@@ -72,7 +72,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: ilammy/msvc-dev-cmd@v1.12.1
+      - uses: ilammy/msvc-dev-cmd@v1.13.0
       - uses: microsoft/setup-msbuild@v2.0.0
 
       - name: Set up GraalVM
@@ -84,7 +84,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Pagefile
-        uses: al-cheb/configure-pagefile-action@v1.3
+        uses: al-cheb/configure-pagefile-action@v1.4
 
       - name: Setup Pagefile
         run: |
