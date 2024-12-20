@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.okta</groupId>
         <artifactId>okta-parent</artifactId>
-        <version>35</version>
+        <version>31</version>
     </parent>
 
     <groupId>com.okta.cli</groupId>
