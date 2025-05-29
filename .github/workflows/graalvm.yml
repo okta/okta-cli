@@ -24,7 +24,7 @@ on:
   pull_request: # build all PRs
 
 env:
-  graalvm_version: '22.3.0'
+  graalvm_version: '22.3.3'
 
 jobs:
   build:
@@ -38,6 +38,7 @@ jobs:
       BRANCH: ${{ github.head_ref }}
       RUN_IT: true
       OKTA_ITS_TIMEOUT: PT45s
+      USE_NATIVE_IMAGE_JAVA_PLATFORM_MODULE_SYSTEM: false
     steps:
       - uses: actions/checkout@v4
 
@@ -69,6 +70,7 @@ jobs:
       REPO_SLUG: ${{ github.repository }}
       BRANCH: ${{ github.head_ref }}
       RUN_IT: true
+      USE_NATIVE_IMAGE_JAVA_PLATFORM_MODULE_SYSTEM: false
 
     steps:
       - uses: actions/checkout@v4
