@@ -7,7 +7,20 @@ orbs:
 
 jobs:
 
-   reversing-labs:
+  snyk-scan:
+    docker:
+      - image: cimg/openjdk:21.0.2-node
+    steps:
+      - checkout
+      - run: npm install
+      - run: mvn clean install -Pci -Dlicense.skip=true -Dmaven.test.skip.exec=true -DskipITs
+      - general-platform-helpers/step-run-snyk-monitor:
+          scan-all-projects: false
+          skip-unresolved: false
+          run-on-non-main: true
+          additional-arguments: "--maven-aggregate-project"
+
+  reversing-labs:
     docker:
       - image: cimg/openjdk:17.0.7
     steps:
@@ -58,7 +71,12 @@ workflows:
           name: "Scan with Semgrep"
           context:
             - static-analysis
-
+      - snyk-scan:
+          name: execute-snyk
+          requires:
+            - jdk21
+          context:
+            - static-analysis
   "Malware Scanner":
     jobs:
       - reversing-labs:
