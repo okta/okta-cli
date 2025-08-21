@@ -57,14 +57,14 @@ workflows:
   # See OKTA-624620
   semgrep:
     jobs:
-      - general-platform-helpers/job-semgrep-scan:
-          name: "Scan with Semgrep"
-          context:
-            - static-analysis
       - snyk-scan:
           name: execute-snyk
+          context:
+            - static-analysis
+      - general-platform-helpers/job-semgrep-scan:
+          name: "Scan with Semgrep"
           requires:
-            - "Scan with Semgrep" # Corrected dependency
+            - execute-snyk
           context:
             - static-analysis
   "Malware Scanner":
