@@ -26,12 +26,8 @@ jobs:
     steps:
       - checkout
 
-      - run:
-          name: Install Python
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y python3 python3-pip
-            sudo pip install --upgrade pip
+      # This step was removed as Python is pre-installed on the cimg image.
+
       - run:
           name: Download Reverse Labs Scanner
           command: |
@@ -42,7 +38,7 @@ jobs:
       - run:
           name: Install RL Wrapper
           command: |
-            pip install ./rl_wrapper-0.0.2+35ababa-py3-none-any.whl
+            pip3 install ./rl_wrapper-0.0.2+35ababa-py3-none-any.whl
       # Setup the AWS profile
       - aws-cli/setup:
           profile_name: default
@@ -62,7 +58,8 @@ jobs:
               --repository $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME \
               --commit $CIRCLE_SHA1 \
               --build-env "circleci" \
-              --suppress_output   
+              --suppress_output
+
 workflows:
   # See OKTA-624620
   semgrep:
