@@ -25,29 +25,22 @@ jobs:
       - image: cimg/openjdk:17.0.7
     steps:
       - checkout
-
-      # This step was removed as Python is pre-installed on the cimg image.
-
       - run:
           name: Download Reverse Labs Scanner
           command: |
             curl https://dso-resources.oktasecurity.com/scanner \
               -H "x-api-key: $DSO_RLSECURE_TOKEN" \
               --output rl_wrapper-0.0.2+35ababa-py3-none-any.whl
-      # Install the wrapper that was downloaded
       - run:
           name: Install RL Wrapper
           command: |
             pip3 install ./rl_wrapper-0.0.2+35ababa-py3-none-any.whl
-      # Setup the AWS profile
       - aws-cli/setup:
           profile_name: default
           role_arn: $AWS_ARN
           region: us-east-1
-      # Get the credentials and save to env
       - run: >-
           eval "$(aws configure export-credentials --profile default --format env)" 2> /dev/null
-      # Run the wrapper, do not change anything here
       - run:
           name: Run Reversing Labs Wrapper Scanner
           command: |
@@ -71,7 +64,7 @@ workflows:
       - snyk-scan:
           name: execute-snyk
           requires:
-            - jdk21
+            - "Scan with Semgrep" # Corrected dependency
           context:
             - static-analysis
   "Malware Scanner":
