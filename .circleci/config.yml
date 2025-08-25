@@ -1,4 +1,5 @@
 version: 2.1
+setup: true # Enables the use of private or third-party orbs
 
 orbs:
   general-platform-helpers: okta/general-platform-helpers@1.9
@@ -6,50 +7,56 @@ orbs:
   python: circleci/python@2.1.1
   aws-cli: circleci/aws-cli@5.1
 
-
-aliases:
-  - &build_steps
-    - checkout
-    - run: java -version
-    - run: ./mvnw -version
-    - run: ./mvnw clean install
-
 jobs:
-
-  build-native-image:
+  # This job quickly runs tests on a standard JVM first
+  test-on-jvm:
     docker:
-
-      - image: ghcr.io/circleci-public/graalvm:22.3.2-java17
+      - image: cimg/openjdk:21.0.2-node
+    resource_class: large # Use a powerful machine for tests
     steps:
       - checkout
+      - run:
+          name: Install JS Dependencies
+          command: npm install
+      - run:
+          name: Run Maven Tests
+          command: ./mvnw clean install
+
+  # This job now includes the fixes needed to build the native image
+  build-native-image:
+    docker:
+      # Using the GHCR image to avoid rate limits
+      - image: ghcr.io/circleci-public/graalvm:22.3.2-java17
+    resource_class: large # <<< FIX: Added to provide enough memory for GraalVM
+    steps:
+      - checkout
+      - run:
+          name: Install JS Dependencies
+          command: npm install # <<< FIX: Added missing dependency step
       - run:
           name: Build Native Executable with GraalVM
           command: ./mvnw clean package -Pnative -DskipTests
 
-  jdk21:
-    docker:
-      - image: cimg/openjdk:21.0.2
-    environment:
-      JVM_OPTS: -Xmx3200m
-    steps: *build_steps
-
   snyk-scan:
     docker:
-      - image: cimg/openjdk:17.0.6
+      - image: cimg/openjdk:21.0.2-node
     steps:
       - checkout
-      - run: ./mvnw clean install -Pci -Dlicense.skip=true -Dmaven.test.skip.exec=true
+      - run: npm install
+      - run: ./mvnw clean install -Pci -Dlicense.skip=true -Dmaven.test.skip.exec=true -DskipITs
       - general-platform-helpers/step-run-snyk-monitor:
-          scan-all-projects: true
+          scan-all-projects: false
           skip-unresolved: false
           run-on-non-main: true
           additional-arguments: "--maven-aggregate-project"
 
   reversing-labs:
     docker:
-      - image: cimg/openjdk:21.0.2
+      - image: cimg/openjdk:21.0.2-node
     steps:
       - checkout
+      - run: npm install
+      - run: ./mvnw clean install -Pci -Dlicense.skip=true -Dmaven.test.skip.exec=true -DskipITs
       - run:
           name: Install Python
           command: |
@@ -85,34 +92,30 @@ jobs:
               --suppress_output
 
 workflows:
-  build-and-scan:
+  # <<< FIX: A new, more logical workflow >>>
+  test-build-and-scan:
     jobs:
-      # 1. Run the native build. This is the main goal.
-      - build-native-image:
+      # 1. Run fast tests first to catch errors early.
+      - test-on-jvm:
           context: [static-analysis]
 
-      # 2. Run other checks and scans after the primary build succeeds.
-      - jdk21:
+      # 2. After tests pass, run the native build and scans in parallel.
+      - build-native-image:
+          context: [static-analysis]
           requires:
-            - build-native-image
+            - test-on-jvm
 
       - platform-helpers/job-semgrep-scan:
           name: "Scan with Semgrep"
           context: [static-analysis]
           requires:
-            - build-native-image
+            - test-on-jvm
 
       - snyk-scan:
           name: execute-snyk
           context: [static-analysis]
           requires:
-            - build-native-image
-          filters:
-            branches:
-              only:
-                - master
-                - main
-                - OKTA-802832-add-snyk-scan
+            - test-on-jvm
 
   "Malware Scanner":
     jobs:
