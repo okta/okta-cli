@@ -6,7 +6,7 @@ orbs:
   python: circleci/python@2.1.1
   aws-cli: circleci/aws-cli@5.1
 
-# Your alias is a good idea, but the native build needs a separate command
+
 aliases:
   - &build_steps
     - checkout
@@ -15,18 +15,17 @@ aliases:
     - run: ./mvnw clean install
 
 jobs:
-  jobs:
-    build-native-image:
-      docker:
-        # Change this line to pull from GitHub's registry
-        - image: ghcr.io/circleci-public/graalvm:22.3.2-java17
-      steps:
-        - checkout
-        - run:
-            name: Build Native Executable with GraalVM
-            command: ./mvnw clean package -Pnative -DskipTests
 
-  # This job is good for testing against a standard JDK
+  build-native-image:
+    docker:
+
+      - image: ghcr.io/circleci-public/graalvm:22.3.2-java17
+    steps:
+      - checkout
+      - run:
+          name: Build Native Executable with GraalVM
+          command: ./mvnw clean package -Pnative -DskipTests
+
   jdk21:
     docker:
       - image: cimg/openjdk:21.0.2
@@ -83,10 +82,9 @@ jobs:
               --repository $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME \
               --commit $CIRCLE_SHA1 \
               --build-env "circleci" \
-              --suppress_output  
+              --suppress_output
 
 workflows:
-  # <<< FIX: RESTRUCTURED WORKFLOW TO BUILD FIRST >>>
   build-and-scan:
     jobs:
       # 1. Run the native build. This is the main goal.
