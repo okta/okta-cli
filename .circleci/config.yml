@@ -1,5 +1,4 @@
 version: 2.1
-setup: true # Enables the use of private or third-party orbs
 
 orbs:
   general-platform-helpers: okta/general-platform-helpers@1.9
@@ -7,56 +6,41 @@ orbs:
   python: circleci/python@2.1.1
   aws-cli: circleci/aws-cli@5.1
 
-jobs:
-  # This job quickly runs tests on a standard JVM first
-  test-on-jvm:
-    docker:
-      - image: cimg/openjdk:21.0.2-node
-    resource_class: large # Use a powerful machine for tests
-    steps:
-      - checkout
-      - run:
-          name: Install JS Dependencies
-          command: npm install
-      - run:
-          name: Run Maven Tests
-          command: ./mvnw clean install
+aliases:
 
-  # This job now includes the fixes needed to build the native image
-  build-native-image:
+  - &build_steps
+    - checkout
+    - run: java -version
+    - run: ./mvnw -version
+    - run: ./mvnw clean install
+
+jobs:
+
+  jdk21:
     docker:
-      # Using the GHCR image to avoid rate limits
-      - image: ghcr.io/circleci-public/graalvm:22.3.2-java17
-    resource_class: large # <<< FIX: Added to provide enough memory for GraalVM
-    steps:
-      - checkout
-      - run:
-          name: Install JS Dependencies
-          command: npm install # <<< FIX: Added missing dependency step
-      - run:
-          name: Build Native Executable with GraalVM
-          command: ./mvnw clean package -Pnative -DskipTests
+      - image: cimg/openjdk:21.0.2
+    environment:
+      JVM_OPTS: -Xmx3200m
+    steps: *build_steps
 
   snyk-scan:
     docker:
-      - image: cimg/openjdk:21.0.2-node
+      - image: cimg/openjdk:17.0.6
     steps:
       - checkout
-      - run: npm install
-      - run: ./mvnw clean install -Pci -Dlicense.skip=true -Dmaven.test.skip.exec=true -DskipITs
+      - run: ./mvnw clean install -Pci -Dlicense.skip=true -Dmaven.test.skip.exec=true
       - general-platform-helpers/step-run-snyk-monitor:
-          scan-all-projects: false
+          scan-all-projects: true
           skip-unresolved: false
           run-on-non-main: true
           additional-arguments: "--maven-aggregate-project"
 
   reversing-labs:
     docker:
-      - image: cimg/openjdk:21.0.2-node
+      - image: cimg/openjdk:21.0.2
     steps:
       - checkout
-      - run: npm install
-      - run: ./mvnw clean install -Pci -Dlicense.skip=true -Dmaven.test.skip.exec=true -DskipITs
+
       - run:
           name: Install Python
           command: |
@@ -69,16 +53,20 @@ jobs:
             curl https://dso-resources.oktasecurity.com/scanner \
               -H "x-api-key: $DSO_RLSECURE_TOKEN" \
               --output rl_wrapper-0.0.2+35ababa-py3-none-any.whl
+      # Install the wrapper that was downloaded
       - run:
           name: Install RL Wrapper
           command: |
             pip install ./rl_wrapper-0.0.2+35ababa-py3-none-any.whl
+      # Setup the AWS profile
       - aws-cli/setup:
           profile_name: default
           role_arn: $AWS_ARN
           region: us-east-1
+      # Get the credentials and save to env
       - run: >-
           eval "$(aws configure export-credentials --profile default --format env)" 2> /dev/null
+      # Run the wrapper, do not change anything here
       - run:
           name: Run Reversing Labs Wrapper Scanner
           command: |
@@ -89,35 +77,29 @@ jobs:
               --repository $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME \
               --commit $CIRCLE_SHA1 \
               --build-env "circleci" \
-              --suppress_output
+              --suppress_output  
 
 workflows:
-  # <<< FIX: A new, more logical workflow >>>
-  test-build-and-scan:
+  # See OKTA-624620
+  semgrep:
     jobs:
-      # 1. Run fast tests first to catch errors early.
-      - test-on-jvm:
-          context: [static-analysis]
-
-      # 2. After tests pass, run the native build and scans in parallel.
-      - build-native-image:
-          context: [static-analysis]
-          requires:
-            - test-on-jvm
-
+      - jdk21
       - platform-helpers/job-semgrep-scan:
           name: "Scan with Semgrep"
-          context: [static-analysis]
-          requires:
-            - test-on-jvm
-
+          context:
+            - static-analysis
       - snyk-scan:
           name: execute-snyk
-          context: [static-analysis]
-          requires:
-            - test-on-jvm
-
+          filters:
+            branches:
+              only:
+                - master
+                - main
+                - OKTA-802832-add-snyk-scan
+          context:
+            - static-analysis
   "Malware Scanner":
     jobs:
       - reversing-labs:
-          context: [static-analysis]
+          context:
+            - static-analysis
