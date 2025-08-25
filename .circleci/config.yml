@@ -2,39 +2,62 @@ version: 2.1
 
 orbs:
   general-platform-helpers: okta/general-platform-helpers@1.9
+  platform-helpers: okta/platform-helpers@1
   python: circleci/python@2.1.1
   aws-cli: circleci/aws-cli@5.1
 
+# Your alias is a good idea, but the native build needs a separate command
+aliases:
+  - &build_steps
+    - checkout
+    - run: java -version
+    - run: ./mvnw -version
+    - run: ./mvnw clean install
+
 jobs:
-  # ✅ NEW JOB: This job builds the native executable using GraalVM
+  # <<< FIX: ADD THIS JOB FOR NATIVE IMAGE COMPILATION >>>
   build-native-image:
     docker:
-      # Use a specific GraalVM image that includes the native-image tool
+      # Use a GraalVM image, which includes the 'native-image' tool
       - image: cimg/graalvm:22.3.2-java17
     steps:
       - checkout
       - run:
           name: Build Native Executable with GraalVM
-          # The -Pnative flag is a common convention to activate the native-image profile in pom.xml
-          command: mvn clean package -Pnative -DskipTests
+          # Use the -Pnative profile to trigger the native-image-maven-plugin
+          command: ./mvnw clean package -Pnative -DskipTests
+
+  # This job is good for testing against a standard JDK
+  jdk21:
+    docker:
+      - image: cimg/openjdk:21.0.2
+    environment:
+      JVM_OPTS: -Xmx3200m
+    steps: *build_steps
 
   snyk-scan:
     docker:
-      - image: cimg/openjdk:21.0.2-node
+      - image: cimg/openjdk:17.0.6
     steps:
       - checkout
-      - run: mvn clean install -Pci -Dlicense.skip=true -Dmaven.test.skip.exec=true -DskipITs
+      - run: ./mvnw clean install -Pci -Dlicense.skip=true -Dmaven.test.skip.exec=true
       - general-platform-helpers/step-run-snyk-monitor:
-          scan-all-projects: false
+          scan-all-projects: true
           skip-unresolved: false
           run-on-non-main: true
           additional-arguments: "--maven-aggregate-project"
 
   reversing-labs:
     docker:
-      - image: cimg/openjdk:17.0.7
+      - image: cimg/openjdk:21.0.2
     steps:
       - checkout
+      - run:
+          name: Install Python
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y python3 python3-pip
+            sudo pip install --upgrade pip
       - run:
           name: Download Reverse Labs Scanner
           command: |
@@ -44,7 +67,7 @@ jobs:
       - run:
           name: Install RL Wrapper
           command: |
-            pip3 install ./rl_wrapper-0.0.2+35ababa-py3-none-any.whl
+            pip install ./rl_wrapper-0.0.2+35ababa-py3-none-any.whl
       - aws-cli/setup:
           profile_name: default
           role_arn: $AWS_ARN
@@ -61,35 +84,40 @@ jobs:
               --repository $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME \
               --commit $CIRCLE_SHA1 \
               --build-env "circleci" \
-              --suppress_output
+              --suppress_output  
 
 workflows:
-  # This workflow now builds the native image first, then runs scans
+  # <<< FIX: RESTRUCTURED WORKFLOW TO BUILD FIRST >>>
   build-and-scan:
     jobs:
-      # 1. Build the native image first
+      # 1. Run the native build. This is the main goal.
       - build-native-image:
-          context:
-            - static-analysis # Assuming build might need secrets too
+          context: [static-analysis]
 
-      # 2. Run Snyk scan after the build
+      # 2. Run other checks and scans after the primary build succeeds.
+      - jdk21:
+          requires:
+            - build-native-image
+
+      - platform-helpers/job-semgrep-scan:
+          name: "Scan with Semgrep"
+          context: [static-analysis]
+          requires:
+            - build-native-image
+
       - snyk-scan:
           name: execute-snyk
-          context:
-            - static-analysis
+          context: [static-analysis]
           requires:
-            - build-native-image # This job depends on the build succeeding
-
-      # 3. Run Semgrep scan after the build
-      - general-platform-helpers/job-semgrep-scan:
-          name: "Scan with Semgrep"
-          context:
-            - static-analysis
-          requires:
-            - build-native-image # This job also depends on the build succeeding
+            - build-native-image
+          filters:
+            branches:
+              only:
+                - master
+                - main
+                - OKTA-802832-add-snyk-scan
 
   "Malware Scanner":
     jobs:
       - reversing-labs:
-          context:
-            - static-analysis
+          context: [static-analysis]
