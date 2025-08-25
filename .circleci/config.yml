@@ -86,15 +86,12 @@ workflows:
       - jdk17
   semgrep:
     jobs:
-      - jdk17
       - platform-helpers/job-semgrep-scan:
           name: "Scan with Semgrep"
           context:
             - static-analysis
       - snyk-scan:
           name: execute-snyk
-          requires:
-            - jdk17
           filters:
             branches:
               only:
