@@ -12,7 +12,6 @@ jobs:
       - image: cimg/openjdk:21.0.2-node
     steps:
       - checkout
-      - run: npm install
       - run: mvn clean install -Pci -Dlicense.skip=true -Dmaven.test.skip.exec=true -DskipITs
       - general-platform-helpers/step-run-snyk-monitor:
           scan-all-projects: false
