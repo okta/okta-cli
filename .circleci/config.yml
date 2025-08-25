@@ -81,9 +81,6 @@ jobs:
 
 workflows:
   # See OKTA-624620
-  build_and_test:
-    jobs:
-      - jdk17
   semgrep:
     jobs:
       - platform-helpers/job-semgrep-scan:
