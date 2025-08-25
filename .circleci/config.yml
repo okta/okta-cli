@@ -16,11 +16,11 @@ aliases:
 
 jobs:
 
-  jdk17:
+  jdk21:
     docker:
-      - image: cimg/openjdk:17.0.11
+      - image: cimg/openjdk:21.0.2
     environment:
-        JVM_OPTS: -Xmx3200m
+      JVM_OPTS: -Xmx3200m
     steps: *build_steps
 
   snyk-scan:
@@ -83,6 +83,7 @@ workflows:
   # See OKTA-624620
   semgrep:
     jobs:
+      - jdk21
       - platform-helpers/job-semgrep-scan:
           name: "Scan with Semgrep"
           context:
