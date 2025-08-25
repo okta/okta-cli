@@ -6,6 +6,17 @@ orbs:
   aws-cli: circleci/aws-cli@5.1
 
 jobs:
+  # ✅ NEW JOB: This job builds the native executable using GraalVM
+  build-native-image:
+    docker:
+      # Use a specific GraalVM image that includes the native-image tool
+      - image: cimg/graalvm:22.3.2-java17
+    steps:
+      - checkout
+      - run:
+          name: Build Native Executable with GraalVM
+          # The -Pnative flag is a common convention to activate the native-image profile in pom.xml
+          command: mvn clean package -Pnative -DskipTests
 
   snyk-scan:
     docker:
@@ -53,19 +64,30 @@ jobs:
               --suppress_output
 
 workflows:
-  # See OKTA-624620
-  semgrep:
+  # This workflow now builds the native image first, then runs scans
+  build-and-scan:
     jobs:
+      # 1. Build the native image first
+      - build-native-image:
+          context:
+            - static-analysis # Assuming build might need secrets too
+
+      # 2. Run Snyk scan after the build
       - snyk-scan:
           name: execute-snyk
           context:
             - static-analysis
+          requires:
+            - build-native-image # This job depends on the build succeeding
+
+      # 3. Run Semgrep scan after the build
       - general-platform-helpers/job-semgrep-scan:
           name: "Scan with Semgrep"
-          requires:
-            - execute-snyk
           context:
             - static-analysis
+          requires:
+            - build-native-image # This job also depends on the build succeeding
+
   "Malware Scanner":
     jobs:
       - reversing-labs:
