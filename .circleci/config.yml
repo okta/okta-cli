@@ -28,7 +28,6 @@ jobs:
       - image: cimg/openjdk:17.0.6
     steps:
       - checkout
-      - run: ./mvnw clean install -Pci -Dlicense.skip=true -Dmaven.test.skip.exec=true
       - general-platform-helpers/step-run-snyk-monitor:
           scan-all-projects: true
           skip-unresolved: false
