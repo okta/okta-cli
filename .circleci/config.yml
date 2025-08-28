@@ -83,19 +83,12 @@ workflows:
   # See OKTA-624620
   semgrep:
     jobs:
-      - jdk21
       - platform-helpers/job-semgrep-scan:
           name: "Scan with Semgrep"
           context:
             - static-analysis
       - snyk-scan:
           name: execute-snyk
-          filters:
-            branches:
-              only:
-                - master
-                - main
-                - OKTA-802832-add-snyk-scan
           context:
             - static-analysis
   "Malware Scanner":
