@@ -2,14 +2,41 @@ version: 2.1
 
 orbs:
   general-platform-helpers: okta/general-platform-helpers@1.9
+  platform-helpers: okta/platform-helpers@1
   python: circleci/python@2.1.1
   aws-cli: circleci/aws-cli@5.1
 
+aliases:
+
+  - &build_steps
+    - checkout
+    - run: java -version
+    - run: ./mvnw -version
+    - run: ./mvnw clean install
+
 jobs:
 
-   reversing-labs:
+  jdk21:
     docker:
-      - image: cimg/openjdk:17.0.7
+      - image: cimg/openjdk:21.0.2
+    environment:
+      JVM_OPTS: -Xmx3200m
+    steps: *build_steps
+
+  snyk-scan:
+    docker:
+      - image: cimg/openjdk:17.0.6
+    steps:
+      - checkout
+      - general-platform-helpers/step-run-snyk-monitor:
+          scan-all-projects: true
+          skip-unresolved: false
+          run-on-non-main: true
+          additional-arguments: "--maven-aggregate-project"
+
+  reversing-labs:
+    docker:
+      - image: cimg/openjdk:21.0.2
     steps:
       - checkout
 
@@ -49,16 +76,20 @@ jobs:
               --repository $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME \
               --commit $CIRCLE_SHA1 \
               --build-env "circleci" \
-              --suppress_output   
+              --suppress_output  
+
 workflows:
   # See OKTA-624620
   semgrep:
     jobs:
-      - general-platform-helpers/job-semgrep-scan:
+      - platform-helpers/job-semgrep-scan:
           name: "Scan with Semgrep"
           context:
             - static-analysis
-
+      - snyk-scan:
+          name: execute-snyk
+          context:
+            - static-analysis
   "Malware Scanner":
     jobs:
       - reversing-labs:
