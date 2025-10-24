@@ -42,7 +42,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up GraalVM
-        uses: graalvm/setup-graalvm@v1.1.5
+        uses: graalvm/setup-graalvm@v1.4.2
         with:
           version: '${{ env.graalvm_version }}'
           java-version: '17'
@@ -76,7 +76,7 @@ jobs:
       - uses: microsoft/setup-msbuild@v1.3.1
 
       - name: Set up GraalVM
-        uses: graalvm/setup-graalvm@v1.1.5
+        uses: graalvm/setup-graalvm@v1.4.2
         with:
           version: '${{ env.graalvm_version }}'
           java-version: '17'
