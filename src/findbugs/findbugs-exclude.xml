@@ -31,6 +31,12 @@
     </Match>
 
     <Match>
+        <!-- BaseCommand.call() and runCommand() throw generic Exception as per Callable interface contract -->
+        <Class name="com.okta.cli.commands.BaseCommand"/>
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+    </Match>
+
+    <Match>
         <!-- picocli injects this value -->
         <Class name="com.okta.cli.commands.SpringBoot"/>
         <Bug pattern="NP_LOAD_OF_KNOWN_NULL_VALUE"/>
@@ -123,6 +129,17 @@
             <Bug pattern="EI_EXPOSE_REP"/>
             <Bug pattern="EI_EXPOSE_REP2"/>
         </OR>
+    </Match>
+
+    <!-- These methods intentionally throw RuntimeException for configuration/parsing errors -->
+    <Match>
+        <Class name="com.okta.cli.common.config.EnvFilePropertiesSource"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+
+    <Match>
+        <Class name="com.okta.cli.common.service.DefaultInterpolator"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
     </Match>
 
 
