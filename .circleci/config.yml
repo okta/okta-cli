@@ -80,12 +80,14 @@ jobs:
 
 workflows:
   # See OKTA-624620
-  semgrep:
+  "Semgrep":
     jobs:
       - platform-helpers/job-semgrep-scan:
           name: "Scan with Semgrep"
           context:
             - static-analysis
+  "Snyk Scan":
+    jobs:
       - snyk-scan:
           name: execute-snyk
           context:

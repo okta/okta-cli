@@ -24,7 +24,7 @@ on:
   pull_request: # build all PRs
 
 env:
-  graalvm_version: '22.3.0'
+  graalvm_version: '21'
 
 jobs:
   build:
@@ -42,18 +42,17 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up GraalVM
-        uses: graalvm/setup-graalvm@v1.1.5
+        uses: graalvm/setup-graalvm@v1.4.2
         with:
-          version: '${{ env.graalvm_version }}'
-          java-version: '17'
-          components: 'native-image'
+          java-version: '${{ env.graalvm_version }}'
+          distribution: 'graalvm-community'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Test
         run: ./src/ci/gh-build.sh
 
       - name: Archive Binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: okta-cli-${{ matrix.os }}-x86_64
           path: cli/target/okta
@@ -64,7 +63,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2019]
+        os: [windows-latest]
     env:
       REPO_SLUG: ${{ github.repository }}
       BRANCH: ${{ github.head_ref }}
@@ -76,15 +75,18 @@ jobs:
       - uses: microsoft/setup-msbuild@v1.3.1
 
       - name: Set up GraalVM
-        uses: graalvm/setup-graalvm@v1.1.5
+        uses: graalvm/setup-graalvm@v1.4.2
         with:
-          version: '${{ env.graalvm_version }}'
-          java-version: '17'
-          components: 'native-image'
+          java-version: '${{ env.graalvm_version }}'
+          distribution: 'graalvm-community'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Pagefile
-        uses: al-cheb/configure-pagefile-action@v1.4
+        uses: al-cheb/configure-pagefile-action@v1.5
+        with:
+          minimum-size: 16GB
+          maximum-size: 32GB
+          disk-root: "C:"
 
       - name: Setup Pagefile
         run: |
@@ -106,7 +108,8 @@ jobs:
         shell: cmd
 
       - name: Archive Binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: okta-cli-${{ matrix.os }}-x86_64.exe
           path: cli/target/okta.exe
+

@@ -78,7 +78,8 @@
         <dependency>
             <groupId>org.graalvm.nativeimage</groupId>
             <artifactId>svm</artifactId>
-            <version>24.2.0</version>
+            <version>25.0.1</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -257,7 +258,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>3.2.5</version>
+                <version>3.5.7</version>
                 <configuration>
                     <mainClass>com.okta.cli.OktaCli</mainClass>
                 </configuration>
