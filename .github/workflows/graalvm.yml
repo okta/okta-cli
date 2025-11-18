@@ -72,7 +72,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ilammy/msvc-dev-cmd@v1.13.0
-      - uses: microsoft/setup-msbuild@v1.3.1
+      - uses: microsoft/setup-msbuild@v2.0.0
 
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1.4.2
