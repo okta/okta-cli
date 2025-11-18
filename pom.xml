@@ -170,7 +170,7 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>9.1.0</version>
+                    <version>12.1.9</version>
                     <configuration>
                         <cveUrlModified>https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-modified.json.gz</cveUrlModified>
                         <cveUrlBase>https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-%d.json.gz</cveUrlBase>
