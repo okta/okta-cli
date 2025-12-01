@@ -46,25 +46,26 @@ public class Logs extends BaseCommand {
     public int runCommand() throws Exception {
 
         Client client = Clients.builder().build();
-        ConsoleOutput output = getConsoleOutput();
 
-        // At most 1 hour back
-        Instant since = Instant.now().minus(1, ChronoUnit.HOURS);
-        LogEventList logs = client.getLogs(new Date(since.toEpochMilli()), null, null, null, null);
+        try (ConsoleOutput output = getConsoleOutput()) {
+            // At most 1 hour back
+            Instant since = Instant.now().minus(1, ChronoUnit.HOURS);
+            LogEventList logs = client.getLogs(new Date(since.toEpochMilli()), null, null, null, null);
 
-        output.bold("Time                      Severity  Status     Message\n");
-        logs.stream().forEach(log -> writeEvent(output, logsBaseUrl(logs), log));
+            output.bold("Time                      Severity  Status     Message\n");
+            logs.stream().forEach(log -> writeEvent(output, logsBaseUrl(logs), log));
 
-        if (follow) {
-            String pagingUrl = nextUrlPage(null, logs);
+            if (follow) {
+                String pagingUrl = nextUrlPage(null, logs);
 
-            while (true) {
-                sleep(2000);
-                //"published gt \"" + lastEvent + "\""
-                LogEventList moreLogs = client.http().get(pagingUrl, LogEventList.class);
-                moreLogs.stream()
-                        .forEach(log -> writeEvent(output, logsBaseUrl(moreLogs), log));
-                pagingUrl = nextUrlPage(pagingUrl, moreLogs);
+                while (true) {
+                    sleep(2000);
+                    //"published gt \"" + lastEvent + "\""
+                    LogEventList moreLogs = client.http().get(pagingUrl, LogEventList.class);
+                    moreLogs.stream()
+                            .forEach(log -> writeEvent(output, logsBaseUrl(moreLogs), log));
+                    pagingUrl = nextUrlPage(pagingUrl, moreLogs);
+                }
             }
         }
 

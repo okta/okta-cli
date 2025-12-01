@@ -52,7 +52,7 @@ public abstract class OidcProperties {
     }
 
     public static MicronautOidcProperties micronaut() {
-        return OidcProperties.micronaut(OpenIdConnectApplicationType.SERVICE);
+        return micronaut(OpenIdConnectApplicationType.SERVICE);
     }
 
     public static MicronautOidcProperties micronaut(OpenIdConnectApplicationType applicationType) {

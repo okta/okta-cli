@@ -95,7 +95,6 @@ public class AppsCreate extends BaseCommand {
 
     private int createWebApp(String appName, WebAppTemplate webAppTemplate) throws IOException {
 
-        ConsoleOutput out = getConsoleOutput();
         Prompter prompter = getPrompter();
 
         WebAppTemplate appTemplate = prompter.promptIfEmpty(webAppTemplate, "Framework of Application", WebAppTemplate.values(), WebAppTemplate.GENERIC);
@@ -116,14 +115,15 @@ public class AppsCreate extends BaseCommand {
         MutablePropertySource propertySource = appCreationMixin.getPropertySource(appTemplate.getDefaultConfigFileName());
         new DefaultSetupService(oidcProperties).createOidcApplication(propertySource, appName, baseUrl, groupClaimName, groupsToCreate, issuer.getIssuer(), issuer.getId(), true, OpenIdConnectApplicationType.WEB, redirectUris, postLogoutRedirectUris, client);
 
-        out.writeLine("Okta application configuration has been written to: " + propertySource.getName());
+        try (ConsoleOutput out = getConsoleOutput()) {
+            out.writeLine("Okta application configuration has been written to: " + propertySource.getName());
+        }
 
         return 0;
     }
 
     private Integer createNativeApp(String appName) throws IOException {
 
-        ConsoleOutput out = getConsoleOutput();
         String baseUrl = getBaseUrl();
         String reverseDomain = URIs.reverseDomain(baseUrl);
 
@@ -136,19 +136,20 @@ public class AppsCreate extends BaseCommand {
         MutablePropertySource propertySource = new MapPropertySource();
         new DefaultSetupService(OidcProperties.oktaEnv()).createOidcApplication(propertySource, appName, baseUrl, null, Collections.emptySet(), issuer.getIssuer(), issuer.getId(), getEnvironment().isInteractive(), OpenIdConnectApplicationType.NATIVE, redirectUris, postLogoutRedirectUris, client);
 
-        out.writeLine("Okta application configuration: ");
-        propertySource.getProperties().forEach((key, value) -> {
-            out.bold(key);
-            out.write(": ");
-            out.writeLine(value);
-        });
+        try (ConsoleOutput out = getConsoleOutput()) {
+            out.writeLine("Okta application configuration: ");
+            propertySource.getProperties().forEach((key, value) -> {
+                out.bold(key);
+                out.write(": ");
+                out.writeLine(value);
+            });
+        }
 
         return 0;
     }
 
     private Integer createServiceApp(String appName, ServiceAppTemplate appTemplate) throws IOException {
 
-        ConsoleOutput out = getConsoleOutput();
         Prompter prompter = getPrompter();
 
         appTemplate = prompter.promptIfEmpty(appTemplate, "Framework of Application", ServiceAppTemplate.values(), ServiceAppTemplate.GENERIC);
@@ -160,14 +161,14 @@ public class AppsCreate extends BaseCommand {
         MutablePropertySource propertySource = appCreationMixin.getPropertySource(appTemplate.getDefaultConfigFileName());
         new DefaultSetupService(appTemplate.getOidcProperties()).createOidcApplication(propertySource, appName, baseUrl, null, Collections.emptySet(), issuer.getIssuer(), issuer.getId(), getEnvironment().isInteractive(), OpenIdConnectApplicationType.SERVICE, client);
 
-        out.writeLine("Okta application configuration has been written to: " + propertySource.getName());
+        try (ConsoleOutput out = getConsoleOutput()) {
+            out.writeLine("Okta application configuration has been written to: " + propertySource.getName());
+        }
 
         return 0;
     }
 
     private Integer createSpaApp(String appName) throws IOException {
-
-        ConsoleOutput out = getConsoleOutput();
 
         String baseUrl = getBaseUrl();
         List<String> redirectUris = getRedirectUris(Map.of("/callback", "http://localhost:8080/callback"), SpaAppTemplate.GENERIC.getDefaultRedirectUri());
@@ -179,11 +180,13 @@ public class AppsCreate extends BaseCommand {
         MutablePropertySource propertySource = new MapPropertySource();
         new DefaultSetupService(OidcProperties.oktaEnv()).createOidcApplication(propertySource, appName, baseUrl, null, Collections.emptySet(), authorizationServer.getIssuer(), authorizationServer.getId(), getEnvironment().isInteractive(), OpenIdConnectApplicationType.BROWSER, redirectUris, postLogoutRedirectUris, trustedOrigins, client);
 
-        out.writeLine("Okta application configuration: ");
-        out.bold("Issuer:    ");
-        out.writeLine(propertySource.getProperty("okta.oauth2.issuer"));
-        out.bold("Client ID: ");
-        out.writeLine(propertySource.getProperty("okta.oauth2.client-id"));
+        try (ConsoleOutput out = getConsoleOutput()) {
+            out.writeLine("Okta application configuration: ");
+            out.bold("Issuer:    ");
+            out.writeLine(propertySource.getProperty("okta.oauth2.issuer"));
+            out.bold("Client ID: ");
+            out.writeLine(propertySource.getProperty("okta.oauth2.client-id"));
+        }
         return 0;
     }
 

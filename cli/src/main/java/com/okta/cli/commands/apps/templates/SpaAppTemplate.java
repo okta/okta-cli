@@ -15,20 +15,12 @@
  */
 package com.okta.cli.commands.apps.templates;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 public enum SpaAppTemplate {
-    GENERIC("Single Page App", "http://localhost:8080/callback");
+    GENERIC("http://localhost:8080/callback");
 
-    private static final List<String> names = Arrays.stream(values()).map(it -> it.friendlyName).collect(Collectors.toList());
-
-    private final String friendlyName;
     private final String defaultRedirectUri;
 
-    SpaAppTemplate(String friendlyName, String defaultRedirectUri) {
-        this.friendlyName = friendlyName;
+    SpaAppTemplate(String defaultRedirectUri) {
         this.defaultRedirectUri = defaultRedirectUri;
     }
 

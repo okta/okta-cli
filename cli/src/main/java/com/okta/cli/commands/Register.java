@@ -64,11 +64,12 @@ public class Register extends BaseCommand {
     // TODO, these registration bit needs to be refactor out into a service, so that this stanardOptions object does NOT need to be passed around
     public static void requireRegistration(OktaCli.StandardOptions standardOptions) throws Exception {
         if (!new DefaultSdkConfigurationService().isConfigured()) {
-            ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
-            out.writeLine("Registering for a new Okta account, if you would like to use an existing account, use 'okta login' instead.\n");
-            new Register(standardOptions).call();
-            out.writeLine("");
-            standardOptions.getEnvironment().prompter().pause();
+            try (ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput()) {
+                out.writeLine("Registering for a new Okta account, if you would like to use an existing account, use 'okta login' instead.\n");
+                new Register(standardOptions).call();
+                out.writeLine("");
+                standardOptions.getEnvironment().prompter().pause();
+            }
         }
     }
 

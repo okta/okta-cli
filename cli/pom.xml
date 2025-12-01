@@ -164,7 +164,7 @@
                 <version>21.2.0</version>
                 <configuration>
                     <mainClass>com.okta.cli.OktaCli</mainClass>
-                    <skip>true</skip>
+                    <skip>false</skip>
                     <imageName>okta</imageName>
                     <buildArgs>
                         <arg>--no-fallback</arg>
