@@ -30,7 +30,7 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
 
-        <picocli.version>4.7.5</picocli.version>
+        <picocli.version>4.7.7</picocli.version>
     </properties>
 
     <dependencies>
@@ -164,7 +164,7 @@
                 <version>21.2.0</version>
                 <configuration>
                     <mainClass>com.okta.cli.OktaCli</mainClass>
-                    <skip>false</skip>
+                    <skip>true</skip>
                     <imageName>okta</imageName>
                     <buildArgs>
                         <arg>--no-fallback</arg>
@@ -232,7 +232,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.6.1</version>
                 <executions>
                     <execution>
                         <id>attach-artifacts</id>
