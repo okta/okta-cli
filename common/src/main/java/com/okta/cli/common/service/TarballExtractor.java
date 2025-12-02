@@ -43,7 +43,9 @@ public class TarballExtractor implements Extractor {
 
     @Override
     public void extract(String uri, File targetDirectory) throws IOException {
-        try (TarArchiveInputStream zipStream = new TarArchiveInputStream(new GzipCompressorInputStream(get(uri)))) {
+        try (CloseableHttpClient httpClient = HttpClients.createDefault();
+             InputStream httpStream = downloadStream(httpClient, uri);
+             TarArchiveInputStream zipStream = new TarArchiveInputStream(new GzipCompressorInputStream(httpStream))) {
             TarArchiveEntry entry;
 
             Set<String> supportedViews = FileSystems.getDefault().supportedFileAttributeViews();
@@ -79,11 +81,8 @@ public class TarballExtractor implements Extractor {
         }
     }
 
-    private InputStream get(String url) throws IOException {
-
-        CloseableHttpClient httpClient = HttpClients.createDefault();
+    private InputStream downloadStream(CloseableHttpClient httpClient, String url) throws IOException {
         HttpGet httpGet = new HttpGet(url);
-
         HttpResponse response = httpClient.execute(httpGet);
 
         // check for error

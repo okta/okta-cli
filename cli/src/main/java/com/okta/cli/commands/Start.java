@@ -146,17 +146,17 @@ public class Start extends BaseCommand {
         // walk directory structure, ignore .okta
         Files.walkFileTree(projectDirectory.toPath(), new SampleFileVisitor(context));
 
-        ConsoleOutput out = getConsoleOutput();
+        try (ConsoleOutput out = getConsoleOutput()) {
+            // provide instructions to user
+            if (!Strings.isEmpty(config.getDirections())) {
 
-        // provide instructions to user
-        if (!Strings.isEmpty(config.getDirections())) {
-
-            // Tell the user to cd into the new dir if needed
-            if (extractedProject) {
-                out.writeLine("Change the directory:");
-                out.writeLine("    cd " + projectDirectory.getName() + "\n");
+                // Tell the user to cd into the new dir if needed
+                if (extractedProject) {
+                    out.writeLine("Change the directory:");
+                    out.writeLine("    cd " + projectDirectory.getName() + "\n");
+                }
+                out.writeLine(config.getDirections());
             }
-            out.writeLine(config.getDirections());
         }
 
         return 0;

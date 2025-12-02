@@ -44,10 +44,8 @@ public final class URIs {
 
     private static String dnsReverse(String host) {
         String[] parts = host.split("\\.");
-        String reverseDomain = IntStream.rangeClosed(1, parts.length)
+        return IntStream.rangeClosed(1, parts.length)
                 .mapToObj(i -> parts[parts.length - i])
                 .collect(Collectors.joining("."));
-
-        return reverseDomain;
     }
 }

@@ -30,23 +30,23 @@ public class DumpCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
 
-        ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput();
+        try (ConsoleOutput out = standardOptions.getEnvironment().getConsoleOutput()) {
+            out.writeLine("Dumping environment");
+            System.getenv().forEach((key, value) -> {
+                out.write("\t");
+                out.write(key);
+                out.write(" = ");
+                out.writeLine(value);
+            });
 
-        out.writeLine("Dumping environment");
-        System.getenv().forEach((key, value) -> {
-            out.write("\t");
-            out.write(key);
-            out.write(" = ");
-            out.writeLine(value);
-        });
-
-        out.writeLine("System Properties");
-        System.getProperties().forEach((key, value) -> {
-            out.write("\t");
-            out.write(key);
-            out.write(" = ");
-            out.writeLine(value);
-        });
+            out.writeLine("System Properties");
+            System.getProperties().forEach((key, value) -> {
+                out.write("\t");
+                out.write(key);
+                out.write(" = ");
+                out.writeLine(value);
+            });
+        }
 
         return 0;
     }

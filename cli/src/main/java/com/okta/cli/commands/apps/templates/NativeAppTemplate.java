@@ -15,19 +15,7 @@
  */
 package com.okta.cli.commands.apps.templates;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 public enum NativeAppTemplate {
 
-    GENERIC("Native App");
-
-    private static final List<String> names = Arrays.stream(values()).map(it -> it.friendlyName).collect(Collectors.toList());
-
-    private final String friendlyName;
-
-    NativeAppTemplate(String friendlyName) {
-        this.friendlyName = friendlyName;
-    }
+    GENERIC
 }

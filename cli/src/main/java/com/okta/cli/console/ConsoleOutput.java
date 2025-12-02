@@ -91,7 +91,8 @@ public interface ConsoleOutput extends Closeable {
 
         @Override
         public void close() throws IOException {
-            out.close();
+            // Do not close System.out - it's a shared resource
+            flush();
         }
     }
 }

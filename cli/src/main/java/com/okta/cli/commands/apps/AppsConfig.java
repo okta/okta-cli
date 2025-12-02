@@ -27,6 +27,8 @@ import com.okta.sdk.resource.application.Application;
 import com.okta.sdk.resource.application.OpenIdConnectApplication;
 import picocli.CommandLine;
 
+import java.io.IOException;
+
 @CommandLine.Command(name = "config",
         description = "Show an Okta app's configuration")
 public class AppsConfig extends BaseCommand {
@@ -35,11 +37,9 @@ public class AppsConfig extends BaseCommand {
     private String appName;
 
     @Override
-    public int runCommand() {
+    public int runCommand() throws IOException {
         Client client = Clients.builder().build();
         Application app = client.getApplication(appName);
-
-        ConsoleOutput out = getConsoleOutput();
 
         Assert.isInstanceOf(OpenIdConnectApplication.class, app, "Existing application found with name '" +
                 appName +"' but it is NOT an OIDC application. Only OIDC applications work with the Okta CLI.");
@@ -49,12 +49,14 @@ public class AppsConfig extends BaseCommand {
 
         AuthorizationServer authorizationServer = CommonAppsPrompts.getIssuer(client, getPrompter(), null);
 
-        out.writeLine("Name:          " + app.getLabel());
-        out.writeLine("Client Id:     " + clientCreds.getClientId());
-        if (clientCreds.hasClientSecret()) {
-            out.writeLine("Client Secret: " + clientCreds.getClientSecret());
+        try (ConsoleOutput out = getConsoleOutput()) {
+            out.writeLine("Name:          " + app.getLabel());
+            out.writeLine("Client Id:     " + clientCreds.getClientId());
+            if (clientCreds.hasClientSecret()) {
+                out.writeLine("Client Secret: " + clientCreds.getClientSecret());
+            }
+            out.writeLine("Issuer:        " + authorizationServer.getIssuer());
         }
-        out.writeLine("Issuer:        " + authorizationServer.getIssuer());
 
         return 0;
     }

@@ -23,6 +23,7 @@ import com.okta.sdk.resource.ResourceException;
 import com.okta.sdk.resource.application.Application;
 import picocli.CommandLine;
 
+import java.io.IOException;
 import java.util.List;
 
 @CommandLine.Command(name = "delete",
@@ -39,54 +40,55 @@ public class AppsDelete extends BaseCommand {
     public int runCommand() throws Exception {
 
         int exitCode = 0;
-        ConsoleOutput out = getConsoleOutput();
 
         Client client = Clients.builder().build();
 
-        for(String id : appIds) {
-            try {
-                // try to delete each one, ignoring errors, this is similar to how `docker rmi` works
-                if (!deleteApp(client.getApplication(id))) {
+        try (ConsoleOutput out = getConsoleOutput()) {
+            for(String id : appIds) {
+                try {
+                    // try to delete each one, ignoring errors, this is similar to how `docker rmi` works
+                    if (!deleteApp(client.getApplication(id))) {
+                        exitCode = 1;
+                    }
+                } catch (ResourceException e) {
+                    out.writeLine("Failed to delete application: '" + id + "':");
+                    out.writeLine("  " + e.getMessage());
+                    if (getEnvironment().isVerbose()) {
+                        e.printStackTrace();
+                    }
                     exitCode = 1;
                 }
-            } catch (ResourceException e) {
-                out.writeLine("Failed to delete application: '" + id + "':");
-                out.writeLine("  " + e.getMessage());
-                if (getEnvironment().isVerbose()) {
-                    e.printStackTrace();
-                }
-                exitCode = 1;
             }
         }
 
         return exitCode;
     }
 
-    private boolean deleteApp(Application app) {
-        ConsoleOutput out = getConsoleOutput();
-
-        // application already deleted
-        if (Application.StatusEnum.DELETED.equals(app.getStatus())) {
-            out.writeLine("Application '" + app.getId() + "' has already been marked for deletion");
-            return false;
-        }
-
-        // Not interactive or --force
-        if (!force && !getEnvironment().isInteractive()) {
-            out.writeLine("Application '" + app.getId() + "' has not been deactivated, use '--force' to delete it");
-            return false;
-        }
-
-        // prompt if needed
-        if (force || getPrompter()
-                 .promptYesNo("Deactivate and delete application '" + app.getId() + "'?", false)) {
-
-            if (Application.StatusEnum.ACTIVE.equals(app.getStatus())) {
-                app.deactivate();
+    private boolean deleteApp(Application app) throws IOException {
+        try (ConsoleOutput out = getConsoleOutput()) {
+            // application already deleted
+            if (Application.StatusEnum.DELETED.equals(app.getStatus())) {
+                out.writeLine("Application '" + app.getId() + "' has already been marked for deletion");
+                return false;
             }
-            app.delete();
-            out.writeLine("Application '" + app.getId() + "' has been deleted");
-            return true;
+
+            // Not interactive or --force
+            if (!force && !getEnvironment().isInteractive()) {
+                out.writeLine("Application '" + app.getId() + "' has not been deactivated, use '--force' to delete it");
+                return false;
+            }
+
+            // prompt if needed
+            if (force || getPrompter()
+                     .promptYesNo("Deactivate and delete application '" + app.getId() + "'?", false)) {
+
+                if (Application.StatusEnum.ACTIVE.equals(app.getStatus())) {
+                    app.deactivate();
+                }
+                app.delete();
+                out.writeLine("Application '" + app.getId() + "' has been deleted");
+                return true;
+            }
         }
         return false;
     }
