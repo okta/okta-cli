@@ -21,6 +21,7 @@ import com.okta.cli.commands.Logs;
 import com.okta.cli.commands.Register;
 import com.okta.cli.commands.Start;
 import com.okta.cli.commands.apps.Apps;
+import com.okta.cli.commands.profiles.Profiles;
 import com.okta.commons.lang.ApplicationInfo;
 import com.okta.sdk.resource.ResourceException;
 import picocli.AutoComplete;
@@ -43,6 +44,7 @@ import java.util.logging.Logger;
                 Register.class,
                 Login.class,
                 Apps.class,
+                Profiles.class,
                 Start.class,
                 Logs.class,
                 DumpCommand.class,
@@ -164,6 +166,11 @@ public class OktaCli implements Runnable {
                     System.setProperty(key, value);
                 });
             }
+        }
+
+        @Option(names = {"-p", "--profile"}, description = "Use a specific Okta profile. Overrides the active profile from configuration.")
+        public void setProfile(String profile) {
+            environment.setProfile(profile);
         }
 
         public Environment getEnvironment() {
