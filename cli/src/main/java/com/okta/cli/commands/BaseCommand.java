@@ -38,6 +38,9 @@ public abstract class BaseCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
+        // Activate the selected profile before running the command
+        // This sets system properties so the Okta SDK uses the correct credentials
+        getEnvironment().activateProfile();
         return runCommand();
     }
 
